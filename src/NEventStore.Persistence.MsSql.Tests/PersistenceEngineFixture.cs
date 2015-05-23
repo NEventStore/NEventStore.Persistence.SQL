@@ -1,4 +1,6 @@
-﻿namespace NEventStore.Persistence.AcceptanceTests
+﻿using NEventStore.Persistence.Sql.Tests;
+
+namespace NEventStore.Persistence.AcceptanceTests
 {
     using NEventStore.Persistence.Sql;
     using NEventStore.Persistence.Sql.SqlDialects;

@@ -1,4 +1,6 @@
-﻿namespace NEventStore.Persistence.AcceptanceTests
+﻿using NEventStore.Persistence.Sql.Tests;
+
+namespace NEventStore.Persistence.AcceptanceTests
 {
     using System;
     using NEventStore.Persistence.AcceptanceTests.BDD;

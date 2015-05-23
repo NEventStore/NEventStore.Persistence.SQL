@@ -84,6 +84,10 @@
       <Project>{3fe594fe-16ff-4405-97d5-5a58fb12520b}</Project>
       <Name>NEventStore.Persistence.AcceptanceTests</Name>
     </ProjectReference>
+    <ProjectReference Include="..\NEventStore.Persistence.Sql.Tests\NEventStore.Persistence.Sql.Tests.csproj">
+      <Project>{D210B888-D588-4231-9DDB-CB01F57D35C5}</Project>
+      <Name>NEventStore.Persistence.Sql.Tests</Name>
+    </ProjectReference>
     <ProjectReference Include="..\NEventStore.Persistence.Sql\NEventStore.Persistence.Sql.csproj">
       <Project>{F9E7FD69-0818-48CA-9249-5387739E1B6A}</Project>
       <Name>NEventStore.Persistence.Sql</Name>
