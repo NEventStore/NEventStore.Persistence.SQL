@@ -1,22 +1,23 @@
 properties {
-    $base_directory = Resolve-Path .. 
-	$publish_directory = "$base_directory\publish-net45"
-	$build_directory = "$base_directory\build"
-	$src_directory = "$base_directory\src"
-	$output_directory = "$base_directory\output"
-	$packages_directory = "$src_directory\packages"
-	$sln_file = "$src_directory\NEventStore.Persistence.Sql.sln"
-	$target_config = "Release"
-	$framework_version = "v4.5"
-	$version = "0.0.0.0"
+    $base_directory = Resolve-Path ..
+    $publish_directory = "$base_directory\publish-net40"
+    $build_directory = "$base_directory\build"
+    $src_directory = "$base_directory\src"
+    $output_directory = "$base_directory\output"
+    $packages_directory = "$src_directory\packages"
+    $sln_file = "$src_directory\NEventStore.Persistence.Sql.sln"
+    $target_config = "Release"
+    $framework_version = "v4.0"
+    $build_number = 0
+    $assemblyInfoFilePath = "$src_directory\VersionAssemblyInfo.cs"
 
-	$xunit_path = "$base_directory\bin\xunit.runners.1.9.1\tools\xunit.console.clr4.exe"
-	$ilMergeModule.ilMergePath = "$base_directory\bin\ilmerge-bin\ILMerge.exe"
-	$nuget_dir = "$src_directory\.nuget"
+    $xunit_path = "$base_directory\bin\xunit.runners.1.9.1\tools\xunit.console.clr4.exe"
+    $ilMergeModule.ilMergePath = "$base_directory\bin\ilmerge-bin\ILMerge.exe"
+    $nuget_dir = "$src_directory\.nuget"
 
-	if($runPersistenceTests -eq $null) {
-		$runPersistenceTests = $false
-	}
+    if($runPersistenceTests -eq $null) {
+    	$runPersistenceTests = $false
+    }
 }
 
 task default -depends Build
@@ -29,20 +30,11 @@ task Clean {
 }
 
 task UpdateVersion {
-	$vSplit = $version.Split('.')
-	if($vSplit.Length -ne 4)
-	{
-		throw "Version number is invalid. Must be in the form of 0.0.0.0"
-	}
-	$major = $vSplit[0]
-	$minor = $vSplit[1]
-	$assemblyFileVersion = $version
-	$assemblyVersion = "$major.$minor.0.0"
-	$versionAssemblyInfoFile = "$src_directory/VersionAssemblyInfo.cs"
-	"using System.Reflection;" > $versionAssemblyInfoFile
-	"" >> $versionAssemblyInfoFile
-	"[assembly: AssemblyVersion(""$assemblyVersion"")]" >> $versionAssemblyInfoFile
-	"[assembly: AssemblyFileVersion(""$assemblyFileVersion"")]" >> $versionAssemblyInfoFile
+    $version = Get-Version $assemblyInfoFilePath
+    "Version: $version"
+	$oldVersion = New-Object Version $version
+	$newVersion = New-Object Version ($oldVersion.Major, $oldVersion.Minor, $oldVersion.Build, $buildNumber)
+	Update-Version $newVersion $assemblyInfoFilePath
 }
 
 task Compile {
@@ -54,7 +46,7 @@ task Compile {
 task Test -precondition { $runPersistenceTests } {
 	"Persistence Tests"
 	EnsureDirectory $output_directory
-	Invoke-XUnit -Path $src_directory -TestSpec '*Persistence.RavenDB.Tests.dll' `
+	Invoke-XUnit -Path $src_directory -TestSpec '*Persistence.MsSql.Tests.dll','*Persistence.MySql.Tests.dll','*Persistence.Oracle.Tests.dll','*Persistence.PostgreSql.Tests.dll','*Persistence.Sqlite.Tests.dll' `
     -SummaryPath $output_directory\persistence_tests.xml `
     -XUnitPath $xunit_path
 }
@@ -62,11 +54,14 @@ task Test -precondition { $runPersistenceTests } {
 task Package -depends Build {
 	move $output_directory $publish_directory
     mkdir $publish_directory\plugins\persistence\raven | out-null
-    copy "$src_directory\NEventStore.Persistence.RavenDB\bin\$target_config\NEventStore.Persistence.RavenDB.???" "$publish_directory\plugins\persistence\raven"
+    copy "$src_directory\NEventStore.Persistence.Sql\bin\$target_config\NEventStore.Persistence.Sql.???" "$publish_directory\plugins\persistence\sql"
 }
 
 task NuGetPack -depends Package {
-	gci -r -i *.nuspec "$nuget_dir" |% { .$nuget_dir\nuget.exe pack $_ -basepath $base_directory -o $publish_directory -version $version }
+    $versionString = Get-Version $assemblyInfoFilePath
+	$version = New-Object Version $versionString
+	$packageVersion = $version.Major.ToString() + "." + $version.Minor.ToString() + "." + $version.Build.ToString() + "-build" + $build_number.ToString().PadLeft(5,'0')
+	gci -r -i *.nuspec "$nuget_dir" |% { .$nuget_dir\nuget.exe pack $_ -basepath $base_directory -o $publish_directory -version $packageVersion }
 }
 
 function EnsureDirectory {
