@@ -1,4 +1,4 @@
-NEventStore.Persistence.RavenDB
+NEventStore.Persistence.Sql
 ===============================
 
-RavenDB Persistence Engine for NEventStore
+SQL Persistence Engine for NEventStore

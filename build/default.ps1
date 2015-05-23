@@ -5,7 +5,7 @@ properties {
 	$src_directory = "$base_directory\src"
 	$output_directory = "$base_directory\output"
 	$packages_directory = "$src_directory\packages"
-	$sln_file = "$src_directory\NEventStore.Persistence.RavenDB.sln"
+	$sln_file = "$src_directory\NEventStore.Persistence.Sql.sln"
 	$target_config = "Release"
 	$framework_version = "v4.5"
 	$version = "0.0.0.0"
