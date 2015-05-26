@@ -17,7 +17,7 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="publish-net45\plugins\persistence\sql\NEventStore.Persistence.Sql.dll" target="lib\net4"/>
-    <file src="publish-net45\plugins\persistence\sql\NEventStore.Persistence.Sql.pdb" target="lib\net4"/>
+    <file src="publish-net40\plugins\persistence\sql\NEventStore.Persistence.Sql.dll" target="lib\net4"/>
+    <file src="publish-net40\plugins\persistence\sql\NEventStore.Persistence.Sql.pdb" target="lib\net4"/>
   </files>
 </package>

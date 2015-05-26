@@ -8,12 +8,15 @@ properties {
     $sln_file = "$src_directory\NEventStore.Persistence.Sql.sln"
     $target_config = "Release"
     $framework_version = "v4.0"
-    $build_number = 0
     $assemblyInfoFilePath = "$src_directory\VersionAssemblyInfo.cs"
 
     $xunit_path = "$base_directory\bin\xunit.runners.1.9.1\tools\xunit.console.clr4.exe"
     $ilMergeModule.ilMergePath = "$base_directory\bin\ilmerge-bin\ILMerge.exe"
     $nuget_dir = "$src_directory\.nuget"
+
+	if($build_number -eq $null) {
+		$build_number = 0
+	}
 
     if($runPersistenceTests -eq $null) {
     	$runPersistenceTests = $false
@@ -33,7 +36,8 @@ task UpdateVersion {
     $version = Get-Version $assemblyInfoFilePath
     "Version: $version"
 	$oldVersion = New-Object Version $version
-	$newVersion = New-Object Version ($oldVersion.Major, $oldVersion.Minor, $oldVersion.Build, $buildNumber)
+	$newVersion = New-Object Version ($oldVersion.Major, $oldVersion.Minor, $oldVersion.Build, $build_number)
+	"New Version: $newVersion"
 	Update-Version $newVersion $assemblyInfoFilePath
 }
 
@@ -53,14 +57,15 @@ task Test -precondition { $runPersistenceTests } {
 
 task Package -depends Build {
 	move $output_directory $publish_directory
-    mkdir $publish_directory\plugins\persistence\raven | out-null
+    mkdir $publish_directory\plugins\persistence\sql | out-null
     copy "$src_directory\NEventStore.Persistence.Sql\bin\$target_config\NEventStore.Persistence.Sql.???" "$publish_directory\plugins\persistence\sql"
 }
 
 task NuGetPack -depends Package {
     $versionString = Get-Version $assemblyInfoFilePath
 	$version = New-Object Version $versionString
-	$packageVersion = $version.Major.ToString() + "." + $version.Minor.ToString() + "." + $version.Build.ToString() + "-build" + $build_number.ToString().PadLeft(5,'0')
+	$packageVersion = $version.Major.ToString() + "." + $version.Minor.ToString() + "." + $version.Build.ToString() + "." + $build_number.ToString()
+	"Package Version: $packageVersion"
 	gci -r -i *.nuspec "$nuget_dir" |% { .$nuget_dir\nuget.exe pack $_ -basepath $base_directory -o $publish_directory -version $packageVersion }
 }
 
