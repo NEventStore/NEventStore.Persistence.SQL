@@ -1,12 +1,11 @@
-﻿using NEventStore.Persistence.Sql.Tests;
-
-namespace NEventStore.Persistence.AcceptanceTests
+﻿namespace NEventStore.Persistence.AcceptanceTests
 {
-    using NEventStore.Persistence.Sql;
-    using NEventStore.Persistence.Sql.SqlDialects;
-    using NEventStore.Serialization;
+	using NEventStore.Persistence.Sql;
+	using NEventStore.Persistence.Sql.SqlDialects;
+	using NEventStore.Persistence.Sql.Tests;
+	using NEventStore.Serialization;
 
-    public partial class PersistenceEngineFixture
+	public partial class PersistenceEngineFixture
     {
         public PersistenceEngineFixture()
         {

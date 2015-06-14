@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30110.0
+VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{09DEED55-B936-4C29-AC45-6844080C025D}"
 	ProjectSection(SolutionItems) = preProject
@@ -28,6 +28,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NEventStore.Persistence.Sqlite.Tests", "NEventStore.Persistence.Sqlite.Tests\NEventStore.Persistence.Sqlite.Tests.csproj", "{DE2428C7-5F47-4541-9727-B3AACB14DCD6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NEventStore.Persistence.Sql.Tests", "NEventStore.Persistence.Sql.Tests\NEventStore.Persistence.Sql.Tests.csproj", "{D210B888-D588-4231-9DDB-CB01F57D35C5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NEventStore.Persistence.FirebirdSql.Tests", "NEventStore.Persistence.FirebirdSql.Tests\NEventStore.Persistence.FirebirdSql.Tests.csproj", "{0429FD21-A8EF-4C73-967B-579A9C50CE2E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -71,6 +73,10 @@ Global
 		{D210B888-D588-4231-9DDB-CB01F57D35C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D210B888-D588-4231-9DDB-CB01F57D35C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D210B888-D588-4231-9DDB-CB01F57D35C5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0429FD21-A8EF-4C73-967B-579A9C50CE2E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0429FD21-A8EF-4C73-967B-579A9C50CE2E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0429FD21-A8EF-4C73-967B-579A9C50CE2E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0429FD21-A8EF-4C73-967B-579A9C50CE2E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
