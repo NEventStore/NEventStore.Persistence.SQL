@@ -46,6 +46,8 @@
     <Compile Include="ConnectionScope.cs" />
     <Compile Include="DelegateStreamIdHasher.cs" />
     <Compile Include="ExtensionMethods.cs" />
+    <Compile Include="FirebirdPersistenceEngine.cs" />
+    <Compile Include="FirebirdSqlPersistenceFactory.cs" />
     <Compile Include="IConnectionFactory.cs" />
     <Compile Include="IDbStatement.cs" />
     <Compile Include="ISqlDialect.cs" />
@@ -66,6 +68,8 @@
       <DependentUpon>CommonSqlStatements.resx</DependentUpon>
     </Compile>
     <Compile Include="SqlDialects\DelimitedDbStatement.cs" />
+    <Compile Include="SqlDialects\FirebirdSqlDialect.cs" />
+    <Compile Include="SqlDialects\FirebirdSqlStatements.Designer.cs" />
     <Compile Include="SqlDialects\MsSqlDialect.cs" />
     <Compile Include="SqlDialects\MsSqlStatements.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -129,6 +133,7 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>CommonSqlStatements.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <EmbeddedResource Include="SqlDialects\FirebirdSqlStatements.resx" />
     <EmbeddedResource Include="SqlDialects\MsSqlStatements.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>MsSqlStatements.Designer.cs</LastGenOutput>
