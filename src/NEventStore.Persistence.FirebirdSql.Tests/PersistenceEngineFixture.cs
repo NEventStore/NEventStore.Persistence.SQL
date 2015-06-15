@@ -16,24 +16,26 @@
 
 		public PersistenceEngineFixture()
 		{
-			FbConnection.CreateDatabase(ConnectionString, true);
-
 			_createPersistence = pageSize =>
 				new FirebirdSqlPersistenceFactory(
 					new EnviromentConnectionFactory("FirebirdSql", "FirebirdSql"),
-					new BinarySerializer(),
+					new JsonSerializer(),
 					new FirebirdSqlDialect(),
 					pageSize: pageSize).Build();
 		}
 
-		partial void SetEnvironmentVariable()
+		partial void PrepEnvironment()
 		{
-			Environment.SetEnvironmentVariable(EnvVariable, ConnectionString, EnvironmentVariableTarget.User);
+			Environment.SetEnvironmentVariable(EnvVariable, ConnectionString, EnvironmentVariableTarget.Process);
+			FbConnection.CreateDatabase(ConnectionString, true);
+
 		}
 
-		partial void ClearEnvironmentVariable()
+		partial void CleanEnvironment()
 		{
-			Environment.SetEnvironmentVariable(EnvVariable, null, EnvironmentVariableTarget.User);
+			Environment.SetEnvironmentVariable(EnvVariable, null, EnvironmentVariableTarget.Process);
+			FbConnection.ClearAllPools();
+			FbConnection.DropDatabase(ConnectionString);
 		}
 	}
 }
