@@ -34,6 +34,14 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 			get { return FirebirdSqlStatements.GetCommitsFromStartingRevision; }
 		}
 
+		public override string GetCommitsFromBucketAndCheckpoint
+		{
+			get
+			{
+				return FirebirdSqlStatements.GetCommitsFromBucketAndCheckpoint;
+			}
+		}
+
 		public override string GetSnapshot
 		{
 			get { return FirebirdSqlStatements.GetSnapshot; }

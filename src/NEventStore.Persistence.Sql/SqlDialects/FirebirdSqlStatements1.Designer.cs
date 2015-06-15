@@ -76,6 +76,19 @@ namespace NEventStore.Persistence.Sql.SqlDialects {
         
         /// <summary>
         ///   Looks up a localized string similar to SELECT FIRST @Limit SKIP @Skip BucketId, StreamId, StreamIdOriginal, StreamRevision, CommitId, CommitSequence, CommitStamp, CheckpointNumber, Headers, Payload
+        ///  FROM Commits
+        /// WHERE BucketId = @BucketId 
+        ///   AND CheckpointNumber &gt; @CheckpointNumber
+        /// ORDER BY CheckpointNumber;.
+        /// </summary>
+        internal static string GetCommitsFromBucketAndCheckpoint {
+            get {
+                return ResourceManager.GetString("GetCommitsFromBucketAndCheckpoint", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to SELECT FIRST @Limit SKIP @Skip BucketId, StreamId, StreamIdOriginal, StreamRevision, CommitId, CommitSequence, CommitStamp, CheckpointNumber, Headers, Payload
         ///FROM Commits
         ///WHERE  CheckpointNumber &gt; @CheckpointNumber
         ///ORDER BY CheckpointNumber;.
