@@ -48,6 +48,8 @@
     <Compile Include="ExtensionMethods.cs" />
     <Compile Include="FirebirdPersistenceEngine.cs" />
     <Compile Include="FirebirdSqlPersistenceFactory.cs" />
+    <Compile Include="FirebirdSqlPersistenceWireup.cs" />
+    <Compile Include="FirebirdWireupExtension.cs" />
     <Compile Include="IConnectionFactory.cs" />
     <Compile Include="IDbStatement.cs" />
     <Compile Include="ISqlDialect.cs" />
