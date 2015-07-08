@@ -24,18 +24,18 @@
 					pageSize: pageSize).Build();
 		}
 
-		partial void PrepEnvironment()
-		{
-			Environment.SetEnvironmentVariable(EnvVariable, ConnectionString, EnvironmentVariableTarget.Process);
-			FbConnection.CreateDatabase(ConnectionString, true);
+		//partial void PrepEnvironment()
+		//{
+		//	Environment.SetEnvironmentVariable(EnvVariable, ConnectionString, EnvironmentVariableTarget.Process);
+		//	FbConnection.CreateDatabase(ConnectionString, true);
 
-		}
+		//}
 
-		partial void CleanEnvironment()
-		{
-			Environment.SetEnvironmentVariable(EnvVariable, null, EnvironmentVariableTarget.Process);
-			FbConnection.ClearAllPools();
-			FbConnection.DropDatabase(ConnectionString);
-		}
+		//partial void CleanEnvironment()
+		//{
+		//	Environment.SetEnvironmentVariable(EnvVariable, null, EnvironmentVariableTarget.Process);
+		//	FbConnection.ClearAllPools();
+		//	FbConnection.DropDatabase(ConnectionString);
+		//}
 	}
 }
