@@ -68,9 +68,9 @@ namespace NEventStore.Persistence.Sql.SqlDialects {
         ///       [StreamId] [char](40) NOT NULL,
         ///       [StreamIdOriginal] [nvarchar](1000) NOT NULL,
         ///       [StreamRevision] [int] NOT NULL CHECK ([StreamRevision] &gt; 0),
-        ///       [Items] [tinyint] NOT NULL CHECK ([Items] &gt; 0),
+        ///       [Items] [int] NOT NULL CHECK ([Items] &gt; 0),
         ///       [CommitId] [uniqueidentifier] NOT NULL CHECK ([CommitId] != 0x0),
-        ///       [CommitSequence] [int] NOT NULL CHECK ([CommitSequenc [rest of string was truncated]&quot;;.
+        ///       [CommitSequence] [int] NOT NULL CHECK ([CommitSequence] &gt; [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string InitializeStorage {
             get {

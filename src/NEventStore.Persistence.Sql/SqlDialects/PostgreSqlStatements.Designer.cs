@@ -19,7 +19,7 @@ namespace NEventStore.Persistence.Sql.SqlDialects {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class PostgreSqlStatements {
@@ -67,14 +67,14 @@ namespace NEventStore.Persistence.Sql.SqlDialects {
         ///    StreamId char(40) NOT NULL,
         ///    StreamIdOriginal varchar(1000) NOT NULL,
         ///    StreamRevision int NOT NULL CHECK (StreamRevision &gt; 0),
-        ///    Items smallint NOT NULL CHECK (Items &gt; 0),
+        ///    Items int NOT NULL CHECK (Items &gt; 0),
         ///    CommitId uuid NOT NULL,
         ///    CommitSequence int NOT NULL CHECK (CommitSequence &gt; 0),
         ///    CommitStamp timestamp NOT NULL,
         ///    CheckpointNumber BIGSERIAL NOT NULL,
         ///    Headers bytea NULL,
         ///    Payload bytea NOT NULL,
-        ///    CONSTRAINT PK_Commits PRIMARY KEY (C [rest of string was truncated]&quot;;.
+        ///    CONSTRAINT PK_Commits PRIMARY KEY (Checkp [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string InitializeStorage {
             get {
