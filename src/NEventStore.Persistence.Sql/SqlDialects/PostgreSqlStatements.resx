@@ -124,7 +124,7 @@
     StreamId char(40) NOT NULL,
     StreamIdOriginal varchar(1000) NOT NULL,
     StreamRevision int NOT NULL CHECK (StreamRevision &gt; 0),
-    Items smallint NOT NULL CHECK (Items &gt; 0),
+    Items int NOT NULL CHECK (Items &gt; 0),
     CommitId uuid NOT NULL,
     CommitSequence int NOT NULL CHECK (CommitSequence &gt; 0),
     CommitStamp timestamp NOT NULL,
