@@ -1,3 +1,6 @@
+using System.Data;
+using System.Transactions;
+
 namespace NEventStore.Persistence.Sql.SqlDialects
 {
     using System;
@@ -90,6 +93,20 @@ namespace NEventStore.Persistence.Sql.SqlDialects
             var dbException = exception as SqlException;
             return dbException != null &&
                    (dbException.Number == UniqueIndexViolation || dbException.Number == UniqueKeyViolation);
+        }
+
+        public override IDbTransaction OpenTransaction(IDbConnection connection)
+        {
+            if (Transaction.Current == null)
+            {
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = "SET TRANSACTION ISOLATION LEVEL READ COMMITTED";
+                    command.ExecuteNonQuery();
+                }
+            }
+
+            return base.OpenTransaction(connection);
         }
     }
 }
