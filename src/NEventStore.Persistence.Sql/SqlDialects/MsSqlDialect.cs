@@ -1,5 +1,6 @@
 using System.Data;
 using System.Transactions;
+using IsolationLevel = System.Data.IsolationLevel;
 
 namespace NEventStore.Persistence.Sql.SqlDialects
 {
@@ -98,13 +99,7 @@ namespace NEventStore.Persistence.Sql.SqlDialects
         public override IDbTransaction OpenTransaction(IDbConnection connection)
         {
             if (Transaction.Current == null)
-            {
-                using (var command = connection.CreateCommand())
-                {
-                    command.CommandText = "SET TRANSACTION ISOLATION LEVEL READ COMMITTED";
-                    command.ExecuteNonQuery();
-                }
-            }
+                return connection.BeginTransaction(IsolationLevel.ReadCommitted);
 
             return base.OpenTransaction(connection);
         }
