@@ -174,9 +174,6 @@
   <data name="AttemptingToCommit" xml:space="preserve">
     <value>Attempting to commit {0} events on stream '{1}' at sequence {2} in bucket '{3}'.</value>
   </data>
-  <data name="MarkingCommitAsDispatched" xml:space="preserve">
-    <value>Marking commit '{0}' as dispatched.</value>
-  </data>
   <data name="GettingStreamsToSnapshot" xml:space="preserve">
     <value>Getting a list of streams to snapshot.</value>
   </data>
@@ -185,9 +182,6 @@
   </data>
   <data name="AddingSnapshot" xml:space="preserve">
     <value>Adding snapshot to stream '{0}' at position {1}.</value>
-  </data>
-  <data name="GettingUndispatchedCommits" xml:space="preserve">
-    <value>Getting the list of all undispatched commits.</value>
   </data>
   <data name="GettingAllCommitsFrom" xml:space="preserve">
     <value>Getting all commits from '{0}' forward from bucket '{0}'.</value>

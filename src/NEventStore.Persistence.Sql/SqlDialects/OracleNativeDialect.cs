@@ -76,11 +76,6 @@ namespace NEventStore.Persistence.Sql.SqlDialects
             get { return OraclePaging(OracleNativeStatements.GetCommitsFromBucketAndCheckpoint); }
         }
 
-        public override string GetUndispatchedCommits
-        {
-            get { return OraclePaging(base.GetUndispatchedCommits); }
-        }
-
         public override string GetStreamsRequiringSnapshots
         {
             get { return LimitedQuery(OracleNativeStatements.GetStreamsRequiringSnapshots); }
@@ -94,11 +89,6 @@ namespace NEventStore.Persistence.Sql.SqlDialects
         public override string Limit
         {
             get { return MakeOracleParameter(base.Limit); }
-        }
-
-        public override string MarkCommitAsDispatched
-        {
-            get { return OracleNativeStatements.MarkCommitAsDispatched; }
         }
 
         public override string PersistCommit
