@@ -141,7 +141,6 @@ AND NOT EXISTS
   FROM Commits
  WHERE BucketId = @BucketId 
    AND StreamId = @StreamId
-   AND CommitSequence = @CommitSequence
    AND CommitId = @CommitId;</value>
   </data>
   <data name="GetCommitsFromInstant" xml:space="preserve">
@@ -224,7 +223,7 @@ FROM Commits
 WHERE  CheckpointNumber &gt; @CheckpointNumber
 ORDER BY CheckpointNumber
  LIMIT @Limit OFFSET @Skip;</value>
-  </data>  
+  </data>
   <data name="GetCommitsFromBucketAndCheckpoint" xml:space="preserve">
     <value>SELECT BucketId, StreamId, StreamIdOriginal, StreamRevision, CommitId, CommitSequence, CommitStamp, CheckpointNumber, Headers, Payload
   FROM Commits

@@ -110,7 +110,6 @@ namespace NEventStore.Persistence.Sql.SqlDialects {
         ///  FROM Commits
         /// WHERE BucketId = @BucketId 
         ///   AND StreamId = @StreamId
-        ///   AND CommitSequence = @CommitSequence
         ///   AND CommitId = @CommitId;.
         /// </summary>
         internal static string DuplicateCommit {

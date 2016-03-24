@@ -157,7 +157,6 @@ SELECT CAST( COUNT(*) AS NUMBER(8,0) )
 FROM Commits 
 WHERE	(
   BucketId = :BucketId AND StreamId = :StreamId
-  AND CommitSequence = :CommitSequence
   AND CommitId = :CommitId
 )</value>
   </data>
@@ -185,7 +184,7 @@ FROM Commits
 WHERE  CheckpointNumber &gt; :CheckpointNumber
 ORDER BY CheckpointNumber
 WHERE ROWNUM &lt;= :Limit;</value>
-  </data>  
+  </data>
   <data name="GetCommitsFromBucketAndCheckpoint" xml:space="preserve">
     <value>/*GetCommitsFromBucketAndCheckpoint*/
 SELECT BucketId, StreamId, StreamIdOriginal, StreamRevision, CommitId, CommitSequence, CommitStamp, CheckpointNumber, Headers, Payload
