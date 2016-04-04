@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Transactions;
 using FluentAssertions;
 using NEventStore.Diagnostics;
@@ -17,43 +15,9 @@ using IsolationLevel = System.Data.IsolationLevel;
 
 namespace NEventStore.Persistence.AcceptanceTests
 {
-    // This test proves that the bug still exists.
-    public class when_reusing_a_connection_from_the_connection_pool_without_a_transaction_scope_and_not_circumventing_the_bug :
-        IsolationLevelConcern
-    {
-        protected override bool FixIsolationLevelBug
-        {
-            get { return false; }
-        }
-
-        protected override void Because()
-        {
-            using (var conn = ConnectionFactory.Open())
-            {
-                conn.BeginTransaction(IsolationLevel.RepeatableRead);
-            }
-
-            Recorder.IsRecording = true;
-            Persistence.GetFrom();
-            Recorder.IsRecording = false;
-        }
-
-        [Fact]
-        public void should_run_command_in_non_default_isolation_level()
-        {
-            Recorder.StatementsWithIsolationLevels.Select(i => i.IsolationLevel)
-                .ShouldAllBeEquivalentTo(new[] {IsolationLevel.RepeatableRead});
-        }
-    }
-
     public class when_reusing_a_connection_from_the_connection_pool_without_a_transaction_scope :
         IsolationLevelConcern
     {
-        protected override bool FixIsolationLevelBug
-        {
-            get { return true; }
-        }
-
         protected override void Because()
         {
             using (var conn = ConnectionFactory.Open())
@@ -77,18 +41,10 @@ namespace NEventStore.Persistence.AcceptanceTests
     public abstract class IsolationLevelConcern : SpecificationBase, IUseFixture<IsolationLevelPersistenceEngineFixture>
     {
         private IsolationLevelPersistenceEngineFixture _fixture;
-        private IPersistStreams _persistence;
 
         protected IPersistStreams Persistence
         {
-            get
-            {
-                if(_persistence == null)
-                {
-                    
-                }
-                return _fixture.Persistence;
-            }
+            get { return _fixture.Persistence; }
         }
 
         protected IsolationLevelRecorder Recorder
@@ -101,12 +57,10 @@ namespace NEventStore.Persistence.AcceptanceTests
             get { return _fixture.ConnectionFactory; }
         }
 
-        protected abstract bool FixIsolationLevelBug { get; }
-
         public void SetFixture(IsolationLevelPersistenceEngineFixture data)
         {
             _fixture = data;
-            _fixture.Initialize(FixIsolationLevelBug);
+            _fixture.Initialize();
         }
     }
 
@@ -114,27 +68,27 @@ namespace NEventStore.Persistence.AcceptanceTests
     {
         private readonly IsolationLevelRecorder _recorder;
         private readonly IConnectionFactory _connectionFactory;
-        private readonly Func<bool, IPersistStreams> _createPersistence;
+        private readonly Func<IPersistStreams> _createPersistence;
         private IPersistStreams _persistence;
 
         public IsolationLevelPersistenceEngineFixture()
         {
             _recorder = new IsolationLevelRecorder();
             _connectionFactory = new EnviromentConnectionFactory("MsSql", "System.Data.SqlClient");
-            _createPersistence = fixIsolationLevelBug =>
+            _createPersistence = () =>
                 new SqlPersistenceFactory(_connectionFactory,
                     new BinarySerializer(),
-                    new IsolationLevelRecordingSqlDialect(_recorder, fixIsolationLevelBug)).Build();
+                    new IsolationLevelRecordingSqlDialect(_recorder)).Build();
         }
 
-        public void Initialize(bool fixIsolationLevelBug)
+        public void Initialize()
         {
             if (_persistence != null && !_persistence.IsDisposed)
             {
                 _persistence.Drop();
                 _persistence.Dispose();
             }
-            _persistence = new PerformanceCounterPersistenceEngine(_createPersistence(fixIsolationLevelBug), "tests");
+            _persistence = new PerformanceCounterPersistenceEngine(_createPersistence(), "tests");
             _persistence.Initialize();
         }
 
@@ -196,12 +150,10 @@ namespace NEventStore.Persistence.AcceptanceTests
     internal class IsolationLevelRecordingSqlDialect : MsSqlDialect
     {
         private readonly IsolationLevelRecorder _recorder;
-        private readonly bool _fixIsolationLevelBug;
 
-        public IsolationLevelRecordingSqlDialect(IsolationLevelRecorder recorder, bool fixIsolationLevelBug)
+        public IsolationLevelRecordingSqlDialect(IsolationLevelRecorder recorder)
         {
             _recorder = recorder;
-            _fixIsolationLevelBug = fixIsolationLevelBug;
         }
 
         public override IDbStatement BuildStatement(
@@ -210,14 +162,6 @@ namespace NEventStore.Persistence.AcceptanceTests
             IDbTransaction transaction)
         {
             return new TransactionLevelRecordingStatement(base.BuildStatement(scope, connection, transaction), _recorder);
-        }
-
-        public override IDbTransaction OpenTransaction(IDbConnection connection)
-        {
-            if (_fixIsolationLevelBug)
-                return base.OpenTransaction(connection);
-
-            return null;
         }
 
         private class TransactionLevelRecordingStatement : IDbStatement
@@ -255,12 +199,12 @@ SELECT CASE transaction_isolation_level
 END AS TRANSACTION_ISOLATION_LEVEL 
 FROM sys.dm_exec_sessions 
 where session_id = @@SPID",
-                                (int) System.Data.IsolationLevel.Unspecified,
-                                (int) System.Data.IsolationLevel.ReadUncommitted,
-                                (int) System.Data.IsolationLevel.ReadCommitted,
-                                (int) System.Data.IsolationLevel.RepeatableRead,
-                                (int) System.Data.IsolationLevel.Serializable,
-                                (int) System.Data.IsolationLevel.Snapshot));
+                                (int) IsolationLevel.Unspecified,
+                                (int) IsolationLevel.ReadUncommitted,
+                                (int) IsolationLevel.ReadCommitted,
+                                (int) IsolationLevel.RepeatableRead,
+                                (int) IsolationLevel.Serializable,
+                                (int) IsolationLevel.Snapshot));
             }
 
             public void AddParameter(string name, object value, DbType? parameterType = null)
