@@ -21,6 +21,11 @@ namespace NEventStore.Persistence.AcceptanceTests
     public class when_reusing_a_connection_from_the_connection_pool_without_a_transaction_scope_and_not_circumventing_the_bug :
         IsolationLevelConcern
     {
+        protected override bool FixIsolationLevelBug
+        {
+            get { return false; }
+        }
+
         protected override void Because()
         {
             using (var conn = ConnectionFactory.Open())
@@ -44,9 +49,9 @@ namespace NEventStore.Persistence.AcceptanceTests
     public class when_reusing_a_connection_from_the_connection_pool_without_a_transaction_scope :
         IsolationLevelConcern
     {
-        protected override void Context()
+        protected override bool FixIsolationLevelBug
         {
-            FixIsolationLevelBug = true;
+            get { return true; }
         }
 
         protected override void Because()
@@ -65,17 +70,25 @@ namespace NEventStore.Persistence.AcceptanceTests
         public void should_run_command_in_non_default_isolation_level()
         {
             Recorder.StatementsWithIsolationLevels.Select(i => i.IsolationLevel)
-                .ShouldAllBeEquivalentTo(new[] {IsolationLevel.RepeatableRead});
+                .ShouldAllBeEquivalentTo(new[] {IsolationLevel.ReadCommitted});
         }
     }
 
-    public class IsolationLevelConcern : SpecificationBase, IUseFixture<IsolationLevelPersistenceEngineFixture>
+    public abstract class IsolationLevelConcern : SpecificationBase, IUseFixture<IsolationLevelPersistenceEngineFixture>
     {
         private IsolationLevelPersistenceEngineFixture _fixture;
+        private IPersistStreams _persistence;
 
         protected IPersistStreams Persistence
         {
-            get { return _fixture.Persistence; }
+            get
+            {
+                if(_persistence == null)
+                {
+                    
+                }
+                return _fixture.Persistence;
+            }
         }
 
         protected IsolationLevelRecorder Recorder
@@ -88,7 +101,7 @@ namespace NEventStore.Persistence.AcceptanceTests
             get { return _fixture.ConnectionFactory; }
         }
 
-        protected bool FixIsolationLevelBug { get; set; }
+        protected abstract bool FixIsolationLevelBug { get; }
 
         public void SetFixture(IsolationLevelPersistenceEngineFixture data)
         {
