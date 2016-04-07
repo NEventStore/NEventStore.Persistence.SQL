@@ -21,12 +21,13 @@ namespace NEventStore.Persistence.AcceptanceTests
         protected override void Because()
         {
             using (var conn = ConnectionFactory.Open())
+            using (conn.BeginTransaction(IsolationLevel.RepeatableRead))
             {
-                conn.BeginTransaction(IsolationLevel.RepeatableRead);
             }
 
             Recorder.IsRecording = true;
-            Persistence.GetFrom();
+            // Enumerate fully to make sure the underlying DB stuff (command/reader etc.) is disposed
+            var commits = Persistence.GetFrom().ToArray();
             Recorder.IsRecording = false;
         }
 
@@ -61,6 +62,11 @@ namespace NEventStore.Persistence.AcceptanceTests
         {
             _fixture = data;
             _fixture.Initialize();
+        }
+
+        protected override void Cleanup()
+        {
+            _fixture.Dispose();
         }
     }
 
