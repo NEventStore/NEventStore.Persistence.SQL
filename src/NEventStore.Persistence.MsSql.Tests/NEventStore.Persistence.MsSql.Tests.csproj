@@ -68,6 +68,7 @@
     </Compile>
     <Compile Include="PersistenceEngineFixture.cs" />
     <Compile Include="Properties\ProjectAssemblyInfo.cs" />
+    <Compile Include="TransactionIsolationLevelTests.cs" />
     <Compile Include="WireupTests.cs" />
   </ItemGroup>
   <ItemGroup>
