@@ -32,7 +32,7 @@ namespace NEventStore.Persistence.Sql
                 record[CommitIdIndex].ToGuid(),
                 record[CommitSequenceIndex].ToInt(),
                 sqlDialect.ToDateTime(record[CommitStampIndex]),
-                new LongCheckpoint(record[CheckpointIndex].ToLong()).Value,
+                record[CheckpointIndex].ToLong(),
                 headers,
                 events);
         }
