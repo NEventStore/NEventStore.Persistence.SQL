@@ -61,9 +61,9 @@ task Test -precondition { $runPersistenceTests } {
 
 task Package -depends Build {
 	move $output_directory $publish_directory
-    mkdir $publish_directory\plugins\persistence\mongo | out-null
+    mkdir $publish_directory\plugins\persistence\sql | out-null
     copy "$src_directory\NEventStore.Persistence.Sql\bin\$target_config\NEventStore.Persistence.Sql.???" "$publish_directory\plugins\persistence\sql"
-    copy "$src_directory\NEventStore.Persistence.Sql\bin\$target_config\readme.txt" "$publish_directory\plugins\persistence\sqlmongo"
+    #copy "$src_directory\NEventStore.Persistence.Sql\bin\$target_config\readme.txt" "$publish_directory\plugins\persistence\sql"
 }
 
 task Clean {
