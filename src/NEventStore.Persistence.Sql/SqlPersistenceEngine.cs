@@ -3,7 +3,6 @@ namespace NEventStore.Persistence.Sql
     using System;
     using System.Collections.Generic;
     using System.Data;
-    using System.Globalization;
     using System.Linq;
     using System.Threading;
     using System.Transactions;
@@ -477,6 +476,20 @@ namespace NEventStore.Persistence.Sql
 
         protected virtual TransactionScope OpenCommandScope()
         {
+            if (Transaction.Current == null)
+            {
+                return new TransactionScope(_scopeOption, new TransactionOptions
+                {
+                    IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted
+                });
+            }
+            // todo: maybe add a warning for the isolation level
+            /*
+            if (Transaction.Current.IsolationLevel == System.Transactions.IsolationLevel.Serializable)
+            {
+                Logger.Warn("Serializable can be troublesome");
+            }
+            */
             return new TransactionScope(_scopeOption);
         }
 
