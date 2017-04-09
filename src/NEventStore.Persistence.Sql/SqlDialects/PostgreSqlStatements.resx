@@ -128,11 +128,11 @@
     CommitId uuid NOT NULL,
     CommitSequence int NOT NULL CHECK (CommitSequence &gt; 0),
     CommitStamp timestamp NOT NULL,
-    CheckpointNumber SERIAL NOT NULL,
+    CheckpointNumber BIGSERIAL NOT NULL,
     Dispatched boolean NOT NULL DEFAULT false,
     Headers bytea NULL,
     Payload bytea NOT NULL,
-    CONSTRAINT PK_Commits PRIMARY KEY (CheckpointNumber )
+    CONSTRAINT PK_Commits PRIMARY KEY (CheckpointNumber)
 );
 CREATE UNIQUE INDEX IX_Commits_CommitSequence ON Commits (BucketId, StreamId, CommitSequence);
 CREATE UNIQUE INDEX IX_Commits_CommitId ON Commits (BucketId, StreamId, CommitId);
