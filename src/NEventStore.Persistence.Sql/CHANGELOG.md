@@ -1,4 +1,12 @@
-﻿# 6.0.0
+﻿# netstandard
+
+* HttpContext.Current is not available anymore, there are alternatives, but at the moment was removed from the ThreadScope class;
+  it impacts: ConnectionScope, so connections might not be cached correctly in a web application.
+* DbProviderFactories is not available in netstandard, we need to change how the configuration for the several data provider work:
+  - we'll provide new coniguration methods explicitly target towards netstandard 2.0 that will require to provide the instance of the
+    DbProviderFactory rather then the type (this is a quick workaround)
+
+# 6.0.0
 
 ### Breaking Changes
 

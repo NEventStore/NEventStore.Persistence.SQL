@@ -8,8 +8,7 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 
     public class OracleNativeDialect : CommonSqlDialect
     {
-        private const int UniqueKeyViolation = -2146232008;
-        Action<IConnectionFactory, IDbConnection, IDbStatement, byte[]> _addPayloadParamater;
+        private Action<IConnectionFactory, IDbConnection, IDbStatement, byte[]> _addPayloadParamater;
 
         public override string AppendSnapshotToCommit
         {
@@ -160,7 +159,7 @@ namespace NEventStore.Persistence.Sql.SqlDialects
         {
             if (value is Guid)
             {
-                value = ((Guid) value).ToByteArray();
+                value = ((Guid)value).ToByteArray();
             }
 
             return value;
@@ -182,7 +181,7 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 
         public override NextPageDelegate NextPageDelegate
         {
-            get { return (q, r) => { } ; }
+            get { return (q, r) => { }; }
         }
 
         public override void AddPayloadParamater(IConnectionFactory connectionFactory, IDbConnection connection, IDbStatement cmd, byte[] payload)
@@ -202,7 +201,7 @@ namespace NEventStore.Persistence.Sql.SqlDialects
                 }
                 else
                 {
-                    _addPayloadParamater = (connectionFactory2, connection2, cmd2, payload2) 
+                    _addPayloadParamater = (connectionFactory2, connection2, cmd2, payload2)
                         => base.AddPayloadParamater(connectionFactory2, connection2, cmd2, payload2);
                 }
             }
@@ -216,7 +215,7 @@ namespace NEventStore.Persistence.Sql.SqlDialects
             var oracleParamaterType = assembly.GetType(assemblyName + ".Client.OracleParameter", true);
             var oracleParamaterValueProperty = oracleParamaterType.GetProperty("Value");
             var oracleBlobType = assembly.GetType(assemblyName + ".Types.OracleBlob", true);
-            var oracleBlobWriteMethod = oracleBlobType.GetMethod("Write", new []{ typeof(Byte[]), typeof(int), typeof(int)});
+            var oracleBlobWriteMethod = oracleBlobType.GetMethod("Write", new[] { typeof(Byte[]), typeof(int), typeof(int) });
             Type oracleParamapterType = assembly.GetType(assemblyName + ".Client.OracleDbType", true);
             FieldInfo blobField = oracleParamapterType.GetField("Blob");
             var blobDbType = blobField.GetValue(null);
@@ -237,7 +236,7 @@ namespace NEventStore.Persistence.Sql.SqlDialects
             query = RemovePaging(query);
             if (query.EndsWith(";"))
             {
-                query = query.TrimEnd(new[] {';'});
+                query = query.TrimEnd(new[] { ';' });
             }
             string value = OracleNativeStatements.LimitedQueryFormat.FormatWith(query);
             return value;

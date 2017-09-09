@@ -87,8 +87,8 @@ namespace NEventStore.Persistence.Sql.SqlDialects
         public override bool IsDuplicate(Exception exception)
         {
             var dbException = exception as SqlException;
-            return dbException != null &&
-                   (dbException.Number == UniqueIndexViolation || dbException.Number == UniqueKeyViolation);
+            return dbException != null
+                   && (dbException.Number == UniqueIndexViolation || dbException.Number == UniqueKeyViolation);
         }
 
         public override IDbTransaction OpenTransaction(IDbConnection connection)

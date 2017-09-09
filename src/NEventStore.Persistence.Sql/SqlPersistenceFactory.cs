@@ -9,18 +9,7 @@ namespace NEventStore.Persistence.Sql
     public class SqlPersistenceFactory : IPersistenceFactory
     {
         private const int DefaultPageSize = 128;
-        private readonly IConnectionFactory _connectionFactory;
-        private readonly ISqlDialect _dialect;
         private readonly TransactionScopeOption _scopeOption;
-        private readonly ISerialize _serializer;
-        private readonly IStreamIdHasher _streamIdHasher;
-
-        public SqlPersistenceFactory(string connectionName, ISerialize serializer, ISqlDialect dialect = null)
-            : this(serializer, TransactionScopeOption.Suppress, null, DefaultPageSize)
-        {
-            _connectionFactory = new ConfigurationConnectionFactory(connectionName);
-            _dialect = dialect ?? ResolveDialect(new ConfigurationConnectionFactory(connectionName).Settings);
-        }
 
         public SqlPersistenceFactory(
             IConnectionFactory factory,
@@ -31,42 +20,25 @@ namespace NEventStore.Persistence.Sql
             int pageSize = DefaultPageSize)
             : this(serializer, scopeOption, streamIdHasher, pageSize)
         {
-            if (dialect == null)
-            {
-                throw new ArgumentNullException("dialect");
-            }
-
-            _connectionFactory = factory;
-            _dialect = dialect;
+            ConnectionFactory = factory;
+            Dialect = dialect ?? throw new ArgumentNullException(nameof(dialect));
         }
 
         private SqlPersistenceFactory(ISerialize serializer, TransactionScopeOption scopeOption,  IStreamIdHasher streamIdHasher, int pageSize)
         {
-            _serializer = serializer;
+            Serializer = serializer;
             _scopeOption = scopeOption;
-            _streamIdHasher = streamIdHasher ?? new Sha1StreamIdHasher();
+            StreamIdHasher = streamIdHasher ?? new Sha1StreamIdHasher();
             PageSize = pageSize;
         }
 
-        protected virtual IConnectionFactory ConnectionFactory
-        {
-            get { return _connectionFactory; }
-        }
+        protected virtual IConnectionFactory ConnectionFactory { get; }
 
-        protected virtual ISqlDialect Dialect
-        {
-            get { return _dialect; }
-        }
+        protected virtual ISqlDialect Dialect { get; }
 
-        protected virtual ISerialize Serializer
-        {
-            get { return _serializer; }
-        }
+        protected virtual ISerialize Serializer { get; }
 
-        protected virtual IStreamIdHasher StreamIdHasher
-        {
-            get { return _streamIdHasher; }
-        }
+        protected virtual IStreamIdHasher StreamIdHasher { get; }
 
         protected int PageSize { get; set; }
 
