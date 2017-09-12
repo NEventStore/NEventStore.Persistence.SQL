@@ -11,6 +11,15 @@ namespace NEventStore.Persistence.Sql
         private const int DefaultPageSize = 128;
         private readonly TransactionScopeOption _scopeOption;
 
+#if !NETSTANDARD2_0
+        public SqlPersistenceFactory(string connectionName, ISerialize serializer, ISqlDialect dialect = null)
+            : this(serializer, TransactionScopeOption.Suppress, null, DefaultPageSize)
+        {
+            ConnectionFactory = new ConfigurationConnectionFactory(connectionName);
+            Dialect = dialect ?? ResolveDialect(new ConfigurationConnectionFactory(connectionName).Settings);
+        }
+#endif
+
         public SqlPersistenceFactory(
             IConnectionFactory factory,
             ISerialize serializer,
@@ -24,7 +33,7 @@ namespace NEventStore.Persistence.Sql
             Dialect = dialect ?? throw new ArgumentNullException(nameof(dialect));
         }
 
-        private SqlPersistenceFactory(ISerialize serializer, TransactionScopeOption scopeOption,  IStreamIdHasher streamIdHasher, int pageSize)
+        private SqlPersistenceFactory(ISerialize serializer, TransactionScopeOption scopeOption, IStreamIdHasher streamIdHasher, int pageSize)
         {
             Serializer = serializer;
             _scopeOption = scopeOption;
@@ -47,6 +56,7 @@ namespace NEventStore.Persistence.Sql
             return new SqlPersistenceEngine(ConnectionFactory, Dialect, Serializer, _scopeOption, PageSize, StreamIdHasher);
         }
 
+#if !NETSTANDARD2_0
         protected static ISqlDialect ResolveDialect(ConnectionStringSettings settings)
         {
             string providerName = settings.ProviderName.ToUpperInvariant();
@@ -78,5 +88,6 @@ namespace NEventStore.Persistence.Sql
 
             return new MsSqlDialect();
         }
+#endif
     }
 }
