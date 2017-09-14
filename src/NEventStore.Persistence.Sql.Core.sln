@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.12
+VisualStudioVersion = 15.0.26730.15
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NEventStore.Core", "..\dependencies\NEventStore\src\NEventStore\NEventStore.Core.csproj", "{6F7B51D5-C6F0-4D10-BCCD-E813F005BF21}"
 EndProject
@@ -13,6 +13,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NEventStore.Persistence.AcceptanceTests.Core", "..\dependencies\NEventStore\src\NEventStore.Persistence.AcceptanceTests\NEventStore.Persistence.AcceptanceTests.Core.csproj", "{8F9CC671-02C9-4C91-889A-6C3D9FB5905D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NEventStore.Persistence.Sql.Core.Tests", "NEventStore.Persistence.Sql.Tests\NEventStore.Persistence.Sql.Core.Tests.csproj", "{B9066BFB-5EED-4625-B032-0FA675B8908C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NEventStore.Persistence.Sqlite.Core.Tests", "NEventStore.Persistence.Sqlite.Tests\NEventStore.Persistence.Sqlite.Core.Tests.csproj", "{02BC2798-2771-4EF3-BEA1-8FA44C37BAB1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -32,6 +36,14 @@ Global
 		{8F9CC671-02C9-4C91-889A-6C3D9FB5905D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8F9CC671-02C9-4C91-889A-6C3D9FB5905D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8F9CC671-02C9-4C91-889A-6C3D9FB5905D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B9066BFB-5EED-4625-B032-0FA675B8908C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B9066BFB-5EED-4625-B032-0FA675B8908C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B9066BFB-5EED-4625-B032-0FA675B8908C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B9066BFB-5EED-4625-B032-0FA675B8908C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{02BC2798-2771-4EF3-BEA1-8FA44C37BAB1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{02BC2798-2771-4EF3-BEA1-8FA44C37BAB1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{02BC2798-2771-4EF3-BEA1-8FA44C37BAB1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{02BC2798-2771-4EF3-BEA1-8FA44C37BAB1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

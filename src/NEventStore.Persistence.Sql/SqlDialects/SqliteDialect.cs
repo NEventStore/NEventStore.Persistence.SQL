@@ -29,7 +29,8 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 
         public override DateTime ToDateTime(object value)
         {
-            return ((DateTime) value).ToUniversalTime();
+            // return ((DateTime) value).ToUniversalTime();
+            return Convert.ToDateTime(value).ToUniversalTime();
         }
     }
 }
