@@ -18,6 +18,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NEventStore.Persistence.Sql
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NEventStore.Persistence.Sqlite.Core.Tests", "NEventStore.Persistence.Sqlite.Tests\NEventStore.Persistence.Sqlite.Core.Tests.csproj", "{02BC2798-2771-4EF3-BEA1-8FA44C37BAB1}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NEventStore.Persistence.MsSql.Core.Tests", "NEventStore.Persistence.MsSql.Tests\NEventStore.Persistence.MsSql.Core.Tests.csproj", "{37C7C36D-7262-4C49-A1C5-F31ACF8307E3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -44,6 +46,10 @@ Global
 		{02BC2798-2771-4EF3-BEA1-8FA44C37BAB1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{02BC2798-2771-4EF3-BEA1-8FA44C37BAB1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{02BC2798-2771-4EF3-BEA1-8FA44C37BAB1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{37C7C36D-7262-4C49-A1C5-F31ACF8307E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{37C7C36D-7262-4C49-A1C5-F31ACF8307E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{37C7C36D-7262-4C49-A1C5-F31ACF8307E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{37C7C36D-7262-4C49-A1C5-F31ACF8307E3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

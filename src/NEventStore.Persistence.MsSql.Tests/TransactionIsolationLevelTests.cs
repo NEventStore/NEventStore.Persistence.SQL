@@ -4,17 +4,32 @@ using System.Data;
 using System.Linq;
 using System.Transactions;
 using FluentAssertions;
+#if !NETSTANDARD2_0
 using NEventStore.Diagnostics;
+#endif
 using NEventStore.Persistence.AcceptanceTests.BDD;
 using NEventStore.Persistence.Sql;
 using NEventStore.Persistence.Sql.SqlDialects;
 using NEventStore.Persistence.Sql.Tests;
 using NEventStore.Serialization;
-using Xunit;
 using IsolationLevel = System.Data.IsolationLevel;
+#if MSTEST
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
+#endif
+#if NUNIT
+using NUnit.Framework;
+using System.Data.SqlClient;
+#endif
+#if XUNIT
+    using Xunit;
+    using Xunit.Should;
+#endif
 
 namespace NEventStore.Persistence.AcceptanceTests
 {
+#if MSTEST
+    [TestClass]
+#endif
     public class when_reusing_a_connection_from_the_connection_pool_without_a_transaction_scope :
         IsolationLevelConcern
     {
@@ -39,7 +54,7 @@ namespace NEventStore.Persistence.AcceptanceTests
         }
     }
 
-    public abstract class IsolationLevelConcern : SpecificationBase, IUseFixture<IsolationLevelPersistenceEngineFixture>
+    public abstract class IsolationLevelConcern : SpecificationBase, IDisposable
     {
         private IsolationLevelPersistenceEngineFixture _fixture;
 
@@ -58,15 +73,43 @@ namespace NEventStore.Persistence.AcceptanceTests
             get { return _fixture.ConnectionFactory; }
         }
 
-        public void SetFixture(IsolationLevelPersistenceEngineFixture data)
-        {
-            _fixture = data;
-            _fixture.Initialize();
-        }
-
         protected override void Cleanup()
         {
             _fixture.Dispose();
+        }
+
+        public void Dispose()
+        {
+            if (_fixture != null)
+            {
+                _fixture.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// This code was meant to be run right before every test in the fixture to give time
+        /// to do further initialization before the PersistenceEngineFixture was created.
+        /// Unfortunately the 3 frameworks
+        /// have very different ways of doing this: 
+        /// - NUnit: TestFixtureSetUp
+        /// - MSTest: ClassInitialize (not inherited, will be ignored if defined on a base class)
+        /// - xUnit: IUseFixture + SetFixture
+        /// We need a way to also have some configuration before the PersistenceEngineFixture is created.
+        /// 
+        /// We'de decided to use the test constructor to do the job, it's your responsibility to guarantee
+        /// One time initialization (for anything that need it, if you have multiple tests on a fixture)
+        /// depending on the framework you are using.
+        /// 
+        /// We can solve the also adding an optional 'config' delegate to be executed as the first line in this base constructor.
+        /// 
+        /// quick workaround:
+        /// - the 'Reinitialize()' method can be called to rerun the initialization after we changed the configuration
+        /// in the constructor
+        /// </summary>
+        protected IsolationLevelConcern()
+        {
+            _fixture = new IsolationLevelPersistenceEngineFixture();
+            _fixture.Initialize();
         }
     }
 
@@ -80,7 +123,11 @@ namespace NEventStore.Persistence.AcceptanceTests
         public IsolationLevelPersistenceEngineFixture()
         {
             _recorder = new IsolationLevelRecorder();
+#if !NETSTANDARD2_0
             _connectionFactory = new EnviromentConnectionFactory("MsSql", "System.Data.SqlClient");
+#else
+            _connectionFactory = new EnviromentConnectionFactory("MsSql", SqlClientFactory.Instance);
+#endif
             _createPersistence = () =>
                 new SqlPersistenceFactory(_connectionFactory,
                     new BinarySerializer(),
@@ -94,7 +141,11 @@ namespace NEventStore.Persistence.AcceptanceTests
                 _persistence.Drop();
                 _persistence.Dispose();
             }
+#if !NETSTANDARD2_0
             _persistence = new PerformanceCounterPersistenceEngine(_createPersistence(), "tests");
+#else
+            _persistence = _createPersistence();
+#endif
             _persistence.Initialize();
         }
 
