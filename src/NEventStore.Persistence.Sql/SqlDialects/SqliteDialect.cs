@@ -29,8 +29,19 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 
         public override DateTime ToDateTime(object value)
         {
+#if !NETSTANDARD2_0
+            return ((DateTime) value).ToUniversalTime();
+#else
+            // original code
             // return ((DateTime) value).ToUniversalTime();
-            return Convert.ToDateTime(value).ToUniversalTime();
+
+            // not working, 'value' is already an utc value in ISO86001 format
+            // Convert.ToDateTime() will return an unspecified kind
+            // return Convert.ToDateTime(value).ToUniversalTime();
+
+            // CommitStap is always an UTC value
+            return DateTime.SpecifyKind(Convert.ToDateTime(value), DateTimeKind.Utc);
+#endif
         }
     }
 }
