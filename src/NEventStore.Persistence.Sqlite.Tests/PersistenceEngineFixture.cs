@@ -1,6 +1,5 @@
 ﻿namespace NEventStore.Persistence.AcceptanceTests
 {
-    using Microsoft.Data.Sqlite;
     using NEventStore.Persistence.Sql;
     using NEventStore.Persistence.Sql.SqlDialects;
     using NEventStore.Serialization;
@@ -19,7 +18,7 @@
 #else
             _createPersistence = pageSize =>
                 new SqlPersistenceFactory(
-                    new NetStandardConnectionFactory(SqliteFactory.Instance, "Data Source=NEventStore.db;"),
+                    new NetStandardConnectionFactory(Microsoft.Data.Sqlite.SqliteFactory.Instance, "Data Source=NEventStore.db;"),
                     new BinarySerializer(),
                     new SqliteDialect(),
                     pageSize: pageSize).Build();

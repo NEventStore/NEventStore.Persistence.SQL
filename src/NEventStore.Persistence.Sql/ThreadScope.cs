@@ -10,6 +10,10 @@ namespace NEventStore.Persistence.Sql
 
     public class ThreadScope<T> : IDisposable where T : class
     {
+#if !NETSTANDARD2_0
+        private readonly HttpContext _context = HttpContext.Current;
+#endif
+
         private readonly ILog _logger = LogFactory.BuildLogger(typeof(ThreadScope<T>));
         private readonly bool _rootScope;
         private readonly string _threadKey;

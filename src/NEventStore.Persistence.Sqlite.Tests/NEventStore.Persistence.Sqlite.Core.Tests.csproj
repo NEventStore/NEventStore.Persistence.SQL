@@ -1,16 +1,40 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <TargetFrameworks>netcoreapp2.0;net45</TargetFrameworks>
     <IsPackable>false</IsPackable>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <AssemblyName>NEventStore.Persistence.Sqlite.Tests</AssemblyName>
     <RootNamespace>NEventStore.Persistence.Sqlite.Tests</RootNamespace>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DefineConstants>TRACE;DEBUG;NETSTANDARD2_0;NUNIT;NETCOREAPP2_0</DefineConstants>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp2.0'">
+    <DefineConstants Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">TRACE;DEBUG;NUNIT;NETSTANDARD2_0</DefineConstants>
+    <DefineConstants Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">NUNIT;NETSTANDARD2_0</DefineConstants>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net45'">
+    <DefineConstants Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">TRACE;DEBUG;NUNIT</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.0'">
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="2.1.0" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net45'">
+    <PackageReference Include="System.Data.SQLite" Version="1.0.108" />
+    <Reference Include="System.Transactions" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="FluentAssertions" Version="5.4.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.7.2" />
+    <PackageReference Include="NUnit" Version="3.10.1" />
+    <PackageReference Include="NUnit3TestAdapter" Version="3.10.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+      <ProjectReference Include="..\..\dependencies\NEventStore\src\NEventStore.Persistence.AcceptanceTests\NEventStore.Persistence.AcceptanceTests.Core.csproj" />
+      <ProjectReference Include="..\..\dependencies\NEventStore\src\NEventStore\NEventStore.Core.csproj" />
+      <ProjectReference Include="..\NEventStore.Persistence.Sql\NEventStore.Persistence.Sql.Core.csproj" />
+  </ItemGroup>
 
   <ItemGroup>
     <Compile Remove="Properties\Settings.Designer.cs" />
@@ -22,20 +46,6 @@
 
   <ItemGroup>
     <Compile Include="..\..\dependencies\NEventStore\src\NEventStore.Persistence.AcceptanceTests\PersistenceTests.cs" Link="PersistenceTests.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="FluentAssertions" Version="4.19.4" />
-    <PackageReference Include="Microsoft.Data.Sqlite" Version="2.0.0" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0" />
-    <PackageReference Include="NUnit" Version="3.8.1" />
-    <PackageReference Include="NUnit3TestAdapter" Version="3.8.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\dependencies\NEventStore\src\NEventStore.Persistence.AcceptanceTests\NEventStore.Persistence.AcceptanceTests.Core.csproj" />
-    <ProjectReference Include="..\..\dependencies\NEventStore\src\NEventStore\NEventStore.Core.csproj" />
-    <ProjectReference Include="..\NEventStore.Persistence.Sql\NEventStore.Persistence.Sql.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>

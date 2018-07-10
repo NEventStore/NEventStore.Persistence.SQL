@@ -34,7 +34,7 @@ namespace NEventStore.Persistence.AcceptanceTests
 #if !NETSTANDARD2_0
                 .UsingSqlPersistence(new EnviromentConnectionFactory("MsSql", "System.Data.SqlClient"))
 #else
-                .UsingSqlPersistence(new EnviromentConnectionFactory("MsSql", SqlClientFactory.Instance))
+                .UsingSqlPersistence(new EnviromentConnectionFactory("MsSql", System.Data.SqlClient.SqlClientFactory.Instance))
 #endif
                 .WithDialect(new MsSqlDialect())
                 .WithStreamIdHasher(streamId =>

@@ -50,7 +50,7 @@ namespace NEventStore.Persistence.AcceptanceTests
         public void should_run_command_in_non_default_isolation_level()
         {
             Recorder.StatementsWithIsolationLevels.Select(i => i.IsolationLevel)
-                .ShouldAllBeEquivalentTo(new[] {IsolationLevel.ReadCommitted});
+                .Should().BeEquivalentTo(new[] {IsolationLevel.ReadCommitted});
         }
     }
 
@@ -126,7 +126,7 @@ namespace NEventStore.Persistence.AcceptanceTests
 #if !NETSTANDARD2_0
             _connectionFactory = new EnviromentConnectionFactory("MsSql", "System.Data.SqlClient");
 #else
-            _connectionFactory = new EnviromentConnectionFactory("MsSql", SqlClientFactory.Instance);
+            _connectionFactory = new EnviromentConnectionFactory("MsSql", System.Data.SqlClient.SqlClientFactory.Instance);
 #endif
             _createPersistence = () =>
                 new SqlPersistenceFactory(_connectionFactory,
