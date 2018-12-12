@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26730.15
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28407.52
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NEventStore.Core", "..\dependencies\NEventStore\src\NEventStore\NEventStore.Core.csproj", "{6F7B51D5-C6F0-4D10-BCCD-E813F005BF21}"
 EndProject
@@ -21,6 +21,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NEventStore.Persistence.MsSql.Core.Tests", "NEventStore.Persistence.MsSql.Tests\NEventStore.Persistence.MsSql.Core.Tests.csproj", "{37C7C36D-7262-4C49-A1C5-F31ACF8307E3}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".core", ".core", "{7B0D03A4-5CB2-4674-AE01-F33F321B6FA4}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NEventStore.Persistence.MySql.Core.Tests", "NEventStore.Persistence.MySql.Tests\NEventStore.Persistence.MySql.Core.Tests.csproj", "{440599CA-0C6E-4BA5-A518-289396300373}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -52,6 +54,10 @@ Global
 		{37C7C36D-7262-4C49-A1C5-F31ACF8307E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{37C7C36D-7262-4C49-A1C5-F31ACF8307E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{37C7C36D-7262-4C49-A1C5-F31ACF8307E3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{440599CA-0C6E-4BA5-A518-289396300373}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{440599CA-0C6E-4BA5-A518-289396300373}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{440599CA-0C6E-4BA5-A518-289396300373}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{440599CA-0C6E-4BA5-A518-289396300373}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
