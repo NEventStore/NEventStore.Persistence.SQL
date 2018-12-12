@@ -4,8 +4,8 @@
     <TargetFrameworks>netcoreapp2.0;net45</TargetFrameworks>
     <IsPackable>false</IsPackable>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <AssemblyName>NEventStore.Persistence.MySql.Tests</AssemblyName>
-    <RootNamespace>NEventStore.Persistence.MySql.Tests</RootNamespace>
+    <AssemblyName>NEventStore.Persistence.PostgreSql.Tests</AssemblyName>
+    <RootNamespace>NEventStore.Persistence.PostgreSql.Tests</RootNamespace>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp2.0'">
@@ -18,14 +18,13 @@
   </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.0'">
-    <PackageReference Include="MySql.Data" Version="8.0.13" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net45'">
-    <PackageReference Include="MySql.Data" Version="6.6.5" />
     <Reference Include="System.Data" />
     <Reference Include="System.Transactions" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Npgsql" Version="4.0.4" />
     <PackageReference Include="FluentAssertions" Version="5.5.3" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.0" />
     <PackageReference Include="NUnit" Version="3.11.0" />

@@ -24,6 +24,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".core", ".core", "{7B0D03A4
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NEventStore.Persistence.MySql.Core.Tests", "NEventStore.Persistence.MySql.Tests\NEventStore.Persistence.MySql.Core.Tests.csproj", "{440599CA-0C6E-4BA5-A518-289396300373}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NEventStore.Persistence.PostgreSql.Core.Tests", "NEventStore.Persistence.PostgreSql.Tests\NEventStore.Persistence.PostgreSql.Core.Tests.csproj", "{E81E631B-AEF4-432D-8A5B-3F75B856F0CB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -58,6 +60,10 @@ Global
 		{440599CA-0C6E-4BA5-A518-289396300373}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{440599CA-0C6E-4BA5-A518-289396300373}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{440599CA-0C6E-4BA5-A518-289396300373}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E81E631B-AEF4-432D-8A5B-3F75B856F0CB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E81E631B-AEF4-432D-8A5B-3F75B856F0CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E81E631B-AEF4-432D-8A5B-3F75B856F0CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E81E631B-AEF4-432D-8A5B-3F75B856F0CB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
