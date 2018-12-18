@@ -6,15 +6,20 @@ SQL Persistence Engine for NEventStore
 NEventStore.Persistence.Sql currently supports:
 
 - dotnet framework 4.5
-- dotnet standard 2.0, dotnet core 2.0 (MsSql and SqlLite)
+- dotnet standard 2.0, dotnet core 2.0
+- MsSql
+- SqlLite
+- MySql
+- PostgreSQL
+- Oracle (not tested)
 
 Build Status
 ===
 
 Branches:
 
-- feature/dotnetcore [![Build status](https://ci.appveyor.com/api/projects/status/5difan7hap8vwhwe/branch/master?svg=true)](https://ci.appveyor.com/project/AGiorgetti/neventstore-persistence-sql/branch/master)
-- feature/dotnetcore [![Build status](https://ci.appveyor.com/api/projects/status/5difan7hap8vwhwe/branch/develop?svg=true)](https://ci.appveyor.com/project/AGiorgetti/neventstore-persistence-sql/branch/develop)
+- master [![Build status](https://ci.appveyor.com/api/projects/status/5difan7hap8vwhwe/branch/master?svg=true)](https://ci.appveyor.com/project/AGiorgetti/neventstore-persistence-sql/branch/master)
+- develop [![Build status](https://ci.appveyor.com/api/projects/status/5difan7hap8vwhwe/branch/develop?svg=true)](https://ci.appveyor.com/project/AGiorgetti/neventstore-persistence-sql/branch/develop)
 
 ## How to Build (locally)
 
