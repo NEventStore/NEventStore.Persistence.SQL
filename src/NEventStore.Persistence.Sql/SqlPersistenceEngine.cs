@@ -3,7 +3,6 @@ namespace NEventStore.Persistence.Sql
     using System;
     using System.Collections.Generic;
     using System.Data;
-    using System.Globalization;
     using System.Linq;
     using System.Threading;
     using System.Transactions;
@@ -170,28 +169,6 @@ namespace NEventStore.Persistence.Sql
                 throw new ConcurrencyException(e.Message, e);
             }
             return commit;
-        }
-
-        public virtual IEnumerable<ICommit> GetUndispatchedCommits()
-        {
-            Logger.Debug(Messages.GettingUndispatchedCommits);
-            return
-                ExecuteQuery(query => query.ExecutePagedQuery(_dialect.GetUndispatchedCommits, (q, r) => { }))
-                    .Select(x => x.GetCommit(_serializer, _dialect))
-                    .ToArray(); // avoid paging
-        }
-
-        public virtual void MarkCommitAsDispatched(ICommit commit)
-        {
-            Logger.Debug(Messages.MarkingCommitAsDispatched, commit.CommitId);
-            string streamId = _streamIdHasher.GetHash(commit.StreamId);
-            ExecuteCommand(cmd =>
-                {
-                    cmd.AddParameter(_dialect.BucketId, commit.BucketId, DbType.AnsiString);
-                    cmd.AddParameter(_dialect.StreamId, streamId, DbType.AnsiString);
-                    cmd.AddParameter(_dialect.CommitSequence, commit.CommitSequence);
-                    return cmd.ExecuteWithoutExceptions(_dialect.MarkCommitAsDispatched);
-                });
         }
 
         public virtual IEnumerable<IStreamHead> GetStreamsToSnapshot(string bucketId, int maxThreshold)
@@ -477,6 +454,20 @@ namespace NEventStore.Persistence.Sql
 
         protected virtual TransactionScope OpenCommandScope()
         {
+            if (Transaction.Current == null)
+            {
+                return new TransactionScope(_scopeOption, new TransactionOptions
+                {
+                    IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted
+                });
+            }
+            // todo: maybe add a warning for the isolation level
+            /*
+            if (Transaction.Current.IsolationLevel == System.Transactions.IsolationLevel.Serializable)
+            {
+                Logger.Warn("Serializable can be troublesome");
+            }
+            */
             return new TransactionScope(_scopeOption);
         }
 
