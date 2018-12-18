@@ -3,7 +3,6 @@ namespace NEventStore.Persistence.Sql
     using System;
     using System.Collections.Generic;
     using System.Data;
-    using System.Globalization;
     using System.Linq;
     using System.Threading;
     using System.Transactions;
@@ -127,15 +126,6 @@ namespace NEventStore.Persistence.Sql
                 });
         }
 
-        public ICheckpoint GetCheckpoint(string checkpointToken)
-        {
-            if (string.IsNullOrWhiteSpace(checkpointToken))
-            {
-                return new LongCheckpoint(-1);
-            }
-            return LongCheckpoint.Parse(checkpointToken);
-        }
-
         public virtual IEnumerable<ICommit> GetFromTo(string bucketId, DateTime start, DateTime end)
         {
             start = start.AddTicks(-(start.Ticks % TimeSpan.TicksPerSecond)); // Rounds down to the nearest second.
@@ -179,28 +169,6 @@ namespace NEventStore.Persistence.Sql
                 throw new ConcurrencyException(e.Message, e);
             }
             return commit;
-        }
-
-        public virtual IEnumerable<ICommit> GetUndispatchedCommits()
-        {
-            Logger.Debug(Messages.GettingUndispatchedCommits);
-            return
-                ExecuteQuery(query => query.ExecutePagedQuery(_dialect.GetUndispatchedCommits, (q, r) => { }))
-                    .Select(x => x.GetCommit(_serializer, _dialect))
-                    .ToArray(); // avoid paging
-        }
-
-        public virtual void MarkCommitAsDispatched(ICommit commit)
-        {
-            Logger.Debug(Messages.MarkingCommitAsDispatched, commit.CommitId);
-            string streamId = _streamIdHasher.GetHash(commit.StreamId);
-            ExecuteCommand(cmd =>
-                {
-                    cmd.AddParameter(_dialect.BucketId, commit.BucketId, DbType.AnsiString);
-                    cmd.AddParameter(_dialect.StreamId, streamId, DbType.AnsiString);
-                    cmd.AddParameter(_dialect.CommitSequence, commit.CommitSequence);
-                    return cmd.ExecuteWithoutExceptions(_dialect.MarkCommitAsDispatched);
-                });
         }
 
         public virtual IEnumerable<IStreamHead> GetStreamsToSnapshot(string bucketId, int maxThreshold)
@@ -280,28 +248,26 @@ namespace NEventStore.Persistence.Sql
                 });
         }
 
-        public IEnumerable<ICommit> GetFrom(string bucketId, string checkpointToken)
+        public IEnumerable<ICommit> GetFrom(string bucketId, Int64 checkpointToken)
         {
-            LongCheckpoint checkpoint = LongCheckpoint.Parse(checkpointToken);
             Logger.Debug(Messages.GettingAllCommitsFromBucketAndCheckpoint, bucketId, checkpointToken);
             return ExecuteQuery(query =>
             {
                 string statement = _dialect.GetCommitsFromBucketAndCheckpoint;
                 query.AddParameter(_dialect.BucketId, bucketId, DbType.AnsiString);
-                query.AddParameter(_dialect.CheckpointNumber, checkpoint.LongValue);
+                query.AddParameter(_dialect.CheckpointNumber, checkpointToken);
                 return query.ExecutePagedQuery(statement, (q, r) => { })
                     .Select(x => x.GetCommit(_serializer, _dialect));
             });
         }
 
-        public IEnumerable<ICommit> GetFrom(string checkpointToken)
+        public IEnumerable<ICommit> GetFrom(Int64 checkpointToken)
         {
-            LongCheckpoint checkpoint = LongCheckpoint.Parse(checkpointToken);
             Logger.Debug(Messages.GettingAllCommitsFromCheckpoint, checkpointToken);
             return ExecuteQuery(query =>
             {
                 string statement = _dialect.GetCommitsFromCheckpoint;
-                query.AddParameter(_dialect.CheckpointNumber, checkpoint.LongValue);
+                query.AddParameter(_dialect.CheckpointNumber, checkpointToken);
                 return query.ExecutePagedQuery(statement, (q, r) => { })
                     .Select(x => x.GetCommit(_serializer, _dialect));
             });
@@ -351,7 +317,7 @@ namespace NEventStore.Persistence.Sql
                     attempt.CommitId,
                     attempt.CommitSequence,
                     attempt.CommitStamp,
-                    checkpointNumber.ToString(CultureInfo.InvariantCulture),
+                    checkpointNumber,
                     attempt.Headers,
                     attempt.Events);
             });
@@ -488,6 +454,20 @@ namespace NEventStore.Persistence.Sql
 
         protected virtual TransactionScope OpenCommandScope()
         {
+            if (Transaction.Current == null)
+            {
+                return new TransactionScope(_scopeOption, new TransactionOptions
+                {
+                    IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted
+                });
+            }
+            // todo: maybe add a warning for the isolation level
+            /*
+            if (Transaction.Current.IsolationLevel == System.Transactions.IsolationLevel.Serializable)
+            {
+                Logger.Warn("Serializable can be troublesome");
+            }
+            */
             return new TransactionScope(_scopeOption);
         }
 

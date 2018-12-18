@@ -32,7 +32,7 @@ namespace NEventStore.Persistence.Sql
                 record[CommitIdIndex].ToGuid(),
                 record[CommitSequenceIndex].ToInt(),
                 sqlDialect.ToDateTime(record[CommitStampIndex]),
-                new LongCheckpoint(record[CheckpointIndex].ToLong()).Value,
+                record[CheckpointIndex].ToLong(),
                 headers,
                 events);
         }
@@ -47,9 +47,9 @@ namespace NEventStore.Persistence.Sql
             return record[CommitSequenceIndex].ToInt();
         }
 
-        public static int CheckpointNumber(this IDataRecord record)
+        public static long CheckpointNumber(this IDataRecord record)
         {
-            return record[CheckpointIndex].ToInt();
+            return record[CheckpointIndex].ToLong();
         }
 
         public static T Deserialize<T>(this ISerialize serializer, IDataRecord record, int index)

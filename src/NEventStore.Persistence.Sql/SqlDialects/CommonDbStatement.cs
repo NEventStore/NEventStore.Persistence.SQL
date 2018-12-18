@@ -10,7 +10,7 @@ namespace NEventStore.Persistence.Sql.SqlDialects
     public class CommonDbStatement : IDbStatement
     {
         private const int InfinitePageSize = 0;
-        private static readonly ILog Logger = LogFactory.BuildLogger(typeof (CommonDbStatement));
+        private static readonly ILog Logger = LogFactory.BuildLogger(typeof(CommonDbStatement));
         private readonly IDbConnection _connection;
         private readonly ISqlDialect _dialect;
         private readonly TransactionScope _scope;
@@ -114,7 +114,7 @@ namespace NEventStore.Persistence.Sql.SqlDialects
             if (pageSize > 0)
             {
                 Logger.Verbose(Messages.MaxPageSize, pageSize);
-                Parameters.Add(_dialect.Limit, Tuple.Create((object) pageSize, (DbType?) null));
+                Parameters.Add(_dialect.Limit, Tuple.Create((object)pageSize, (DbType?)null));
             }
 
             return ExecuteQuery(queryText, nextpage, pageSize);
@@ -142,7 +142,7 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 
         protected virtual IEnumerable<IDataRecord> ExecuteQuery(string queryText, NextPageDelegate nextpage, int pageSize)
         {
-            Parameters.Add(_dialect.Skip, Tuple.Create((object) 0, (DbType?) null));
+            Parameters.Add(_dialect.Skip, Tuple.Create((object)0, (DbType?)null));
             IDbCommand command = BuildCommand(queryText);
 
             try
@@ -161,10 +161,9 @@ namespace NEventStore.Persistence.Sql.SqlDialects
             Logger.Verbose(Messages.CreatingCommand);
             IDbCommand command = _connection.CreateCommand();
 
-            int timeout = 0;
-            if( int.TryParse( System.Configuration.ConfigurationManager.AppSettings["NEventStore.SqlCommand.Timeout"], out timeout ) ) 
+            if (Settings.CommandTimeout > 0)
             {
-              command.CommandTimeout = timeout;
+                command.CommandTimeout = Settings.CommandTimeout;
             }
 
             command.Transaction = _transaction;

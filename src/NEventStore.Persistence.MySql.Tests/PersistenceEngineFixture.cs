@@ -2,6 +2,7 @@
 
 namespace NEventStore.Persistence.AcceptanceTests
 {
+    using global::MySql.Data.MySqlClient;
     using NEventStore.Persistence.Sql;
     using NEventStore.Persistence.Sql.SqlDialects;
     using NEventStore.Serialization;
@@ -10,6 +11,7 @@ namespace NEventStore.Persistence.AcceptanceTests
     {
         public PersistenceEngineFixture()
         {
+#if !NETSTANDARD2_0
             _createPersistence = pageSize =>
                     new SqlPersistenceFactory(
                         new EnviromentConnectionFactory("MySql", "MySql.Data.MySqlClient"),
@@ -17,7 +19,17 @@ namespace NEventStore.Persistence.AcceptanceTests
                         new MySqlDialect(),
                         pageSize: pageSize).Build();
 
-            Wireup.Init().UsingSqlPersistence("test");
+            // Wireup.Init().UsingSqlPersistence("test");
+#else
+            _createPersistence = pageSize =>
+                new SqlPersistenceFactory(
+                    new EnviromentConnectionFactory("MySql", MySqlClientFactory.Instance),
+                    new BinarySerializer(),
+                    new MySqlDialect(),
+                    pageSize: pageSize).Build();
+
+            // Wireup.Init().UsingSqlPersistence("test");
+#endif
         }
     }
 }

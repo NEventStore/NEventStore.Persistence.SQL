@@ -10,12 +10,21 @@ namespace NEventStore.Persistence.AcceptanceTests
     {
         public PersistenceEngineFixture()
         {
+#if !NETSTANDARD2_0
             _createPersistence = pageSize =>
                 new SqlPersistenceFactory(
                     new EnviromentConnectionFactory("PostgreSql", "Npgsql"),
                     new BinarySerializer(),
                     new PostgreSqlDialect(),
                     pageSize: pageSize).Build();
+#else
+            _createPersistence = pageSize =>
+                new SqlPersistenceFactory(
+                    new EnviromentConnectionFactory("PostgreSql", Npgsql.NpgsqlFactory.Instance),
+                    new BinarySerializer(),
+                    new PostgreSqlDialect(),
+                    pageSize: pageSize).Build();
+#endif
         }
     }
 }

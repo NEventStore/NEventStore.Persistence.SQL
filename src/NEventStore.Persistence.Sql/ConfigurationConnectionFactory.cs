@@ -1,3 +1,5 @@
+// netstandard does not have support for DbFactoryProviders, we need a totally different way to initialize the driver
+#if !NETSTANDARD2_0
 namespace NEventStore.Persistence.Sql
 {
     using System;
@@ -141,3 +143,4 @@ namespace NEventStore.Persistence.Sql
         }
     }
 }
+#endif
