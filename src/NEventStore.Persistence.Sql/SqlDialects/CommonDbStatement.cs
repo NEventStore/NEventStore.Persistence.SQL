@@ -47,7 +47,7 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 
         public virtual void AddParameter(string name, object value, DbType? parameterType = null)
         {
-            Logger.Debug(Messages.AddingParameter, name);
+            if (Logger.IsDebugEnabled) Logger.Debug(Messages.AddingParameter, name);
             Parameters[name] = Tuple.Create(_dialect.CoalesceParameterValue(value), parameterType);
         }
 
@@ -59,7 +59,7 @@ namespace NEventStore.Persistence.Sql.SqlDialects
             }
             catch (Exception)
             {
-                Logger.Debug(Messages.ExceptionSuppressed);
+                if (Logger.IsDebugEnabled) Logger.Debug(Messages.ExceptionSuppressed);
                 return 0;
             }
         }
@@ -113,7 +113,7 @@ namespace NEventStore.Persistence.Sql.SqlDialects
             int pageSize = _dialect.CanPage ? PageSize : InfinitePageSize;
             if (pageSize > 0)
             {
-                Logger.Verbose(Messages.MaxPageSize, pageSize);
+                if (Logger.IsVerboseEnabled) Logger.Verbose(Messages.MaxPageSize, pageSize);
                 Parameters.Add(_dialect.Limit, Tuple.Create((object)pageSize, (DbType?)null));
             }
 
@@ -122,7 +122,7 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 
         protected virtual void Dispose(bool disposing)
         {
-            Logger.Verbose(Messages.DisposingStatement);
+            if (Logger.IsVerboseEnabled) Logger.Verbose(Messages.DisposingStatement);
 
             if (_transaction != null)
             {
@@ -158,7 +158,7 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 
         protected virtual IDbCommand BuildCommand(string statement)
         {
-            Logger.Verbose(Messages.CreatingCommand);
+            if (Logger.IsVerboseEnabled) Logger.Verbose(Messages.CreatingCommand);
             IDbCommand command = _connection.CreateCommand();
 
             if (Settings.CommandTimeout > 0)
@@ -169,8 +169,8 @@ namespace NEventStore.Persistence.Sql.SqlDialects
             command.Transaction = _transaction;
             command.CommandText = statement;
 
-            Logger.Verbose(Messages.ClientControlledTransaction, _transaction != null);
-            Logger.Verbose(Messages.CommandTextToExecute, statement);
+            if (Logger.IsVerboseEnabled) Logger.Verbose(Messages.ClientControlledTransaction, _transaction != null);
+            if (Logger.IsVerboseEnabled) Logger.Verbose(Messages.CommandTextToExecute, statement);
 
             BuildParameters(command);
 
@@ -191,7 +191,7 @@ namespace NEventStore.Persistence.Sql.SqlDialects
             parameter.ParameterName = name;
             SetParameterValue(parameter, value, dbType);
 
-            Logger.Verbose(Messages.BindingParameter, name, parameter.Value);
+            if (Logger.IsVerboseEnabled) Logger.Verbose(Messages.BindingParameter, name, parameter.Value);
             command.Parameters.Add(parameter);
         }
 
