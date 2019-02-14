@@ -39,7 +39,7 @@ namespace NEventStore.Persistence.Sql
 
         public static IDbCommand SetParameter(this IDbCommand command, string name, object value, DbType? parameterType = null)
         {
-            Logger.Verbose("Rebinding parameter '{0}' with value: {1}", name, value);
+            if (Logger.IsVerboseEnabled) Logger.Verbose("Rebinding parameter '{0}' with value: {1}", name, value);
             var parameter = (IDataParameter) command.Parameters[name];
             parameter.Value = value;
             if (parameterType.HasValue)

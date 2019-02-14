@@ -28,7 +28,7 @@ namespace NEventStore.Persistence.Sql
         public ConfigurationConnectionFactory(string connectionName)
         {
             _connectionName = connectionName ?? DefaultConnectionName;
-            Logger.Debug(Messages.ConfiguringConnections, _connectionName);
+            if (Logger.IsDebugEnabled) Logger.Debug(Messages.ConfiguringConnections, _connectionName);
         }
 
         public ConfigurationConnectionFactory(string connectionName, string providerName, string connectionString)
@@ -44,7 +44,7 @@ namespace NEventStore.Persistence.Sql
 
         public virtual IDbConnection Open()
         {
-            Logger.Verbose(Messages.OpeningMasterConnection, _connectionName);
+            if (Logger.IsVerboseEnabled) Logger.Verbose(Messages.OpeningMasterConnection, _connectionName);
             return Open(_connectionName);
         }
 
@@ -74,12 +74,12 @@ namespace NEventStore.Persistence.Sql
 
             try
             {
-                Logger.Verbose(Messages.OpeningConnection, setting.Name);
+                if (Logger.IsVerboseEnabled) Logger.Verbose(Messages.OpeningConnection, setting.Name);
                 connection.Open();
             }
             catch (Exception e)
             {
-                Logger.Warn(Messages.OpenFailed, setting.Name);
+                if (Logger.IsWarnEnabled) Logger.Warn(Messages.OpenFailed, setting.Name);
                 throw new StorageUnavailableException(e.Message, e);
             }
 
@@ -111,14 +111,14 @@ namespace NEventStore.Persistence.Sql
                     return factory;
                 }
                 factory = DbProviderFactories.GetFactory(setting.ProviderName);
-                Logger.Debug(Messages.DiscoveredConnectionProvider, setting.Name, factory.GetType());
+                if (Logger.IsDebugEnabled) Logger.Debug(Messages.DiscoveredConnectionProvider, setting.Name, factory.GetType());
                 return CachedFactories[setting.Name] = factory;
             }
         }
 
         protected virtual ConnectionStringSettings GetConnectionStringSettings(string connectionName)
         {
-            Logger.Debug(Messages.DiscoveringConnectionSettings, connectionName);
+            if (Logger.IsDebugEnabled) Logger.Debug(Messages.DiscoveringConnectionSettings, connectionName);
 
             ConnectionStringSettings settings = _connectionStringSettings ?? ConfigurationManager.ConnectionStrings
                                                                     .Cast<ConnectionStringSettings>()

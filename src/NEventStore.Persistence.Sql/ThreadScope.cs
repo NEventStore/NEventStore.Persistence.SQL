@@ -25,7 +25,7 @@ namespace NEventStore.Persistence.Sql
 
             T parent = Load();
             _rootScope = parent == null;
-            _logger.Debug(Messages.OpeningThreadScope, _threadKey, _rootScope);
+            if (_logger.IsDebugEnabled) _logger.Debug(Messages.OpeningThreadScope, _threadKey, _rootScope);
 
             Current = parent ?? factory();
 
@@ -55,14 +55,14 @@ namespace NEventStore.Persistence.Sql
                 return;
             }
 
-            _logger.Debug(Messages.DisposingThreadScope, _rootScope);
+            if (_logger.IsDebugEnabled) _logger.Debug(Messages.DisposingThreadScope, _rootScope);
             _disposed = true;
             if (!_rootScope)
             {
                 return;
             }
 
-            _logger.Verbose(Messages.CleaningRootThreadScope);
+            if (_logger.IsVerboseEnabled) _logger.Verbose(Messages.CleaningRootThreadScope);
             Store(null);
 
             var resource = Current as IDisposable;
@@ -71,7 +71,7 @@ namespace NEventStore.Persistence.Sql
                 return;
             }
 
-            _logger.Verbose(Messages.DisposingRootThreadScopeResources);
+            if (_logger.IsVerboseEnabled) _logger.Verbose(Messages.DisposingRootThreadScopeResources);
             resource.Dispose();
         }
 

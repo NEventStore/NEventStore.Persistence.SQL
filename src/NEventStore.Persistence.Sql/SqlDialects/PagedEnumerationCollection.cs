@@ -72,7 +72,7 @@ namespace NEventStore.Persistence.Sql.SqlDialects
                 return true;
             }
 
-            Logger.Verbose(Messages.QueryCompleted);
+            if (Logger.IsVerboseEnabled) Logger.Verbose(Messages.QueryCompleted);
             return false;
         }
 
@@ -160,7 +160,7 @@ namespace NEventStore.Persistence.Sql.SqlDialects
                 return false;
             }
 
-            Logger.Verbose(Messages.EnumeratedRowCount, _position);
+            if (Logger.IsVerboseEnabled) Logger.Verbose(Messages.EnumeratedRowCount, _position);
             _reader.Dispose();
             _reader = OpenNextPage();
 
@@ -196,7 +196,7 @@ namespace NEventStore.Persistence.Sql.SqlDialects
             }
             catch (Exception e)
             {
-                Logger.Debug(Messages.EnumerationThrewException, e.GetType());
+                if (Logger.IsDebugEnabled) Logger.Debug(Messages.EnumerationThrewException, e.GetType());
                 throw new StorageUnavailableException(e.Message, e);
             }
         }
