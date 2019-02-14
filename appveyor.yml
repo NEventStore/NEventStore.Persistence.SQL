@@ -1,8 +1,4 @@
 version: 1.0.{build}
-branches:
-  only:
-  - develop
-  - master
 image: Visual Studio 2017
 configuration: Release
 init:
@@ -53,6 +49,36 @@ after_build:
     REM dotnet pack ./src/NEventStore.Persistence.Sql/NEventStore.Persistence.Sql.Core.csproj -c %CONFIGURATION% --no-build -o artifacts /p:PackageVersion=%GitVersion_NuGetVersion%
 
     nuget pack ./src/.nuget/NEventStore.Persistence.Sql.nuspec -properties "version=%GitVersion_NuGetVersion%;configuration=%CONFIGURATION%" -OutputDirectory artifacts
+before_test:
+- ps: >-
+    $dbName = "NEventStore"
+
+
+    # Create MsSql database
+
+    $sqlInstance = "(local)\SQL2014"
+
+    sqlcmd -S "$sqlInstance" -Q "Use [master]; CREATE DATABASE [$dbName]"
+
+
+    # Create MySql database
+
+    $env:MYSQL_PWD="Password12!"
+
+    $mysqlcmd = '"C:\Program Files\MySQL\MySQL Server 5.7\bin\mysql" -e "create database $dbName;" --user=root'
+
+    iex "& $mysqlcmd"
+
+
+    # Create PostGRE Sql database
+
+    $env:PGUSER="postgres"
+
+    $env:PGPASSWORD="Password12!"
+
+    $pgcmd = '"C:\Program Files\PostgreSQL\9.6\bin\createdb" $dbName'
+
+    iex "& $pgcmd"
 test:
   assemblies:
     except:
