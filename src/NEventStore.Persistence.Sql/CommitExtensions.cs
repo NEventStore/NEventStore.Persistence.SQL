@@ -22,7 +22,7 @@ namespace NEventStore.Persistence.Sql
 
         public static ICommit GetCommit(this IDataRecord record, ISerialize serializer, ISqlDialect sqlDialect)
         {
-            Logger.Verbose(Messages.DeserializingCommit, serializer.GetType());
+            if (Logger.IsVerboseEnabled) Logger.Verbose(Messages.DeserializingCommit, serializer.GetType());
             var headers = serializer.Deserialize<Dictionary<string, object>>(record, HeadersIndex);
             var events = serializer.Deserialize<List<EventMessage>>(record, PayloadIndex);
 

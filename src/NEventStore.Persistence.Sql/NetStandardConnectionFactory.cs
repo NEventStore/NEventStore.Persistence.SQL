@@ -25,7 +25,7 @@ namespace NEventStore.Persistence.Sql
 
         public IDbConnection Open()
         {
-            Logger.Verbose(Messages.OpeningMasterConnection, _connectionString);
+            if (Logger.IsVerboseEnabled) Logger.Verbose(Messages.OpeningMasterConnection, _connectionString);
             return Open(_connectionString);
         }
 
@@ -47,12 +47,12 @@ namespace NEventStore.Persistence.Sql
 
             try
             {
-                Logger.Verbose(Messages.OpeningConnection, connectionString);
+                if (Logger.IsVerboseEnabled) Logger.Verbose(Messages.OpeningConnection, connectionString);
                 connection.Open();
             }
             catch (Exception e)
             {
-                Logger.Warn(Messages.OpenFailed, connectionString);
+                if (Logger.IsWarnEnabled) Logger.Warn(Messages.OpenFailed, connectionString);
                 throw new StorageUnavailableException(e.Message, e);
             }
 

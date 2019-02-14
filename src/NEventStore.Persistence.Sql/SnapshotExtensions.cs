@@ -13,7 +13,7 @@ namespace NEventStore.Persistence.Sql
 
         public static Snapshot GetSnapshot(this IDataRecord record, ISerialize serializer, string streamIdOriginal)
         {
-            Logger.Verbose(Messages.DeserializingSnapshot);
+            if (Logger.IsVerboseEnabled) Logger.Verbose(Messages.DeserializingSnapshot);
 
             return new Snapshot(
                 record[BucketIdIndex].ToString(),
