@@ -48,6 +48,7 @@
 
   <ItemGroup>
     <Compile Include="..\..\dependencies\NEventStore\src\NEventStore.Persistence.AcceptanceTests\PersistenceTests.cs" Link="PersistenceTests.cs" />
+    <Compile Include="..\..\dependencies\NEventStore\src\NEventStore.Persistence.AcceptanceTests\PersistenceTests.Transactions.cs" Link="PersistenceTests.Transactions.cs" />
   </ItemGroup>
 
   <ItemGroup>

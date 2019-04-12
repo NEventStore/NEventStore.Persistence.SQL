@@ -42,11 +42,9 @@ namespace NEventStore.Persistence.AcceptanceTests
                     _hasherInvoked = true;
                     return new Sha1StreamIdHasher().GetHash(streamId);
                 })
-                .InitializeStorageEngine()
-#if !NETSTANDARD2_0
                 // enlist in ambient transaction throws in dotnet core, should be fixed on next verison of the driver
                 .EnlistInAmbientTransaction()
-#endif
+                .InitializeStorageEngine()
                 .UsingBinarySerialization()
                 .Build();
         }
