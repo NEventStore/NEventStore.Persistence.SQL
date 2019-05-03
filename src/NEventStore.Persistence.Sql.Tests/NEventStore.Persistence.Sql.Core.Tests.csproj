@@ -8,7 +8,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="PersistenceTests.Transactions.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="packages.config" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="PersistenceTests.Transactions.cs" />
   </ItemGroup>
 
   <ItemGroup>

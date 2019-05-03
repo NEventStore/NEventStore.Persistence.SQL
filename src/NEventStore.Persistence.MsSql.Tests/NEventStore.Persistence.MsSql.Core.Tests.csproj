@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp2.0;net45</TargetFrameworks>
+    <TargetFrameworks>netcoreapp2.0;net45;net451</TargetFrameworks>
     <IsPackable>false</IsPackable>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <AssemblyName>NEventStore.Persistence.MsSql.Tests</AssemblyName>
@@ -16,11 +16,15 @@
     <DefineConstants Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">TRACE;DEBUG;NUNIT</DefineConstants>
     <DefineConstants Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">NUNIT</DefineConstants>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net451'">
+    <DefineConstants Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">TRACE;DEBUG;NUNIT;NET451</DefineConstants>
+    <DefineConstants Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">NUNIT</DefineConstants>
+  </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.0'">
     <PackageReference Include="System.Data.SqlClient" Version="4.6.0" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net45'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'net45' Or '$(TargetFramework)' == 'net451'">
     <Reference Include="System.Data" />
     <Reference Include="System.Transactions" />
   </ItemGroup>
@@ -48,7 +52,7 @@
 
   <ItemGroup>
     <Compile Include="..\..\dependencies\NEventStore\src\NEventStore.Persistence.AcceptanceTests\PersistenceTests.cs" Link="PersistenceTests.cs" />
-    <Compile Include="..\..\dependencies\NEventStore\src\NEventStore.Persistence.AcceptanceTests\PersistenceTests.Transactions.cs" Link="PersistenceTests.Transactions.cs" />
+    <Compile Include="..\NEventStore.Persistence.Sql.Tests\PersistenceTests.Transactions.cs" Link="PersistenceTests.Transactions.cs" />
   </ItemGroup>
 
   <ItemGroup>

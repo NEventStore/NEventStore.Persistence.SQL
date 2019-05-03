@@ -39,34 +39,19 @@ namespace NEventStore.Persistence.Sql
             int pageSize,
             IStreamIdHasher streamIdHasher)
         {
-            if (connectionFactory == null)
-            {
-                throw new ArgumentNullException("connectionFactory");
-            }
-
-            if (dialect == null)
-            {
-                throw new ArgumentNullException("dialect");
-            }
-
-            if (serializer == null)
-            {
-                throw new ArgumentNullException("serializer");
-            }
-
             if (pageSize < 0)
             {
-                throw new ArgumentException("pageSize");
+                throw new ArgumentException(nameof(pageSize));
             }
 
             if (streamIdHasher == null)
             {
-                throw new ArgumentNullException("streamIdHasher");
+                throw new ArgumentNullException(nameof(streamIdHasher));
             }
 
-            _connectionFactory = connectionFactory;
-            _dialect = dialect;
-            _serializer = serializer;
+            _connectionFactory = connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
+            _dialect = dialect ?? throw new ArgumentNullException(nameof(dialect));
+            _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
             _scopeOption = scopeOption;
             _pageSize = pageSize;
             _streamIdHasher = new StreamIdHasherValidator(streamIdHasher);
@@ -122,7 +107,6 @@ namespace NEventStore.Persistence.Sql
                     query.AddParameter(_dialect.CommitStamp, start);
                     return query.ExecutePagedQuery(statement, (q, r) => { })
                             .Select(x => x.GetCommit(_serializer, _dialect));
-
                 });
         }
 
@@ -358,22 +342,10 @@ namespace NEventStore.Persistence.Sql
             }
             catch (Exception e)
             {
-                if (statement != null)
-                {
-                    statement.Dispose();
-                }
-                if (transaction != null)
-                {
-                    transaction.Dispose();
-                }
-                if (connection != null)
-                {
-                    connection.Dispose();
-                }
-                if (scope != null)
-                {
-                    scope.Dispose();
-                }
+                statement?.Dispose();
+                transaction?.Dispose();
+                connection?.Dispose();
+                scope?.Dispose();
 
                 if (Logger.IsDebugEnabled) Logger.Debug(Messages.StorageThrewException, e.GetType());
                 if (e is StorageUnavailableException)
@@ -387,7 +359,11 @@ namespace NEventStore.Persistence.Sql
 
         protected virtual TransactionScope OpenQueryScope()
         {
-            return OpenCommandScope() ?? new TransactionScope(TransactionScopeOption.Suppress);
+            return OpenCommandScope() ?? new TransactionScope(TransactionScopeOption.Suppress
+#if NET451 || NETSTANDARD2_0
+                , TransactionScopeAsyncFlowOption.Enabled
+#endif
+                );
         }
 
         private void ThrowWhenDisposed()
@@ -421,15 +397,9 @@ namespace NEventStore.Persistence.Sql
                     T rowsAffected = command(connection, statement);
                     if (Logger.IsVerboseEnabled) Logger.Verbose(Messages.CommandExecuted, rowsAffected);
 
-                    if (transaction != null)
-                    {
-                        transaction.Commit();
-                    }
+                    transaction?.Commit();
 
-                    if (scope != null)
-                    {
-                        scope.Complete();
-                    }
+                    scope?.Complete();
 
                     return rowsAffected;
                 }
@@ -442,10 +412,8 @@ namespace NEventStore.Persistence.Sql
                     }
 
                     if (Logger.IsInfoEnabled) Logger.Info(Messages.RecoverableExceptionCompletesScope);
-                    if (scope != null)
-                    {
-                        scope.Complete();
-                    }
+
+                    scope?.Complete();
 
                     throw;
                 }
@@ -459,7 +427,11 @@ namespace NEventStore.Persistence.Sql
                 return new TransactionScope(_scopeOption, new TransactionOptions
                 {
                     IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted
-                });
+                }
+#if NET451 || NETSTANDARD2_0
+                , TransactionScopeAsyncFlowOption.Enabled
+#endif
+                );
             }
             // todo: maybe add a warning for the isolation level
             /*
@@ -468,7 +440,11 @@ namespace NEventStore.Persistence.Sql
                 if (Logger.IsWarnEnabled) Logger.Warn("Serializable can be troublesome");
             }
             */
-            return new TransactionScope(_scopeOption);
+            return new TransactionScope(_scopeOption
+#if NET451 || NETSTANDARD2_0
+                , TransactionScopeAsyncFlowOption.Enabled
+#endif
+                );
         }
 
         private static bool RecoverableException(Exception e)
@@ -483,12 +459,9 @@ namespace NEventStore.Persistence.Sql
 
             public StreamIdHasherValidator(IStreamIdHasher streamIdHasher)
             {
-                if (streamIdHasher == null)
-                {
-                    throw new ArgumentNullException("streamIdHasher");
-                }
-                _streamIdHasher = streamIdHasher;
+                _streamIdHasher = streamIdHasher ?? throw new ArgumentNullException(nameof(streamIdHasher));
             }
+
             public string GetHash(string streamId)
             {
                 if (string.IsNullOrWhiteSpace(streamId))
