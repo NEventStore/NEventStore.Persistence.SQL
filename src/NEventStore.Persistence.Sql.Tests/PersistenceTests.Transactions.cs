@@ -40,32 +40,26 @@ namespace NEventStore.Persistence.AcceptanceTests
         }
     }
 
-#if MSTEST
-    [TestClass]
-#endif
-#if NUNIT
-    [TestFixture(false, IsolationLevel.Serializable)]
-    [TestFixture(false, IsolationLevel.ReadCommitted)]
-    [TestFixture(true, IsolationLevel.Serializable)] // this will always fail! Serializable prevents multiple transation to insert simultaneously
-    [TestFixture(true, IsolationLevel.ReadCommitted)]
-#endif
-    public class When_enlist_in_ambient_transaction_and_multiple_parallel_outer_transaction_with_isolationlevel_that_complete : TransactionConcern
+    public abstract class MultipleConnectionsWithMultipleTransactionScopes : TransactionConcern
     {
-        private ICommit[] _commits;
-        private const int Loop = 2;
-        private const int StreamsPerTransaction = 20;
-        private readonly IsolationLevel _transationIsolationLevel;
-        private readonly bool _enlistInAmbientTransaction;
-        private Exception _thrown;
+        protected ICommit[] _commits;
+        protected const int Loop = 2;
+        protected const int StreamsPerTransaction = 20;
+        protected readonly IsolationLevel _transationIsolationLevel;
+        protected readonly bool _enlistInAmbientTransaction;
+        protected Exception _thrown;
+        protected readonly bool _completeTRansaction;
 
-        public When_enlist_in_ambient_transaction_and_multiple_parallel_outer_transaction_with_isolationlevel_that_complete(
+        public MultipleConnectionsWithMultipleTransactionScopes(
             bool enlistInAmbientTransaction,
-            IsolationLevel transationIsolationLevel
+            IsolationLevel transationIsolationLevel,
+            bool completeTRansaction
             )
         {
-            Reinitialize(enlistInAmbientTransaction);
             _transationIsolationLevel = transationIsolationLevel;
             _enlistInAmbientTransaction = enlistInAmbientTransaction;
+            _completeTRansaction = completeTRansaction;
+            Reinitialize(enlistInAmbientTransaction);
         }
 
         protected override void Because()
@@ -94,18 +88,43 @@ namespace NEventStore.Persistence.AcceptanceTests
                             stream.CommitChanges(Guid.NewGuid());
                         }
                     }
-                    scope.Complete();
+                    if (_completeTRansaction)
+                    {
+                        scope.Complete();
+                    }
                 }
             })
             );
         }
+    }
+
+#if MSTEST
+    [TestClass]
+#endif
+#if NUNIT
+    [TestFixture(false, IsolationLevel.Serializable)]
+    [TestFixture(false, IsolationLevel.ReadCommitted)]
+    [TestFixture(true, IsolationLevel.Serializable)] // this will always fail! Serializable prevents multiple transation to insert simultaneously
+    [TestFixture(true, IsolationLevel.ReadCommitted)]
+#endif
+    public class Multiple_Completing_TransactionScopes_When_EnlistInAmbientTransaction_is_and_IsolationLevel_is :
+        MultipleConnectionsWithMultipleTransactionScopes
+    {
+        public Multiple_Completing_TransactionScopes_When_EnlistInAmbientTransaction_is_and_IsolationLevel_is(
+            bool enlistInAmbientTransaction,
+            IsolationLevel transationIsolationLevel
+            ) : base(enlistInAmbientTransaction, transationIsolationLevel, true)
+        { }
 
         [Fact]
-        public void should_throw_an_Exception_if_enlist_in_ambient_transaction_and_IsolationLevel_is_Serializable()
+        public void should_throw_an_Exception_only_if_enlist_in_ambient_transaction_and_IsolationLevel_is_Serializable()
         {
             if (_enlistInAmbientTransaction && _transationIsolationLevel == IsolationLevel.Serializable)
             {
                 _thrown.Should().BeOfType<AggregateException>();
+                _thrown.InnerException.Should().BeOfType<StorageException>();
+                // two serializable transactions on the same connection can result in deadlocks.
+                _thrown.InnerException.Message.Should().Contain("deadlock");
             }
             else
             {
@@ -114,7 +133,7 @@ namespace NEventStore.Persistence.AcceptanceTests
         }
 
         [Fact]
-        public void Should_have_expected_number_of_commits()
+        public void Should_have_no_commits_at_all()
         {
             if (_enlistInAmbientTransaction && _transationIsolationLevel == IsolationLevel.Serializable)
             {
@@ -137,64 +156,24 @@ namespace NEventStore.Persistence.AcceptanceTests
     [TestFixture(true, IsolationLevel.Serializable)] // this will always fail! Serializable prevents multiple transation to insert simultaneously
     [TestFixture(true, IsolationLevel.ReadCommitted)]
 #endif
-    public class When_enlist_in_ambient_transaction_and_multiple_parallel_outer_transaction_with_isolationlevel_that_DO_NOT_complete : TransactionConcern
+    public class Multiple_Failing_TransactionScopes_When_EnlistInAmbientTransaction_is_and_IsolationLevel_is :
+        MultipleConnectionsWithMultipleTransactionScopes
     {
-        private ICommit[] _commits;
-        private const int Loop = 2;
-        private const int StreamsPerTransaction = 20;
-        private readonly IsolationLevel _transationIsolationLevel;
-        private readonly bool _enlistInAmbientTransaction;
-        private Exception _thrown;
-
-        public When_enlist_in_ambient_transaction_and_multiple_parallel_outer_transaction_with_isolationlevel_that_DO_NOT_complete(
+        public Multiple_Failing_TransactionScopes_When_EnlistInAmbientTransaction_is_and_IsolationLevel_is(
             bool enlistInAmbientTransaction,
             IsolationLevel transationIsolationLevel
-            )
-        {
-            Reinitialize(enlistInAmbientTransaction);
-            _transationIsolationLevel = transationIsolationLevel;
-            _enlistInAmbientTransaction = enlistInAmbientTransaction;
-        }
-
-        protected override void Because()
-        {
-            _thrown = Catch.Exception(() =>
-            Parallel.For(0, Loop, i =>
-            {
-                var eventStore = new OptimisticEventStore(Persistence, null);
-
-                using (var scope = new TransactionScope(TransactionScopeOption.Required,
-                    new TransactionOptions { IsolationLevel = _transationIsolationLevel }
-#if NET451 || NETSTANDARD2_0
-                , TransactionScopeAsyncFlowOption.Enabled
-#endif
-                    ))
-                {
-                    int j;
-                    for (j = 0; j < StreamsPerTransaction; j++)
-                    {
-                        using (var stream = eventStore.OpenStream(i.ToString() + "-" + j.ToString()))
-                        {
-                            for (int k = 0; k < 10; k++)
-                            {
-                                stream.Add(new EventMessage { Body = "body" + k });
-                            }
-                            stream.CommitChanges(Guid.NewGuid());
-                        }
-                    }
-                    // DO NOT COMPLETE THE TRANSACTIONS
-                    // scope.Complete();
-                }
-            })
-            );
-        }
+            ) : base(enlistInAmbientTransaction, transationIsolationLevel, completeTRansaction: false)
+        { }
 
         [Fact]
-        public void should_throw_an_Exception_if_enlist_in_ambient_transaction_and_IsolationLevel_is_Serializable()
+        public void should_throw_an_Exception_only_if_enlist_in_ambient_transaction_and_IsolationLevel_is_Serializable()
         {
             if (_enlistInAmbientTransaction && _transationIsolationLevel == IsolationLevel.Serializable)
             {
                 _thrown.Should().BeOfType<AggregateException>();
+                _thrown.InnerException.Should().BeOfType<StorageException>();
+                // two serializable transactions on the same connection can result in deadlocks.
+                _thrown.InnerException.Message.Should().Contain("deadlock");
             }
             else
             {
@@ -205,48 +184,45 @@ namespace NEventStore.Persistence.AcceptanceTests
         [Fact]
         public void Should_have_expected_number_of_commits()
         {
-            _commits = Persistence.GetFrom().ToArray();
             if (_enlistInAmbientTransaction && _transationIsolationLevel == IsolationLevel.Serializable)
             {
                 // nothing should be tested we never reach this point due to exception
             }
-            else if (_enlistInAmbientTransaction && _transationIsolationLevel == IsolationLevel.ReadCommitted)
-            {
-                _commits.Length.Should().Be(0);
-            }
             else
             {
-                _commits.Length.Should().Be(Loop * StreamsPerTransaction);
+                _commits = Persistence.GetFrom().ToArray();
+                if (!_enlistInAmbientTransaction)
+                {
+                    _commits.Length.Should().Be(Loop * StreamsPerTransaction);
+                }
+                else
+                {
+                    _commits.Length.Should().Be(0);
+                }
             }
         }
     }
 
-#if MSTEST
-    [TestClass]
-#endif
-#if NUNIT
-    [TestFixture(false, IsolationLevel.Serializable)]
-    [TestFixture(false, IsolationLevel.ReadCommitted)]
-    [TestFixture(true, IsolationLevel.Serializable)] // this will always fail! Serializable prevents multiple transation to insert simultaneously
-    [TestFixture(true, IsolationLevel.ReadCommitted)]
-#endif
-    public class When_enlist_in_ambient_transaction_and_single_outer_transaction_with_isolationlevel_that_complete : TransactionConcern
+    public abstract class MultipleConnectionsWithSingleTransactionScope : TransactionConcern
     {
-        private ICommit[] _commits;
-        private const int Loop = 2;
-        private const int StreamsPerTransaction = 20;
-        private readonly IsolationLevel _transationIsolationLevel;
-        private readonly bool _enlistInAmbientTransaction;
-        private Exception _thrown;
+        protected ICommit[] _commits;
+        protected const int Loop = 2;
+        protected const int StreamsPerTransaction = 20;
+        protected readonly IsolationLevel _transationIsolationLevel;
+        protected readonly bool _enlistInAmbientTransaction;
+        protected Exception _thrown;
+        protected readonly bool _completeTransaction;
 
-        public When_enlist_in_ambient_transaction_and_single_outer_transaction_with_isolationlevel_that_complete(
+        public MultipleConnectionsWithSingleTransactionScope(
             bool enlistInAmbientTransaction,
-            IsolationLevel transationIsolationLevel
+            IsolationLevel transationIsolationLevel,
+            bool completeTransaction
             )
         {
-            Reinitialize(enlistInAmbientTransaction);
             _transationIsolationLevel = transationIsolationLevel;
             _enlistInAmbientTransaction = enlistInAmbientTransaction;
+            _completeTransaction = completeTransaction;
+            Reinitialize(enlistInAmbientTransaction);
         }
 
         protected override void Because()
@@ -256,7 +232,7 @@ namespace NEventStore.Persistence.AcceptanceTests
                 using (var scope = new TransactionScope(TransactionScopeOption.Required,
                         new TransactionOptions { IsolationLevel = _transationIsolationLevel }
 #if NET451 || NETSTANDARD2_0
-                , TransactionScopeAsyncFlowOption.Enabled
+                        , TransactionScopeAsyncFlowOption.Enabled
 #endif
                     ))
                 {
@@ -277,186 +253,70 @@ namespace NEventStore.Persistence.AcceptanceTests
                             }
                         }
                     });
-                    Assert.IsTrue(res.IsCompleted);
-                    scope.Complete();
+                    if (_completeTransaction)
+                    {
+                        scope.Complete();
+                    }
                 }
             });
         }
-
-        [Fact]
-        public void should_throw_an_Exception_if_enlist_in_ambient_transaction_and_IsolationLevel_is_Serializable()
-        {
-            //if (_enlistInAmbientTransaction && _transationIsolationLevel == IsolationLevel.Serializable)
-            //{
-            //    _thrown.Should().BeOfType<AggregateException>();
-            //}
-            //else
-            //{
-            _thrown.Should().BeNull();
-            //}
-        }
-
-        [Fact]
-        public void Should_have_expected_number_of_commits()
-        {
-            //if (_enlistInAmbientTransaction && _transationIsolationLevel == IsolationLevel.Serializable)
-            //{
-            //    // nothing should be tested we never reach this point due to exception
-            //}
-            //else
-            //{
-            _commits = Persistence.GetFrom().ToArray();
-            _commits.Length.Should().Be(Loop * StreamsPerTransaction);
-            //}
-        }
     }
 
-    /* Transactions support must be investigated, it should be valid only for Databases that supports it (InMemoryPersistence will not). */
 #if MSTEST
     [TestClass]
 #endif
-    public class TransactionConcern2 : PersistenceEngineConcern
-    {
-        private ICommit[] _commits;
-        private const int Loop = 2;
-        private const int StreamsPerTransaction = 20;
-
-        protected override void Because()
-        {
-            Parallel.For(0, Loop, i =>
-            {
-                var eventStore = new OptimisticEventStore(Persistence, null);
-                using (var scope = new TransactionScope(TransactionScopeOption.Required,
-                    new TransactionOptions { IsolationLevel = IsolationLevel.ReadCommitted }
-#if NET451 || NETSTANDARD2_0
-                , TransactionScopeAsyncFlowOption.Enabled
+#if NUNIT
+    [TestFixture(false, IsolationLevel.Serializable)]
+    [TestFixture(false, IsolationLevel.ReadCommitted)]
 #endif
-                    ))
-                {
-                    int j;
-                    for (j = 0; j < StreamsPerTransaction; j++)
-                    {
-                        using (var stream = eventStore.OpenStream(i.ToString() + "-" + j.ToString()))
-                        {
-                            for (int k = 0; k < 10; k++)
-                            {
-                                stream.Add(new EventMessage { Body = "body" + k });
-                            }
-                            stream.CommitChanges(Guid.NewGuid());
-                        }
-                    }
-                    scope.Complete();
-                }
-            });
-            _commits = Persistence.GetFrom().ToArray();
+    public class Single_Completing_TransactionScope_When_EnlistInAmbientTransaction_is_and_IsolationLevel_is
+        : MultipleConnectionsWithSingleTransactionScope
+    {
+        public Single_Completing_TransactionScope_When_EnlistInAmbientTransaction_is_and_IsolationLevel_is(
+            bool enlistInAmbientTransaction,
+            IsolationLevel transationIsolationLevel
+            ) : base(enlistInAmbientTransaction, transationIsolationLevel, completeTransaction: true)
+        { }
+
+        [Fact]
+        public void should_not_throw_an_Exception()
+        {
+            _thrown.Should().BeNull();
         }
 
         [Fact]
         public void Should_have_expected_number_of_commits()
         {
+            _commits = Persistence.GetFrom().ToArray();
             _commits.Length.Should().Be(Loop * StreamsPerTransaction);
         }
+    }
+
+#if MSTEST
+    [TestClass]
+#endif
+#if NUNIT
+    [TestFixture(true, IsolationLevel.Serializable)] // unsupported: This platform does not support distributed transactions
+    [TestFixture(true, IsolationLevel.ReadCommitted)] // unsupported: This platform does not support distributed transactions
+#endif
+    public class Unsupported_Single_Completing_TransactionScope_When_EnlistInAmbientTransaction_is_and_IsolationLevel_is
+        : MultipleConnectionsWithSingleTransactionScope
+    {
+        public Unsupported_Single_Completing_TransactionScope_When_EnlistInAmbientTransaction_is_and_IsolationLevel_is(
+            bool enlistInAmbientTransaction,
+            IsolationLevel transationIsolationLevel
+            ) : base(enlistInAmbientTransaction, transationIsolationLevel, completeTransaction: true)
+        { }
 
         [Fact]
-        public void ScopeCompleteAndSerializable()
+        public void should_throw_an_StorageUnavailableException()
         {
-            Reinitialize();
-            const int loop = 10;
-            using (var scope = new TransactionScope(
-                TransactionScopeOption.Required,
-                new TransactionOptions
-                {
-                    IsolationLevel = IsolationLevel.Serializable
-                }
-#if NET451 || NETSTANDARD2_0
-                , TransactionScopeAsyncFlowOption.Enabled
-#endif
-                ))
-            {
-                Parallel.For(0, loop, i =>
-                {
-                    Console.WriteLine("Creating stream {0} on thread {1}", i, Thread.CurrentThread.ManagedThreadId);
-                    var eventStore = new OptimisticEventStore(Persistence, null);
-                    string streamId = i.ToString(CultureInfo.InvariantCulture);
-                    using (var stream = eventStore.OpenStream(streamId))
-                    {
-                        stream.Add(new EventMessage { Body = "body1" });
-                        stream.Add(new EventMessage { Body = "body2" });
-                        stream.CommitChanges(Guid.NewGuid());
-                    }
-                });
-                scope.Complete();
-            }
-            ICommit[] commits = Persistence.GetFrom(0).ToArray();
-            commits.Length.Should().Be(loop);
-        }
-
-        [Fact]
-        public void ScopeNotCompleteAndReadCommitted()
-        {
-            Reinitialize();
-            const int loop = 10;
-            using (new TransactionScope(
-                TransactionScopeOption.Required,
-                new TransactionOptions
-                {
-                    IsolationLevel = IsolationLevel.ReadCommitted
-                }
-#if NET451 || NETSTANDARD2_0
-                , TransactionScopeAsyncFlowOption.Enabled
-#endif
-                ))
-            {
-                Parallel.For(0, loop, i =>
-                {
-                    Console.WriteLine("Creating stream {0} on thread {1}", i, Thread.CurrentThread.ManagedThreadId);
-                    var eventStore = new OptimisticEventStore(Persistence, null);
-                    string streamId = i.ToString(CultureInfo.InvariantCulture);
-                    using (var stream = eventStore.OpenStream(streamId))
-                    {
-                        stream.Add(new EventMessage { Body = "body1" });
-                        stream.Add(new EventMessage { Body = "body2" });
-                        stream.CommitChanges(Guid.NewGuid());
-                    }
-                });
-            }
-            ICommit[] commits = Persistence.GetFrom(0).ToArray();
-            commits.Length.Should().Be(0);
-        }
-
-        [Fact]
-        public void ScopeNotCompleteAndSerializable()
-        {
-            Reinitialize();
-            const int loop = 10;
-            using (new TransactionScope(
-                TransactionScopeOption.Required,
-                new TransactionOptions
-                {
-                    IsolationLevel = IsolationLevel.Serializable
-                }
-#if NET451 || NETSTANDARD2_0
-                , TransactionScopeAsyncFlowOption.Enabled
-#endif
-                ))
-            {
-                Parallel.For(0, loop, i =>
-                {
-                    Console.WriteLine("Creating stream {0} on thread {1}", i, Thread.CurrentThread.ManagedThreadId);
-                    var eventStore = new OptimisticEventStore(Persistence, null);
-                    string streamId = i.ToString(CultureInfo.InvariantCulture);
-                    using (var stream = eventStore.OpenStream(streamId))
-                    {
-                        stream.Add(new EventMessage { Body = "body1" });
-                        stream.Add(new EventMessage { Body = "body2" });
-                        stream.CommitChanges(Guid.NewGuid());
-                    }
-                });
-            }
-            ICommit[] commits = Persistence.GetFrom(0).ToArray();
-            commits.Length.Should().Be(0);
+            _thrown.Should().BeOfType<AggregateException>();
+            _thrown.InnerException.Should().BeOfType<StorageUnavailableException>();
+            _thrown.InnerException.Message.Should().Contain("This platform does not support distributed transactions");
         }
     }
+
 }
 
 #pragma warning restore S101 // Types should be named in PascalCase
