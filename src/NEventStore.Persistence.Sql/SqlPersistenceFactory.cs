@@ -9,11 +9,15 @@ namespace NEventStore.Persistence.Sql
     public class SqlPersistenceFactory : IPersistenceFactory
     {
         private const int DefaultPageSize = 128;
-        private readonly TransactionScopeOption _scopeOption;
+        private readonly TransactionScopeOption? _scopeOption;
 
 #if !NETSTANDARD2_0
-        public SqlPersistenceFactory(string connectionName, ISerialize serializer, ISqlDialect dialect = null)
-            : this(serializer, TransactionScopeOption.Suppress, null, DefaultPageSize)
+        public SqlPersistenceFactory(
+            string connectionName,
+            ISerialize serializer,
+            ISqlDialect dialect = null,
+            TransactionScopeOption? scopeOption = null)
+            : this(serializer, scopeOption, null, DefaultPageSize)
         {
             ConnectionFactory = new ConfigurationConnectionFactory(connectionName);
             Dialect = dialect ?? ResolveDialect(new ConfigurationConnectionFactory(connectionName).Settings);
@@ -25,7 +29,7 @@ namespace NEventStore.Persistence.Sql
             ISerialize serializer,
             ISqlDialect dialect,
             IStreamIdHasher streamIdHasher = null,
-            TransactionScopeOption scopeOption = TransactionScopeOption.Suppress,
+            TransactionScopeOption? scopeOption = null,
             int pageSize = DefaultPageSize)
             : this(serializer, scopeOption, streamIdHasher, pageSize)
         {
@@ -33,7 +37,7 @@ namespace NEventStore.Persistence.Sql
             Dialect = dialect ?? throw new ArgumentNullException(nameof(dialect));
         }
 
-        private SqlPersistenceFactory(ISerialize serializer, TransactionScopeOption scopeOption, IStreamIdHasher streamIdHasher, int pageSize)
+        private SqlPersistenceFactory(ISerialize serializer, TransactionScopeOption? scopeOption, IStreamIdHasher streamIdHasher, int pageSize)
         {
             Serializer = serializer;
             _scopeOption = scopeOption;
@@ -53,7 +57,7 @@ namespace NEventStore.Persistence.Sql
 
         public virtual IPersistStreams Build()
         {
-            return new SqlPersistenceEngine(ConnectionFactory, Dialect, Serializer, _scopeOption, PageSize, StreamIdHasher);
+            return new SqlPersistenceEngine(ConnectionFactory, Dialect, Serializer, PageSize, StreamIdHasher, _scopeOption);
         }
 
 #if !NETSTANDARD2_0

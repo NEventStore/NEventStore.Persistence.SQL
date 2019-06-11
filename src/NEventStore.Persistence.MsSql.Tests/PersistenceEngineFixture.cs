@@ -11,9 +11,10 @@ namespace NEventStore.Persistence.AcceptanceTests
     public partial class PersistenceEngineFixture
     {
         /// <summary>
-        /// this mimic the current NEventStore default values which is run outside any transaction
+        /// this mimic the current NEventStore default values which is run outside any transaction (creates a scope that
+        /// suppresses any transaction)
         /// </summary>
-        public TransactionScopeOption ScopeOption { get; set; } = TransactionScopeOption.Suppress;
+        public TransactionScopeOption? ScopeOption { get; set; } = null; // the old default: TransactionScopeOption.Suppress;
 
         public PersistenceEngineFixture()
         {

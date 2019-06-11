@@ -2,17 +2,28 @@
 
 ## 6.1.0
 
-Enlist in ambient transaction was removed from the main library and added to the persistence implementations.
+Enlist in ambient transaction was marked obsolete and removed from the main library.
+
+All the transactions (or their suppression) must be managed by the user.
+
+Enlist in ambient transaction was moved to the persistence drivers implementations, each driver has its own way to enable or disable the feature.
+
 A new .net 4.5.1 compilation target was added to solve TransactionScope problems with the .net 4.5.0 (take a look at : [#377](https://github.com/NEventStore/NEventStore/issues/377) and [#414](https://github.com/NEventStore/NEventStore/issues/414)).
 
-Under the net451 and netstandard2.0 compilation targets all the transactions will be created with the correct async/await support: TransactionScopeAsyncFlowOption.Enabled
+Under the net451 and netstandard2.0 compilation targets all the transactions will be created with the correct async/await support: TransactionScopeAsyncFlowOption.Enabled.
 
-This whole transaction management however is now deprecated and marked obsolete, see the breaking changes section.
+Warning: you should not use the built-in transaction support with async/await and net45.
+
+Some more tests were added to the project to show working scenarios (see PersistenceTests.Trsancations.cs).
 
 ### Breaking Changes
 
-The previous transaction management was deprecated and marked obsolete, all the transactions have to be handled by the user.
-To revert to the previous behavior call:
+The previous transaction management was deprecated and marked obsolete, all the transactions have to be handled manually by the user.
+
+To revert to the previous behavior, configure the Persistence driver calling:
+
+- SuppressAmbientTransaction(): this will restore the previous behavior of suppressing any active transaction.
+- EnlistInAmbientTransaction(): will enlist the code in the external ambient transaction.
 
 ## 6.0.0
 

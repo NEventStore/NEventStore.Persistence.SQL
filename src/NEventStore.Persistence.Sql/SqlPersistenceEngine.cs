@@ -16,7 +16,7 @@ namespace NEventStore.Persistence.Sql
         private readonly IConnectionFactory _connectionFactory;
         private readonly ISqlDialect _dialect;
         private readonly int _pageSize;
-        private readonly TransactionScopeOption _scopeOption;
+        private readonly TransactionScopeOption? _scopeOption;
         private readonly ISerialize _serializer;
         private bool _disposed;
         private int _initialized;
@@ -26,18 +26,18 @@ namespace NEventStore.Persistence.Sql
             IConnectionFactory connectionFactory,
             ISqlDialect dialect,
             ISerialize serializer,
-            TransactionScopeOption scopeOption,
-            int pageSize)
-            : this(connectionFactory, dialect, serializer, scopeOption, pageSize, new Sha1StreamIdHasher())
+            int pageSize,
+            TransactionScopeOption? scopeOption = null)
+            : this(connectionFactory, dialect, serializer, pageSize, new Sha1StreamIdHasher(), scopeOption)
         { }
 
         public SqlPersistenceEngine(
             IConnectionFactory connectionFactory,
             ISqlDialect dialect,
             ISerialize serializer,
-            TransactionScopeOption scopeOption,
             int pageSize,
-            IStreamIdHasher streamIdHasher)
+            IStreamIdHasher streamIdHasher,
+            TransactionScopeOption? scopeOption = null)
         {
             if (pageSize < 0)
             {
@@ -359,6 +359,10 @@ namespace NEventStore.Persistence.Sql
 
         protected virtual TransactionScope OpenQueryScope()
         {
+            if (_scopeOption == null)
+            {
+                return null;
+            }
             return OpenCommandScope() ?? new TransactionScope(TransactionScopeOption.Suppress
 #if NET451 || NETSTANDARD2_0
                 , TransactionScopeAsyncFlowOption.Enabled
@@ -422,9 +426,13 @@ namespace NEventStore.Persistence.Sql
 
         protected virtual TransactionScope OpenCommandScope()
         {
+            if (_scopeOption == null)
+            {
+                return null;
+            }
             if (Transaction.Current == null)
             {
-                return new TransactionScope(_scopeOption, new TransactionOptions
+                return new TransactionScope(_scopeOption.Value, new TransactionOptions
                 {
                     IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted
                 }
@@ -440,7 +448,7 @@ namespace NEventStore.Persistence.Sql
                 if (Logger.IsWarnEnabled) Logger.Warn("Serializable can be troublesome");
             }
             */
-            return new TransactionScope(_scopeOption
+            return new TransactionScope(_scopeOption.Value
 #if NET451 || NETSTANDARD2_0
                 , TransactionScopeAsyncFlowOption.Enabled
 #endif

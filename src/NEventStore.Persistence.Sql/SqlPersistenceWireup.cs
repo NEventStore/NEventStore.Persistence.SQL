@@ -16,7 +16,7 @@ namespace NEventStore
         public SqlPersistenceWireup(Wireup wireup, IConnectionFactory connectionFactory)
             : base(wireup)
         {
-            Container.Register(TransactionScopeOption.Suppress);
+            Container.Register(DeprecatedTransactionSuppressionBehavior.Disabled);
 
             if (Logger.IsDebugEnabled) Logger.Debug(Messages.ConnectionFactorySpecified, connectionFactory);
 
@@ -24,13 +24,21 @@ namespace NEventStore
             Container.Register<ISqlDialect>(_ => null); // auto-detect
             Container.Register<IStreamIdHasher>(_ => new Sha1StreamIdHasher());
 
-            Container.Register(c => new SqlPersistenceFactory(
-                connectionFactory,
-                c.Resolve<ISerialize>(),
-                c.Resolve<ISqlDialect>(),
-                c.Resolve<IStreamIdHasher>(),
-                c.Resolve<TransactionScopeOption>(),
-                _pageSize).Build());
+            Container.Register(c =>
+            {
+                TransactionScopeOption? scopeOptions = null;
+                if (c.Resolve<DeprecatedTransactionSuppressionBehavior>() == DeprecatedTransactionSuppressionBehavior.Enabled)
+                {
+                    scopeOptions = c.Resolve<TransactionScopeOption>();
+                }
+                return new SqlPersistenceFactory(
+                    connectionFactory,
+                    c.Resolve<ISerialize>(),
+                    c.Resolve<ISqlDialect>(),
+                    c.Resolve<IStreamIdHasher>(),
+                    scopeOptions,
+                    _pageSize).Build();
+            });
         }
 
         public virtual SqlPersistenceWireup WithDialect(ISqlDialect instance)
@@ -60,11 +68,27 @@ namespace NEventStore
         }
 
         /// <summary>
+        /// This option will restore the previous NEventStore SQL Persistence behavior of suppressing
+        /// surrounding transactions.
+        /// The Persistence driver will create a private nested TransactionScope with <see cref="TransactionScopeOption.Suppress"/> 
+        /// for each operation so that all of its operations run in a dedicated, separated transaction.
+        /// </summary>
+        /// <returns></returns>
+        [Obsolete("It Will be removed in a future release. Transaction management should be handled manually by the user.")]
+        public SqlPersistenceWireup SuppressAmbientTransaction()
+        {
+            if (Logger.IsInfoEnabled) Logger.Info("Enabling Suppress Ambient Transaction behavior (a TransactionScope with Suppress option will surround any operation).");
+            Container.Register(DeprecatedTransactionSuppressionBehavior.Enabled);
+            Container.Register(TransactionScopeOption.Suppress);
+            return this;
+        }
+
+        /// <summary>
         /// Enables two-phase commit.
-        /// By default NEventStore will suppress surrounding TransactionScopes 
-        /// (All the Persistence drivers that support transactions will create a 
+        /// NEventStore SQL Persistence can optionally suppress surrounding TransactionScopes 
+        /// (The Persistence driver will create a 
         /// private nested TransactionScope with <see cref="TransactionScopeOption.Suppress"/> for each operation)
-        /// so that all of its operations run in a dedicated, separate transaction.
+        /// so that all of its operations run in a dedicated, separated transaction.
         /// This option changes the behavior so that NEventStore enlists in a surrounding TransactionScope,
         /// if there is any (All the Persistence drivers that support transactions will create a 
         /// private nested TransactionScope with <see cref="TransactionScopeOption.Required"/> for each operation).
@@ -75,11 +99,23 @@ namespace NEventStore
         /// is based on in-memory shared cached stream state that might not be valid if transactions rollback.
         /// </remarks>
         /// <returns></returns>
-        public virtual PersistenceWireup EnlistInAmbientTransaction()
+        [Obsolete("It Will be removed in a future release. Transaction management should be handled manually by the user.")]
+        public virtual SqlPersistenceWireup EnlistInAmbientTransaction()
         {
             if (Logger.IsInfoEnabled) Logger.Info("Configuring persistence engine to enlist in ambient transactions using TransactionScope.");
+            Container.Register(DeprecatedTransactionSuppressionBehavior.Enabled);
             Container.Register(TransactionScopeOption.Required);
             return this;
+            /*
+            // check if EnableTransactionSuppression was previously called.
+            if (Container.Resolve<DeprecatedTransactionSuppressionBehavior>() == DeprecatedTransactionSuppressionBehavior.Enabled)
+            {
+                if (Logger.IsInfoEnabled) Logger.Info("Configuring persistence engine to enlist in ambient transactions using TransactionScope.");
+                Container.Register(TransactionScopeOption.Required);
+                return this;
+            }
+            throw new NotSupportedException($"Cannot enlist in Ambient transaction if .{nameof(EnableTransactionSuppression)} is not called before.");
+            */
         }
     }
 }

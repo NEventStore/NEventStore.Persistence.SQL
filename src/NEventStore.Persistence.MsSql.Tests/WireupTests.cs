@@ -42,8 +42,8 @@ namespace NEventStore.Persistence.AcceptanceTests
                     _hasherInvoked = true;
                     return new Sha1StreamIdHasher().GetHash(streamId);
                 })
-                // enlist in ambient transaction throws in dotnet core, should be fixed on next verison of the driver
-                .EnlistInAmbientTransaction()
+                // .EnableTransactionSuppression()
+                // .EnlistInAmbientTransaction()
                 .InitializeStorageEngine()
                 .UsingBinarySerialization()
                 .Build();
