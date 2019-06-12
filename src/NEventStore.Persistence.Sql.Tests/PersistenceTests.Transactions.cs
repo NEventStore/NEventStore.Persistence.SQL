@@ -32,6 +32,9 @@ namespace NEventStore.Persistence.AcceptanceTests
         EnlistInAmbientTransaction = 2
     }
 
+    // todo: add single thread tests....
+    // https://github.com/NEventStore/NEventStore/issues/465
+
     /// <summary>
     /// This testing concern simulated the TrsanctionSuppression and/or re-enlisting in Ambient transaction behavior
     /// </summary>
@@ -117,11 +120,9 @@ namespace NEventStore.Persistence.AcceptanceTests
     [TestClass]
 #endif
 #if NUNIT
-    [TestFixture(TransactionScopeConcern.NoTransaction, IsolationLevel.Serializable)] // this will always fail! Serializable prevents multiple transation to perform insert queries simultaneously
     [TestFixture(TransactionScopeConcern.NoTransaction, IsolationLevel.ReadCommitted)]
     [TestFixture(TransactionScopeConcern.SuppressAmbientTransaction, IsolationLevel.Serializable)]
     [TestFixture(TransactionScopeConcern.SuppressAmbientTransaction, IsolationLevel.ReadCommitted)]
-    [TestFixture(TransactionScopeConcern.EnlistInAmbientTransaction, IsolationLevel.Serializable)] // this will always fail! Serializable prevents multiple transation to perform insert queries simultaneously
     [TestFixture(TransactionScopeConcern.EnlistInAmbientTransaction, IsolationLevel.ReadCommitted)]
 #endif
     public class Multiple_Completing_TransactionScopes_When_EnlistInAmbientTransaction_is_and_IsolationLevel_is :
@@ -134,49 +135,61 @@ namespace NEventStore.Persistence.AcceptanceTests
         { }
 
         [Fact]
-        public void should_throw_an_Exception_only_if_no_transaction_or_enlist_in_ambient_transaction_and_IsolationLevel_is_Serializable()
+        public void should_not_throw_an_Exception()
         {
-            if (_enlistInAmbientTransaction != TransactionScopeConcern.SuppressAmbientTransaction
-                && _transationIsolationLevel == IsolationLevel.Serializable)
-            {
-                _thrown.Should().BeOfType<AggregateException>();
-                _thrown.InnerException.Should().BeOfType<StorageException>();
-                // two serializable transactions on the same connection can result in deadlocks.
-                _thrown.InnerException.Message.Should().Contain("deadlock");
-            }
-            else
-            {
-                _thrown.Should().BeNull();
-            }
+            _thrown.Should().BeNull();
         }
 
         [Fact]
         public void Should_have_expected_number_of_commits()
         {
-            if (_enlistInAmbientTransaction != TransactionScopeConcern.SuppressAmbientTransaction
-                && _transationIsolationLevel == IsolationLevel.Serializable)
-            {
-                // unpredictable results: some transactions might succeed, other will deadlock
-                _commits = Persistence.GetFrom().ToArray();
-                _commits.Length.Should().BeGreaterThan(0);
-            }
-            else
-            {
-                _commits = Persistence.GetFrom().ToArray();
-                _commits.Length.Should().Be(Loop * StreamsPerTransaction);
-            }
+            _commits = Persistence.GetFrom().ToArray();
+            _commits.Length.Should().Be(Loop * StreamsPerTransaction);
         }
     }
 
 #if MSTEST
-[TestClass]
+    [TestClass]
 #endif
 #if NUNIT
     [TestFixture(TransactionScopeConcern.NoTransaction, IsolationLevel.Serializable)] // this will always fail! Serializable prevents multiple transation to perform insert queries simultaneously
+    [TestFixture(TransactionScopeConcern.EnlistInAmbientTransaction, IsolationLevel.Serializable)] // this will always fail! Serializable prevents multiple transation to perform insert queries simultaneously
+#endif
+    public class Unsupported_Multiple_Completing_TransactionScopes_When_EnlistInAmbientTransaction_is_and_IsolationLevel_is :
+        MultipleConnectionsWithMultipleTransactionScopes
+    {
+        public Unsupported_Multiple_Completing_TransactionScopes_When_EnlistInAmbientTransaction_is_and_IsolationLevel_is(
+            TransactionScopeConcern enlistInAmbientTransaction,
+            IsolationLevel transationIsolationLevel
+            ) : base(enlistInAmbientTransaction, transationIsolationLevel, true)
+        { }
+
+        [Fact]
+        public void should_throw_an_Exception_only_if_no_transaction_or_enlist_in_ambient_transaction_and_IsolationLevel_is_Serializable()
+        {
+            _thrown.Should().BeOfType<AggregateException>();
+            _thrown.InnerException.Should().BeOfType<StorageException>();
+            // two serializable transactions on the same connection can result in deadlocks.
+            _thrown.InnerException.Message.Should().Contain("deadlock");
+        }
+
+        [Fact]
+        public void Should_have_unexpected_number_of_commits_instead_of_zero()
+        {
+            // unpredictable results: some transactions might succeed, other will deadlock
+            _commits = Persistence.GetFrom().ToArray();
+            _commits.Length.Should().BeGreaterThan(0);
+            _commits.Length.Should().BeLessThan(Loop * StreamsPerTransaction);
+        }
+    }
+
+#if MSTEST
+    [TestClass]
+#endif
+#if NUNIT
     [TestFixture(TransactionScopeConcern.NoTransaction, IsolationLevel.ReadCommitted)]
     [TestFixture(TransactionScopeConcern.SuppressAmbientTransaction, IsolationLevel.Serializable)]
     [TestFixture(TransactionScopeConcern.SuppressAmbientTransaction, IsolationLevel.ReadCommitted)]
-    [TestFixture(TransactionScopeConcern.EnlistInAmbientTransaction, IsolationLevel.Serializable)] // this will always fail! Serializable prevents multiple transation to perform insert queries simultaneously
     [TestFixture(TransactionScopeConcern.EnlistInAmbientTransaction, IsolationLevel.ReadCommitted)]
 #endif
     public class Multiple_Failing_TransactionScopes_When_EnlistInAmbientTransaction_is_and_IsolationLevel_is :
@@ -189,20 +202,9 @@ namespace NEventStore.Persistence.AcceptanceTests
         { }
 
         [Fact]
-        public void should_throw_an_Exception_only_if_enlist_in_ambient_transaction_and_IsolationLevel_is_Serializable()
+        public void should_not_throw_an_Exception()
         {
-            if (_enlistInAmbientTransaction != TransactionScopeConcern.SuppressAmbientTransaction
-                && _transationIsolationLevel == IsolationLevel.Serializable)
-            {
-                _thrown.Should().BeOfType<AggregateException>();
-                _thrown.InnerException.Should().BeOfType<StorageException>();
-                // two serializable transactions on the same connection can result in deadlocks.
-                _thrown.InnerException.Message.Should().Contain("deadlock");
-            }
-            else
-            {
-                _thrown.Should().BeNull();
-            }
+            _thrown.Should().BeNull();
         }
 
         [Fact]
@@ -217,6 +219,39 @@ namespace NEventStore.Persistence.AcceptanceTests
             {
                 _commits.Length.Should().Be(0);
             }
+        }
+    }
+
+#if MSTEST
+    [TestClass]
+#endif
+#if NUNIT
+    [TestFixture(TransactionScopeConcern.NoTransaction, IsolationLevel.Serializable)] // this will always fail! Serializable prevents multiple transation to perform insert queries simultaneously
+    [TestFixture(TransactionScopeConcern.EnlistInAmbientTransaction, IsolationLevel.Serializable)] // this will always fail! Serializable prevents multiple transation to perform insert queries simultaneously
+#endif
+    public class Unsupported_Multiple_Failing_TransactionScopes_When_EnlistInAmbientTransaction_is_and_IsolationLevel_is :
+        MultipleConnectionsWithMultipleTransactionScopes
+    {
+        public Unsupported_Multiple_Failing_TransactionScopes_When_EnlistInAmbientTransaction_is_and_IsolationLevel_is(
+            TransactionScopeConcern enlistInAmbientTransaction,
+            IsolationLevel transationIsolationLevel
+            ) : base(enlistInAmbientTransaction, transationIsolationLevel, completeTransaction: false)
+        { }
+
+        [Fact]
+        public void should_throw_an_Exception()
+        {
+            _thrown.Should().BeOfType<AggregateException>();
+            _thrown.InnerException.Should().BeOfType<StorageException>();
+            // two serializable transactions on the same connection can result in deadlocks.
+            _thrown.InnerException.Message.Should().Contain("deadlock");
+        }
+
+        [Fact]
+        public void Should_have_zero_commits()
+        {
+            _commits = Persistence.GetFrom().ToArray();
+            _commits.Length.Should().Be(0);
         }
     }
 
@@ -342,6 +377,11 @@ namespace NEventStore.Persistence.AcceptanceTests
         }
     }
 
+    // the following scenarios are not supported and behave differently in several versions of the framework
+    // these tests also cause problems with other tests with transactions remaining locked
+
+    /*
+     
 #if MSTEST
 [TestClass]
 #endif
@@ -383,6 +423,8 @@ namespace NEventStore.Persistence.AcceptanceTests
             //    "The Promote method returned an invalid value for the distributed transaction.");
         }
     }
+
+    */
 }
 
 #pragma warning restore S101 // Types should be named in PascalCase
