@@ -7,7 +7,7 @@ namespace NEventStore
     using NEventStore.Persistence.Sql;
     using NEventStore.Serialization;
 
-    internal enum DeprecatedTransactionSuppressionBehavior
+    internal enum TransactionSuppressionBehavior
     {
         Disabled = 0,
         Enabled = 1

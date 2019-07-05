@@ -16,7 +16,7 @@ namespace NEventStore
         public SqlPersistenceWireup(Wireup wireup, IConnectionFactory connectionFactory)
             : base(wireup)
         {
-            Container.Register(DeprecatedTransactionSuppressionBehavior.Disabled);
+            Container.Register(TransactionSuppressionBehavior.Disabled);
 
             if (Logger.IsDebugEnabled) Logger.Debug(Messages.ConnectionFactorySpecified, connectionFactory);
 
@@ -27,7 +27,7 @@ namespace NEventStore
             Container.Register(c =>
             {
                 TransactionScopeOption? scopeOptions = null;
-                if (c.Resolve<DeprecatedTransactionSuppressionBehavior>() == DeprecatedTransactionSuppressionBehavior.Enabled)
+                if (c.Resolve<TransactionSuppressionBehavior>() == TransactionSuppressionBehavior.Enabled)
                 {
                     scopeOptions = c.Resolve<TransactionScopeOption>();
                 }
@@ -74,11 +74,11 @@ namespace NEventStore
         /// for each operation so that all of its operations run in a dedicated, separated transaction.
         /// </summary>
         /// <returns></returns>
-        [Obsolete("It Will be removed in a future release. Transaction management should be handled manually by the user.")]
+        // [Obsolete("It Will be removed in a future release. Transaction management should be handled manually by the user.")]
         public SqlPersistenceWireup SuppressAmbientTransaction()
         {
-            if (Logger.IsInfoEnabled) Logger.Info("Enabling Suppress Ambient Transaction behavior (a TransactionScope with Suppress option will surround any operation).");
-            Container.Register(DeprecatedTransactionSuppressionBehavior.Enabled);
+            if (Logger.IsInfoEnabled) Logger.Info("Enabling Suppress Ambient Transaction behavior (a TransactionScope with TransactionScopeOption.Suppress option will surround any operation).");
+            Container.Register(TransactionSuppressionBehavior.Enabled);
             Container.Register(TransactionScopeOption.Suppress);
             return this;
         }
@@ -99,11 +99,11 @@ namespace NEventStore
         /// is based on in-memory shared cached stream state that might not be valid if transactions rollback.
         /// </remarks>
         /// <returns></returns>
-        [Obsolete("It Will be removed in a future release. Transaction management should be handled manually by the user.")]
+        // [Obsolete("It Will be removed in a future release. Transaction management should be handled manually by the user.")]
         public virtual SqlPersistenceWireup EnlistInAmbientTransaction()
         {
             if (Logger.IsInfoEnabled) Logger.Info("Configuring persistence engine to enlist in ambient transactions using TransactionScope.");
-            Container.Register(DeprecatedTransactionSuppressionBehavior.Enabled);
+            Container.Register(TransactionSuppressionBehavior.Enabled);
             Container.Register(TransactionScopeOption.Required);
             return this;
             /*
