@@ -542,8 +542,7 @@ namespace NEventStore.Persistence.AcceptanceTests
     }
 
     // the following scenarios are not supported and behave differently in several versions of the framework
-    // these tests also cause problems with other tests with transactions remaining locked
-
+    // these tests also cause problems with other tests with transactions being locked
 
 #if MSTEST
 [TestClass]
@@ -553,6 +552,7 @@ namespace NEventStore.Persistence.AcceptanceTests
     [TestFixture(TransactionScopeConcern.NoTransaction, IsolationLevel.ReadCommitted)]
     [TestFixture(TransactionScopeConcern.EnlistInAmbientTransaction, IsolationLevel.Serializable)] // unsupported: This platform does not support distributed transactions
     [TestFixture(TransactionScopeConcern.EnlistInAmbientTransaction, IsolationLevel.ReadCommitted)] // unsupported: This platform does not support distributed transactions
+    [Explicit]
 #endif
     public class Unsupported_Single_Completing_TransactionScope_When_EnlistInAmbientTransaction_is_and_IsolationLevel_is
            : MultipleParallelConnectionsWithSingleTransactionScope
@@ -563,9 +563,12 @@ namespace NEventStore.Persistence.AcceptanceTests
             ) : base(enlistInAmbientTransaction, transationIsolationLevel, completeTransaction: true)
         { }
 
+#if NET45
+        // some of these tests fails with a local instance of sql sever
         [Fact]
         public void should_throw_an_StorageUnavailableException()
         {
+            Console.WriteLine($"net45 {_enlistInAmbientTransaction} {_transationIsolationLevel}");
             _thrown.Should().BeOfType<AggregateException>();
             AggregateException aex = _thrown as AggregateException;
             aex.InnerExceptions
@@ -585,6 +588,96 @@ namespace NEventStore.Persistence.AcceptanceTests
             // the following error means the transaction is being promoted to a distributed one, and still not supported
             //    "The Promote method returned an invalid value for the distributed transaction.");
         }
+
+        /* these tests works with a local instance of sql server
+        [Fact]
+        public void should_throw_an_StorageUnavailableException()
+        {
+            Console.WriteLine("net45");
+            if (_transationIsolationLevel == IsolationLevel.Serializable) 
+            {
+                _thrown.Should().BeOfType<AggregateException>();
+                AggregateException aex = _thrown as AggregateException;
+                aex.InnerExceptions
+                    .Any(e => e.GetType().IsAssignableFrom(typeof(StorageUnavailableException)))
+                    .Should().BeTrue();
+            } 
+            else
+            {
+                Assert.Inconclusive();
+            }
+        }
+
+        [Fact]
+        public void WARNING_should_throw_an_StorageUnavailableException_but_it_works()
+        {
+            Console.WriteLine("net45 {_enlistInAmbientTransaction} {_transationIsolationLevel}");
+            if (_transationIsolationLevel == IsolationLevel.ReadCommitted) {
+                // this is actually very strange because I expected an exception
+                // but with ReadCommitted and net45 it seems to work, it does
+                // not with net451 or netstandard2.0.
+                // for good measure we'll consider this an unsupported scenario
+                _thrown.Should().BeNull();
+            }
+            else
+            {
+                Assert.Inconclusive();
+            }
+        }
+        */
+#endif
+
+#if NET451
+        [Fact]
+        public void should_throw_an_StorageUnavailableException()
+        {
+            Console.WriteLine($"net451 {_enlistInAmbientTransaction} {_transationIsolationLevel}");
+            _thrown.Should().BeOfType<AggregateException>();
+            AggregateException aex = _thrown as AggregateException;
+            aex.InnerExceptions
+                .Any(e => e.GetType().IsAssignableFrom(typeof(StorageUnavailableException)))
+                .Should().BeTrue();
+
+            //var storageExceptions = aex.InnerExceptions
+            //    .Where(e => e.GetType().IsAssignableFrom(typeof(StorageUnavailableException)))
+            //    .Select(e => e.Message);
+            //storageExceptions.Should()
+            //    .Match(c =>
+            //        c.Contains("This platform does not support distributed transactions.")
+            //        || c.Contains("The Promote method returned an invalid value for the distributed transaction.")
+            //    );
+
+            //.Contain("This platform does not support distributed transactions.");
+            // the following error means the transaction is being promoted to a distributed one, and still not supported
+            //    "The Promote method returned an invalid value for the distributed transaction.");
+        }
+#endif
+
+#if NETSTANDARD2_0
+        [Fact]
+        public void should_throw_an_StorageUnavailableException()
+        {
+            Console.WriteLine("netstandard2.0 {_enlistInAmbientTransaction} {_transationIsolationLevel}");
+            _thrown.Should().BeOfType<AggregateException>();
+            AggregateException aex = _thrown as AggregateException;
+            aex.InnerExceptions
+                .Any(e => e.GetType().IsAssignableFrom(typeof(StorageUnavailableException)))
+                .Should().BeTrue();
+
+            //var storageExceptions = aex.InnerExceptions
+            //    .Where(e => e.GetType().IsAssignableFrom(typeof(StorageUnavailableException)))
+            //    .Select(e => e.Message);
+            //storageExceptions.Should()
+            //    .Match(c =>
+            //        c.Contains("This platform does not support distributed transactions.")
+            //        || c.Contains("The Promote method returned an invalid value for the distributed transaction.")
+            //    );
+
+            //.Contain("This platform does not support distributed transactions.");
+            // the following error means the transaction is being promoted to a distributed one, and still not supported
+            //    "The Promote method returned an invalid value for the distributed transaction.");
+        }
+#endif
     }
 
     // the following scenarios are not supported and behave differently in several versions of the framework
