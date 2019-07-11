@@ -42,7 +42,7 @@ namespace NEventStore.Persistence.AcceptanceTests
 
             Recorder.IsRecording = true;
             // Enumerate fully to make sure the underlying DB stuff (command/reader etc.) is disposed
-            var commits = Persistence.GetFrom().ToArray();
+            var commits = Persistence.GetFrom(0).ToArray();
             Recorder.IsRecording = false;
         }
 

@@ -245,6 +245,20 @@ namespace NEventStore.Persistence.Sql
             });
         }
 
+        public IEnumerable<ICommit> GetFromTo(String bucketId, Int64 from, Int64 to)
+        {
+            if (Logger.IsDebugEnabled) Logger.Debug(Messages.GettingCommitsFromBucketAndFromToCheckpoint, bucketId, from, to);
+            return ExecuteQuery(query =>
+            {
+                string statement = _dialect.GetCommitsFromToBucketAndCheckpoint;
+                query.AddParameter(_dialect.BucketId, bucketId, DbType.AnsiString);
+                query.AddParameter(_dialect.FromCheckpointNumber, from);
+                query.AddParameter(_dialect.ToCheckpointNumber, to);
+                return query.ExecutePagedQuery(statement, (q, r) => { })
+                    .Select(x => x.GetCommit(_serializer, _dialect));
+            });
+        }
+
         public IEnumerable<ICommit> GetFrom(Int64 checkpointToken)
         {
             if (Logger.IsDebugEnabled) Logger.Debug(Messages.GettingAllCommitsFromCheckpoint, checkpointToken);
@@ -252,6 +266,19 @@ namespace NEventStore.Persistence.Sql
             {
                 string statement = _dialect.GetCommitsFromCheckpoint;
                 query.AddParameter(_dialect.CheckpointNumber, checkpointToken);
+                return query.ExecutePagedQuery(statement, (q, r) => { })
+                    .Select(x => x.GetCommit(_serializer, _dialect));
+            });
+        }
+
+        public IEnumerable<ICommit> GetFromTo(Int64 from, Int64 to)
+        {
+            if (Logger.IsDebugEnabled) Logger.Debug(Messages.GettingCommitsFromToCheckpoint, from, to);
+            return ExecuteQuery(query =>
+            {
+                string statement = _dialect.GetCommitsFromToCheckpoint;
+                query.AddParameter(_dialect.FromCheckpointNumber, from);
+                query.AddParameter(_dialect.ToCheckpointNumber, to);
                 return query.ExecutePagedQuery(statement, (q, r) => { })
                     .Select(x => x.GetCommit(_serializer, _dialect));
             });

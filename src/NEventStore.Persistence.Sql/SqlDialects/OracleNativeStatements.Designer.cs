@@ -19,7 +19,7 @@ namespace NEventStore.Persistence.Sql.SqlDialects {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class OracleNativeStatements {
@@ -135,10 +135,10 @@ namespace NEventStore.Persistence.Sql.SqlDialects {
         
         /// <summary>
         ///   Looks up a localized string similar to /*GetCommitsFromBucketAndCheckpoint*/
-        ///SELECT BucketId, StreamId, StreamIdOriginal, StreamRevision, CommitId, CommitSequence, CommitStamp, CheckpointNumber, Headers, Payload
+        ///SELECT BucketId, StreamId, StreamIdOriginal, StreamRevision, CommitId, CommitSequence, CommitStamp, CheckpointNumber, Headers, Payload 
         ///FROM Commits 
-        ///WHERE BucketId = :BucketId AND CheckpointNumber &gt; :CheckpointNumber
-        ///ORDER BY CheckpointNumber
+        ///WHERE BucketId = :BucketId AND CheckpointNumber &gt; :CheckpointNumber 
+        ///ORDER BY CheckpointNumber 
         ///WHERE ROWNUM &lt;= :Limit;.
         /// </summary>
         internal static string GetCommitsFromBucketAndCheckpoint {
@@ -149,9 +149,9 @@ namespace NEventStore.Persistence.Sql.SqlDialects {
         
         /// <summary>
         ///   Looks up a localized string similar to /*GetCommitsFromInstant*/
-        ///SELECT BucketId, StreamId, StreamIdOriginal, StreamRevision, CommitId, CommitSequence, CommitStamp, CheckpointNumber, Headers, Payload
+        ///SELECT BucketId, StreamId, StreamIdOriginal, StreamRevision, CommitId, CommitSequence, CommitStamp, CheckpointNumber, Headers, Payload 
         ///FROM Commits 
-        ///WHERE BucketId = :BucketId AND CommitStamp &gt;= :CommitStamp
+        ///WHERE BucketId = :BucketId AND CommitStamp &gt;= :CommitStamp 
         ///ORDER BY CommitStamp, StreamId, CommitSequence.
         /// </summary>
         internal static string GetCommitsFromInstant {
@@ -162,12 +162,12 @@ namespace NEventStore.Persistence.Sql.SqlDialects {
         
         /// <summary>
         ///   Looks up a localized string similar to /*GetCommitsFromStartingRevision*/
-        ///SELECT BucketId, StreamId, StreamIdOriginal, StreamRevision, CommitId, CommitSequence, CommitStamp, CheckpointNumber, Headers, Payload
+        ///SELECT BucketId, StreamId, StreamIdOriginal, StreamRevision, CommitId, CommitSequence, CommitStamp, CheckpointNumber, Headers, Payload 
         ///FROM Commits
         ///WHERE BucketId = :BucketId AND StreamId = :StreamId
         ///   AND StreamRevision &gt;= :StreamRevision
         ///   AND (StreamRevision - Items) &lt; :MaxStreamRevision
-        ///   AND CommitSequence &gt; :CommitSequence
+        ///   AND CommitSequence &gt; :CommitSequence 
         ///ORDER BY CommitSequence.
         /// </summary>
         internal static string GetCommitsFromStartingRevision {
@@ -177,11 +177,25 @@ namespace NEventStore.Persistence.Sql.SqlDialects {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to /*GetCommitsFromBucketAndCheckpoint*/
+        ///SELECT BucketId, StreamId, StreamIdOriginal, StreamRevision, CommitId, CommitSequence, CommitStamp, CheckpointNumber, Headers, Payload 
+        ///FROM Commits 
+        ///WHERE BucketId = :BucketId AND CheckpointNumber &gt; :FromCheckpointNumber AND CheckpointNumber &lt;= :ToCheckpointNumber 
+        ///ORDER BY CheckpointNumber 
+        ///WHERE ROWNUM &lt;= :Limit;.
+        /// </summary>
+        internal static string GetCommitsFromToBucketAndCheckpoint {
+            get {
+                return ResourceManager.GetString("GetCommitsFromToBucketAndCheckpoint", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to /*GetCommitsSinceCheckpoint*/
-        ///SELECT BucketId, StreamId, StreamIdOriginal, StreamRevision, CommitId, CommitSequence, CommitStamp, CheckpointNumber, Headers, Payload
+        ///SELECT BucketId, StreamId, StreamIdOriginal, StreamRevision, CommitId, CommitSequence, CommitStamp, CheckpointNumber, Headers, Payload 
         ///FROM Commits 
         ///WHERE  CheckpointNumber &gt; :CheckpointNumber
-        ///ORDER BY CheckpointNumber
+        ///ORDER BY CheckpointNumber 
         ///WHERE ROWNUM &lt;= :Limit;.
         /// </summary>
         internal static string GetCommitsSinceCheckpoint {
@@ -191,12 +205,27 @@ namespace NEventStore.Persistence.Sql.SqlDialects {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to /*GetCommitsSinceCheckpoint*/
+        ///SELECT BucketId, StreamId, StreamIdOriginal, StreamRevision, CommitId, CommitSequence, CommitStamp, CheckpointNumber, Headers, Payload 
+        ///FROM Commits 
+        ///WHERE  CheckpointNumber &gt; :FromCheckpointNumber
+        ///  AND CheckpointNumber &lt;= :ToCheckpointNumber 
+        ///ORDER BY CheckpointNumber 
+        ///WHERE ROWNUM &lt;= :Limit;.
+        /// </summary>
+        internal static string GetCommitsSinceToCheckpoint {
+            get {
+                return ResourceManager.GetString("GetCommitsSinceToCheckpoint", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to /*GetSnapshot*/
-        ///SELECT *
+        ///SELECT * 
         ///FROM  Snapshots 
         ///WHERE BucketId = :BucketId AND StreamId = :StreamId
         /// AND	StreamRevision  &lt;= :StreamRevision
-        /// AND	ROWNUM &lt;= (:Skip + 1) AND ROWNUM  &gt; :Skip
+        /// AND	ROWNUM &lt;= (:Skip + 1) AND ROWNUM  &gt; :Skip 
         ///ORDER BY StreamRevision DESC.
         /// </summary>
         internal static string GetSnapshot {

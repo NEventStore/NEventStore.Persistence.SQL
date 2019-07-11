@@ -19,7 +19,7 @@ namespace NEventStore.Persistence.Sql.SqlDialects {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class CommonSqlStatements {
@@ -172,6 +172,35 @@ namespace NEventStore.Persistence.Sql.SqlDialects {
         internal static string GetCommitsFromStartingRevision {
             get {
                 return ResourceManager.GetString("GetCommitsFromStartingRevision", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to SELECT BucketId, StreamId, StreamIdOriginal, StreamRevision, CommitId, CommitSequence, CommitStamp, CheckpointNumber, Headers, Payload
+        ///  FROM Commits
+        /// WHERE BucketId = @BucketId 
+        ///   AND CheckpointNumber &gt; @FromCheckpointNumber  
+        ///   AND CheckpointNumber &lt;= @ToCheckpointNumber
+        /// ORDER BY CheckpointNumber 
+        /// LIMIT @Limit OFFSET @Skip;.
+        /// </summary>
+        internal static string GetCommitsFromToBucketAndCheckpoint {
+            get {
+                return ResourceManager.GetString("GetCommitsFromToBucketAndCheckpoint", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to SELECT BucketId, StreamId, StreamIdOriginal, StreamRevision, CommitId, CommitSequence, CommitStamp, CheckpointNumber, Headers, Payload
+        ///FROM Commits
+        ///WHERE  CheckpointNumber &gt; @FromCheckpointNumber 
+        ///  AND CheckpointNumber &lt;= @ToCheckpointNumber 
+        ///ORDER BY CheckpointNumber
+        /// LIMIT @Limit OFFSET @Skip;.
+        /// </summary>
+        internal static string GetCommitsFromToCheckpoint {
+            get {
+                return ResourceManager.GetString("GetCommitsFromToCheckpoint", resourceCulture);
             }
         }
         

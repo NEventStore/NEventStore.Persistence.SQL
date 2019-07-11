@@ -306,4 +306,10 @@
   <data name="StreamIdHasherSpecified" xml:space="preserve">
     <value>Registering stream ID hasher of type '{0}'</value>
   </data>
+  <data name="GettingCommitsFromBucketAndFromToCheckpoint" xml:space="preserve">
+    <value>Getting all commits from bucket '{0}' from checkpoint '{1}' (excluded) up to '{2}' (included).</value>
+  </data>
+  <data name="GettingCommitsFromToCheckpoint" xml:space="preserve">
+    <value>Getting all commits from checkpoint '{0}' (excluded) up to '{1}' (included).</value>
+  </data>
 </root>

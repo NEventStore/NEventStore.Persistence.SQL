@@ -47,9 +47,19 @@ namespace NEventStore.Persistence.Sql.SqlDialects
             get { return CommonTableExpressionPaging(base.GetCommitsFromCheckpoint); }
         }
 
+        public override string GetCommitsFromToCheckpoint
+        {
+            get { return CommonTableExpressionPaging(base.GetCommitsFromToCheckpoint); }
+        }
+
         public override string GetCommitsFromBucketAndCheckpoint
         {
             get { return CommonTableExpressionPaging(base.GetCommitsFromBucketAndCheckpoint); }
+        }
+
+        public override string GetCommitsFromToBucketAndCheckpoint
+        {
+            get { return CommonTableExpressionPaging(base.GetCommitsFromToBucketAndCheckpoint); }
         }
 
         public override string GetStreamsRequiringSnapshots

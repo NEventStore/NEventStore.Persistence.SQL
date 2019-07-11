@@ -151,7 +151,7 @@ namespace NEventStore.Persistence.AcceptanceTests
         [Fact]
         public void Should_have_expected_number_of_commits()
         {
-            _commits = Persistence.GetFrom().ToArray();
+            _commits = Persistence.GetFrom(0).ToArray();
             _commits.Length.Should().Be(Loop * StreamsPerTransaction);
         }
     }
@@ -181,7 +181,7 @@ namespace NEventStore.Persistence.AcceptanceTests
         [Fact]
         public void Should_have_expected_number_of_commits()
         {
-            _commits = Persistence.GetFrom().ToArray();
+            _commits = Persistence.GetFrom(0).ToArray();
             _commits.Length.Should().Be(Loop * StreamsPerTransaction);
         }
     }
@@ -213,7 +213,7 @@ namespace NEventStore.Persistence.AcceptanceTests
         [Fact]
         public void Should_have_no_commits()
         {
-            _commits = Persistence.GetFrom().ToArray();
+            _commits = Persistence.GetFrom(0).ToArray();
             _commits.Length.Should().Be(0);
         }
     }
@@ -305,7 +305,7 @@ namespace NEventStore.Persistence.AcceptanceTests
         [Fact]
         public void Should_have_expected_number_of_commits()
         {
-            _commits = Persistence.GetFrom().ToArray();
+            _commits = Persistence.GetFrom(0).ToArray();
             _commits.Length.Should().Be(Loop * StreamsPerTransaction);
         }
     }
@@ -339,7 +339,7 @@ namespace NEventStore.Persistence.AcceptanceTests
         public void Should_have_unexpected_number_of_commits_instead_of_zero()
         {
             // unpredictable results: some transactions might succeed, other will deadlock
-            _commits = Persistence.GetFrom().ToArray();
+            _commits = Persistence.GetFrom(0).ToArray();
             _commits.Length.Should().BeGreaterThan(0);
             _commits.Length.Should().BeLessThan(Loop * StreamsPerTransaction);
         }
@@ -372,7 +372,7 @@ namespace NEventStore.Persistence.AcceptanceTests
         [Fact]
         public void Should_have_expected_number_of_commits()
         {
-            _commits = Persistence.GetFrom().ToArray();
+            _commits = Persistence.GetFrom(0).ToArray();
             if (_enlistInAmbientTransaction == TransactionScopeConcern.SuppressAmbientTransaction)
             {
                 _commits.Length.Should().Be(Loop * StreamsPerTransaction);
@@ -412,7 +412,7 @@ namespace NEventStore.Persistence.AcceptanceTests
         [Fact]
         public void Should_have_zero_commits()
         {
-            _commits = Persistence.GetFrom().ToArray();
+            _commits = Persistence.GetFrom(0).ToArray();
             _commits.Length.Should().Be(0);
         }
     }
@@ -506,7 +506,7 @@ namespace NEventStore.Persistence.AcceptanceTests
         [Fact]
         public void Should_have_expected_number_of_commits()
         {
-            _commits = Persistence.GetFrom().ToArray();
+            _commits = Persistence.GetFrom(0).ToArray();
             _commits.Length.Should().Be(Loop * StreamsPerTransaction);
         }
     }
@@ -536,7 +536,7 @@ namespace NEventStore.Persistence.AcceptanceTests
         [Fact]
         public void Should_have_expected_number_of_commits()
         {
-            _commits = Persistence.GetFrom().ToArray();
+            _commits = Persistence.GetFrom(0).ToArray();
             _commits.Length.Should().Be(Loop * StreamsPerTransaction);
         }
     }

@@ -20,6 +20,16 @@ namespace NEventStore.Persistence.Sql.SqlDialects
             get { return MakeOracleParameter(base.CheckpointNumber); }
         }
 
+        public override string FromCheckpointNumber
+        {
+            get { return MakeOracleParameter(base.FromCheckpointNumber); }
+        }
+
+        public override string ToCheckpointNumber
+        {
+            get { return MakeOracleParameter(base.ToCheckpointNumber); }
+        }
+
         public override string CommitId
         {
             get { return MakeOracleParameter(base.CommitId); }
@@ -70,9 +80,19 @@ namespace NEventStore.Persistence.Sql.SqlDialects
             get { return OraclePaging(OracleNativeStatements.GetCommitsSinceCheckpoint); }
         }
 
+        public override string GetCommitsFromToCheckpoint
+        {
+            get { return OraclePaging(OracleNativeStatements.GetCommitsSinceToCheckpoint); }
+        }
+
         public override string GetCommitsFromBucketAndCheckpoint
         {
             get { return OraclePaging(OracleNativeStatements.GetCommitsFromBucketAndCheckpoint); }
+        }
+
+        public override string GetCommitsFromToBucketAndCheckpoint
+        {
+            get { return OraclePaging(OracleNativeStatements.GetCommitsFromToBucketAndCheckpoint); }
         }
 
         public override string GetStreamsRequiringSnapshots

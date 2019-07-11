@@ -156,14 +156,34 @@ namespace NEventStore.Persistence.Sql.SqlDialects
             get { return "@CheckpointNumber"; }
         }
 
+        public virtual string FromCheckpointNumber
+        {
+            get { return "@FromCheckpointNumber"; }
+        }
+
+        public virtual string ToCheckpointNumber
+        {
+            get { return "@ToCheckpointNumber"; }
+        }
+
         public virtual string GetCommitsFromCheckpoint
         {
             get { return CommonSqlStatements.GetCommitsFromCheckpoint; }
         }
 
+        public virtual string GetCommitsFromToCheckpoint
+        {
+            get { return CommonSqlStatements.GetCommitsFromToCheckpoint; }
+        }
+
         public virtual string GetCommitsFromBucketAndCheckpoint
         {
             get { return CommonSqlStatements.GetCommitsFromBucketAndCheckpoint; }
+        }
+
+        public virtual string GetCommitsFromToBucketAndCheckpoint
+        {
+            get { return CommonSqlStatements.GetCommitsFromToBucketAndCheckpoint; }
         }
 
         public virtual object CoalesceParameterValue(object value)
@@ -180,8 +200,8 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 
         public virtual DateTime ToDateTime(object value)
         {
-            value = value is decimal ? (long) (decimal) value : value;
-            return value is long ? new DateTime((long) value) : DateTime.SpecifyKind((DateTime) value, DateTimeKind.Utc);
+            value = value is decimal ? (long)(decimal)value : value;
+            return value is long ? new DateTime((long)value) : DateTime.SpecifyKind((DateTime)value, DateTimeKind.Utc);
         }
 
         public virtual NextPageDelegate NextPageDelegate

@@ -1,5 +1,10 @@
 # NEventStore.Persistence.Sql
 
+## 7.1.0
+
+- Updated NEventStore core library to 7.1.0.
+- Updated the Persistence.Engine to implement new IPersistStreams.GetFromTo interface methods.
+
 ## 7.0.0
 
 The default behavior when it comes to ambient transaction has been changed and it will impact mainly Microsoft SQL Server users:
