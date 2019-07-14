@@ -2,7 +2,7 @@
 
 ## 7.1.0
 
-- Updated NEventStore core library to 7.1.0.
+- Updated NEventStore core library to 7.0.0 (previous 7.0.0 version was still referencing NEventStore version 6.x).
 - Updated the Persistence.Engine to implement new IPersistStreams.GetFromTo interface methods.
 
 ## 7.0.0
@@ -12,6 +12,8 @@ The default behavior when it comes to ambient transaction has been changed and i
 - Enlist in ambient transaction has been removed from the main library.
 - All the transactions (or their suppression) should be managed by the user, by default NEventStore will not automatically create any TransactionScope anymore.
 - Enlist in ambient transaction was moved to the persistence drivers implementations, each driver has its own way to enable or disable the feature (the current driver implementation supports only Microsoft SQL Server).
+
+For more considerations and an indepth discussion on transaction support in NEventStore take a look at 'Prevent writing to > 1 stream in a transaction' [#287](https://github.com/NEventStore/NEventStore/issues/287)
 
 A new .net 4.5.1 compilation target was added to solve TransactionScope issues with the .net 4.5.0 (take a look at : [#377](https://github.com/NEventStore/NEventStore/issues/377) and [#414](https://github.com/NEventStore/NEventStore/issues/414)).
 
@@ -29,6 +31,8 @@ To revert to the previous behavior, configure the Persistence driver calling:
 
 - SuppressAmbientTransaction(): this will restore the previous behavior of suppressing any active transaction; every operation will be surrounded by a private nested TransactionScope with TransactionScopeOption.Suppress, so that any NEventStore code will run in a seperated transaction.
 - EnlistInAmbientTransaction(): will enlist the code in the external ambient transaction (if it exists), or it will create a new TransactionScope for the operation (same behavior as before).
+
+For more considerations and an indepth discussion on transaction support in NEventStore take a look at 'Prevent writing to > 1 stream in a transaction' [#287](https://github.com/NEventStore/NEventStore/issues/287)
 
 ## 6.0.0
 
