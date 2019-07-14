@@ -211,7 +211,7 @@
     <value>Disposing SQL statement resources, including any transactions and connections.</value>
   </data>
   <data name="DuplicateCommit" xml:space="preserve">
-    <value>Duplicate commit detected; throwing.</value>
+    <value>[NEventStore.Persistence.SQL] Duplicated commitId {0} - Bucket {1} - StreamId {2} - CommitSequence {3}</value>
   </data>
   <data name="CommandThrewException" xml:space="preserve">
     <value>Non-query statement threw an exception of type '{0}'.</value>

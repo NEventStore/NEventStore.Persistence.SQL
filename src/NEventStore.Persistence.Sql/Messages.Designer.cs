@@ -322,7 +322,7 @@ namespace NEventStore.Persistence.Sql {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Duplicate commit detected; throwing..
+        ///   Looks up a localized string similar to [NEventStore.Persistence.SQL] Duplicated commitId {0} - Bucket {1} - StreamId {2} - CommitSequence {3}.
         /// </summary>
         internal static string DuplicateCommit {
             get {

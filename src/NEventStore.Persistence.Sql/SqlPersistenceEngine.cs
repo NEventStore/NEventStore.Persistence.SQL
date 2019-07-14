@@ -145,8 +145,9 @@ namespace NEventStore.Persistence.Sql
 
                 if (DetectDuplicate(attempt))
                 {
-                    if (Logger.IsInfoEnabled) Logger.Info(Messages.DuplicateCommit);
-                    throw new DuplicateCommitException(e.Message, e);
+                    var msg = String.Format(Messages.DuplicateCommit, attempt.CommitId, attempt.BucketId, attempt.StreamId, attempt.CommitSequence);
+                    if (Logger.IsInfoEnabled) Logger.Info(msg);
+                    throw new DuplicateCommitException($"{msg} inner exception: {e.Message}", e);
                 }
 
                 if (Logger.IsInfoEnabled) Logger.Info(Messages.ConcurrentWriteDetected);
