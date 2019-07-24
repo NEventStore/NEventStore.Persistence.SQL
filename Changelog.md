@@ -1,5 +1,12 @@
 # NEventStore.Persistence.Sql
 
+## 7.2.0
+
+Fixes incorrect NEventStore reference, assembly version numbers and NuGet package [#30](https://github.com/NEventStore/NEventStore.Persistence.SQL/issues/30)
+
+Please do not use the previous NEventStore.Persistence.Sql 7.1.0 because the package is broken.
+Update to version 7.2.0 as soon as possible.
+
 ## 7.1.0
 
 - Updated NEventStore core library to 7.0.0 (previous 7.0.0 version was still referencing NEventStore version 6.x).

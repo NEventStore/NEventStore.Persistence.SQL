@@ -3,8 +3,22 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net45;net451</TargetFrameworks>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <AssemblyName>NEventStore.Persistence.Sql</AssemblyName>
     <RootNamespace>NEventStore.Persistence.Sql</RootNamespace>
+    <AssemblyName>NEventStore.Persistence.Sql</AssemblyName>
+    <ApplicationIcon />
+    <OutputType>Library</OutputType>
+    <StartupObject />
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageId>NEventStore.Persistence.SQL</PackageId>
+    <Title>NEventStore SQL Persistence Plugin</Title>
+    <Authors>NEventStore Dev Team</Authors>
+    <PackageProjectUrl>http://neventstore.org</PackageProjectUrl>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <Description>Additional persistence provider for NEventStore using SQL databases.</Description>
+    <PackageTags>events, event sourcing, cqrs, storage, persistence, database</PackageTags>
+    <PackageReleaseNotes></PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
