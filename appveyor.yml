@@ -13,16 +13,17 @@ dotnet_csproj:
   patch: true
   file: '**\*.csproj'
   version: '{version}'
+  version_prefix: '{version}'
   package_version: '{version}'
   assembly_version: '{version}'
   file_version: '{version}'
   informational_version: '{version}'
 environment:
-  NEventStore.MsSql: Server=localhost\SQL2014;Database=NEventStore;User Id=sa;Password=Password12!;
+  NEventStore.MsSql: Server=localhost\SQL2017;Database=NEventStore;User Id=sa;Password=Password12!;
   NEventStore.MySql: Server=localhost;Database=NEventStore;Uid=root;Pwd=Password12!;AutoEnlist=false;
   NEventStore.PostgreSql: Server=localhost;Database=NEventStore;Uid=postgres;Pwd=Password12!;Enlist=false;
 services:
-- mssql2014
+- mssql2017
 - mysql
 - postgresql
 install:
@@ -58,7 +59,7 @@ test_script:
 
     # Create MsSql database
 
-    $sqlInstance = "(local)\SQL2014"
+    $sqlInstance = "(local)\SQL2017"
 
     sqlcmd -S "$sqlInstance" -Q "Use [master]; CREATE DATABASE [$dbName]"
 
@@ -83,7 +84,7 @@ test_script:
     iex "& $pgcmd"
 
 
-    nunit3-console "C:\projects\neventstore-persistence-sql\src\NEventStore.Persistence.MsSql.Tests\bin\Release\net45\NEventStore.Persistence.MsSql.Tests.dll" "C:\projects\neventstore-persistence-sql\src\NEventStore.Persistence.MySql.Tests\bin\Release\net45\NEventStore.Persistence.MySql.Tests.dll" "C:\projects\neventstore-persistence-sql\src\NEventStore.Persistence.PostgreSql.Tests\bin\Release\net45\NEventStore.Persistence.PostgreSql.Tests.dll" "C:\projects\neventstore-persistence-sql\src\NEventStore.Persistence.Sqlite.Tests\bin\Release\net45\NEventStore.Persistence.Sqlite.Tests.dll" --workers=0 --result=testsresults.xml;
+    nunit3-console "C:\projects\neventstore-persistence-sql\src\NEventStore.Persistence.MsSql.Tests\bin\Release\net461\NEventStore.Persistence.MsSql.Tests.dll" "C:\projects\neventstore-persistence-sql\src\NEventStore.Persistence.MySql.Tests\bin\Release\net461\NEventStore.Persistence.MySql.Tests.dll" "C:\projects\neventstore-persistence-sql\src\NEventStore.Persistence.PostgreSql.Tests\bin\Release\net461\NEventStore.Persistence.PostgreSql.Tests.dll" "C:\projects\neventstore-persistence-sql\src\NEventStore.Persistence.Sqlite.Tests\bin\Release\net461\NEventStore.Persistence.Sqlite.Tests.dll" --workers=0 --result=testsresults.xml;
 
 
     # upload results to AppVeyor
@@ -91,19 +92,6 @@ test_script:
     $wc = New-Object 'System.Net.WebClient'
 
     $wc.UploadFile("https://ci.appveyor.com/api/testresults/nunit3/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\testsresults.xml))
-
-
-    # net451 tests need to be run on their own or they'll conflict with net45
-
-
-    nunit3-console "C:\projects\neventstore-persistence-sql\src\NEventStore.Persistence.MsSql.Tests\bin\Release\net451\NEventStore.Persistence.MsSql.Tests.dll" --workers=0 --result=testsresults451.xml;
-
-
-    # upload results to AppVeyor
-
-    $wc = New-Object 'System.Net.WebClient'
-
-    $wc.UploadFile("https://ci.appveyor.com/api/testresults/nunit3/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\testsresults451.xml))
 
 
     # todo: fix how dotnet tests are run

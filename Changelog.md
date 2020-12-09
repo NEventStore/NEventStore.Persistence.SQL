@@ -3,12 +3,12 @@
 ## 8.0.0
 
 - Updated NEventStore core library to 8.0.0
-- suupports net5.0, net4.6.1.
+- Supports net5.0, net4.6.1.
 
 ### Breaking Changes
 
-- dropped net45, net451.
-- Created a new dialect (MicrosoftDataSqliteDialect) to support Microfot.Data.Sqlite up to version 2.2.6.
+- Dropped net45, net451.
+- Created a new dialect (MicrosoftDataSqliteDialect) to support Microfot.Data.Sqlite up to version 2.2.6, there are issues with versions 3.x and 5.x.
 
 ## 7.2.0
 
