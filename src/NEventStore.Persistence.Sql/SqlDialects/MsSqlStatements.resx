@@ -135,7 +135,7 @@ CREATE TABLE [dbo].[Commits]
 );
 
 --datetime2 is supported starting from MSSQL 2008. For MSSQL 2005 datetime has to be used
-IF EXISTS(SELECT * FROM SYS.types WHERE NAME = 'datetime2')
+IF EXISTS(SELECT * FROM sys.types WHERE NAME = 'datetime2')
 	ALTER TABLE [dbo].[Commits] ADD [CommitStamp] [datetime2] NOT NULL
 ELSE
 	ALTER TABLE [dbo].[Commits] ADD [CommitStamp] [datetime] NOT NULL

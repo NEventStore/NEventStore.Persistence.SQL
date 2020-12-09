@@ -4,6 +4,7 @@
 
 - Updated NEventStore core library to 8.0.0
 - Supports net5.0, net4.6.1.
+- Schema initialization does not work with case insensitive database collations [#27](https://github.com/NEventStore/NEventStore.Persistence.SQL/issues/27)
 
 ### Breaking Changes
 
