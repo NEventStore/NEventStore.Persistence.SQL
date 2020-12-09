@@ -8,6 +8,7 @@
 ### Breaking Changes
 
 - dropped net45, net451.
+- Created a new dialect (MicrosoftDataSqliteDialect) to support Microfot.Data.Sqlite up to version 2.2.6.
 
 ## 7.2.0
 
