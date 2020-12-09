@@ -18,7 +18,7 @@ namespace NEventStore.Persistence.AcceptanceTests
 
         public PersistenceEngineFixture()
         {
-#if !NETSTANDARD2_0
+#if NET461
             _createPersistence = pageSize =>
                 new SqlPersistenceFactory(new EnviromentConnectionFactory("MsSql", "System.Data.SqlClient"),
                     new BinarySerializer(),

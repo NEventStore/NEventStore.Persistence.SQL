@@ -11,7 +11,7 @@ namespace NEventStore.Persistence.Sql
         private const int DefaultPageSize = 128;
         private readonly TransactionScopeOption? _scopeOption;
 
-#if !NETSTANDARD2_0
+#if NET461
         public SqlPersistenceFactory(
             string connectionName,
             ISerialize serializer,
@@ -60,7 +60,7 @@ namespace NEventStore.Persistence.Sql
             return new SqlPersistenceEngine(ConnectionFactory, Dialect, Serializer, PageSize, StreamIdHasher, _scopeOption);
         }
 
-#if !NETSTANDARD2_0
+#if NET461
         protected static ISqlDialect ResolveDialect(ConnectionStringSettings settings)
         {
             string providerName = settings.ProviderName.ToUpperInvariant();

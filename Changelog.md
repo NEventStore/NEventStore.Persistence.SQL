@@ -1,5 +1,14 @@
 # NEventStore.Persistence.Sql
 
+## 8.0.0
+
+- Updated NEventStore core library to 8.0.0
+- suupports net5.0, net4.6.1.
+
+### Breaking Changes
+
+- dropped net45, net451.
+
 ## 7.2.0
 
 Fixes incorrect NEventStore reference, assembly version numbers and NuGet package [#30](https://github.com/NEventStore/NEventStore.Persistence.SQL/issues/30)
