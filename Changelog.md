@@ -5,11 +5,17 @@
 - Updated NEventStore core library to 8.0.0
 - Supports net5.0, net4.6.1.
 - Schema initialization does not work with case insensitive database collations [#27](https://github.com/NEventStore/NEventStore.Persistence.SQL/issues/27)
+- Use 32bit integer for the items column on the Commits table [#15](https://github.com/NEventStore/NEventStore.Persistence.SQL/pull/15)
 
 ### Breaking Changes
 
 - Dropped net45, net451.
 - Created a new dialect (MicrosoftDataSqliteDialect) to support Microfot.Data.Sqlite up to version 2.2.6, there are issues with versions 3.x and 5.x.
+- [Commits] table structure has been changed due to [#15](https://github.com/NEventStore/NEventStore.Persistence.SQL/pull/15), you'll need to update it manually: 
+  the [Items] column has been modified:
+    - MsSql from 'tinyint' to 'int'.
+    - MySql from 'tinyint' to 'int'.
+    - PostgreSql from 'smallint' to 'int'.
 
 ## 7.2.0
 

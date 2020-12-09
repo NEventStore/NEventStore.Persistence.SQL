@@ -19,7 +19,7 @@ namespace NEventStore.Persistence.Sql.SqlDialects {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class MySqlStatements {
@@ -67,12 +67,12 @@ namespace NEventStore.Persistence.Sql.SqlDialects {
         ///    StreamId varchar(40) charset utf8 NOT NULL,
         ///    StreamIdOriginal varchar(1000) charset utf8 NOT NULL,
         ///    StreamRevision int NOT NULL CHECK (StreamRevision &gt; 0),
-        ///    Items tinyint NOT NULL CHECK (Items &gt; 0),
+        ///    Items int NOT NULL CHECK (Items &gt; 0),
         ///    CommitId binary(16) NOT NULL CHECK (CommitId != 0),
         ///    CommitSequence int NOT NULL CHECK (CommitSequence &gt; 0),
         ///    CommitStamp bigint NOT NULL,
         ///    CheckpointNumber bigint AUTO_INCREMENT,
-        ///    Headers [rest of string was truncated]&quot;;.
+        ///    Headers blo [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string InitializeStorage {
             get {
