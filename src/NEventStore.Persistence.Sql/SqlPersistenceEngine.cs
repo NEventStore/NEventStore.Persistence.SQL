@@ -105,7 +105,7 @@ namespace NEventStore.Persistence.Sql
                 {
                     string statement = _dialect.GetCommitsFromInstant;
                     query.AddParameter(_dialect.BucketId, bucketId, DbType.AnsiString);
-                    query.AddParameter(_dialect.CommitStamp, start);
+                    query.AddParameter(_dialect.CommitStamp, start, _dialect.GetDateTimeDbType());
                     return query.ExecutePagedQuery(statement, (q, r) => { })
                             .Select(x => x.GetCommit(_serializer, _dialect));
                 });
@@ -122,8 +122,8 @@ namespace NEventStore.Persistence.Sql
                 {
                     string statement = _dialect.GetCommitsFromToInstant;
                     query.AddParameter(_dialect.BucketId, bucketId, DbType.AnsiString);
-                    query.AddParameter(_dialect.CommitStampStart, start);
-                    query.AddParameter(_dialect.CommitStampEnd, end);
+                    query.AddParameter(_dialect.CommitStampStart, start, _dialect.GetDateTimeDbType());
+                    query.AddParameter(_dialect.CommitStampEnd, end, _dialect.GetDateTimeDbType());
                     return query.ExecutePagedQuery(statement, (q, r) => { })
                         .Select(x => x.GetCommit(_serializer, _dialect));
                 });
@@ -318,7 +318,7 @@ namespace NEventStore.Persistence.Sql
                 cmd.AddParameter(_dialect.Items, attempt.Events.Count);
                 cmd.AddParameter(_dialect.CommitId, attempt.CommitId);
                 cmd.AddParameter(_dialect.CommitSequence, attempt.CommitSequence);
-                cmd.AddParameter(_dialect.CommitStamp, attempt.CommitStamp);
+                cmd.AddParameter(_dialect.CommitStamp, attempt.CommitStamp, _dialect.GetDateTimeDbType());
                 cmd.AddParameter(_dialect.Headers, _serializer.Serialize(attempt.Headers));
                 _dialect.AddPayloadParamater(_connectionFactory, connection, cmd, _serializer.Serialize(attempt.Events.ToList()));
                 OnPersistCommit(cmd, attempt);

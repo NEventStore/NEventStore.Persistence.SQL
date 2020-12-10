@@ -1,6 +1,7 @@
 namespace NEventStore.Persistence.Sql.SqlDialects
 {
     using System;
+    using System.Data;
 
     /// <summary>
     /// Dialect that should be used with System.Data.Sqlite
@@ -32,6 +33,11 @@ namespace NEventStore.Persistence.Sql.SqlDialects
         public override DateTime ToDateTime(object value)
         {
             return ((DateTime)value).ToUniversalTime();
+        }
+
+        public override DbType GetDateTimeDbType()
+        {
+            return DbType.DateTime;
         }
     }
 

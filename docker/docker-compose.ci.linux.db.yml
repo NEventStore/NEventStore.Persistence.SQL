@@ -1,0 +1,57 @@
+# Root Docker Compose file to run the tests on the development machine using some pre-initialized databases
+# It must be used with powershell actions that mount the databases files.
+
+version: '2.4' # 2.4 supports "platform", 3.x does not.
+
+services:
+  sqlexpress:
+    platform: linux
+    image: mcr.microsoft.com/mssql/server #@sha256:0753f9e9c614c469e1e6b98ea60b21e20abd249323c9f6a9eab476c87a8cf826
+    mem_limit: 2000m
+    environment:
+      - SA_PASSWORD=Password1
+      - ACCEPT_EULA=Y
+      - MSSQL_PID=Express
+    ports:
+      - "50001:1433"
+#    volumes:
+#      - C:\Temp/NEventStore:/data
+#      - nes_sqldata_linux_ci:/var/opt/mssql
+
+  mongo:
+    platform: linux
+    image: mongo #@sha256:52c3314bee611f91d37b9b1bc0cc2755b1388f2de5b396b441f3fe94bef6c56c
+    ports:
+      - "50002:27017"
+#    volumes:
+#      - nes_mongodata_linux_ci:/data/db
+#      - nes_mongoconfig_linux_ci:/data/configdb
+
+  mysql:
+    platform: linux
+    image: mysql:5.7
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: Password1
+      MYSQL_DATABASE: NEventStore
+      MYSQL_USER: sa
+      MYSQL_PASSWORD: Password1
+    ports:
+      - "50003:3306"
+
+  postgres:
+    platform: linux
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: Password1
+      POSTGRES_USER: sa
+      POSTGRES_DB: NEventStore
+    ports:
+      - "50004:5432"
+
+#volumes:
+#  nes_sqldata_linux_ci:
+#  nes_mongodata_linux_ci:
+#  nes_mongoconfig_linux_ci:
