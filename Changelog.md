@@ -1,5 +1,26 @@
 # NEventStore.Persistence.Sql
 
+## 8.0.0
+
+- Updated NEventStore core library to 8.0.0
+- Supports net5.0, net4.6.1.
+- Schema initialization does not work with case insensitive database collations [#27](https://github.com/NEventStore/NEventStore.Persistence.SQL/issues/27)
+- Use 32bit integer for the items column on the Commits table [#15](https://github.com/NEventStore/NEventStore.Persistence.SQL/pull/15)
+- SqlPersistenceEngine, commit stamps are only saving with datetime precision, even though DB field is datetime2 [#1](https://github.com/NEventStore/NEventStore.Persistence.SQL/issues/1), [#399](https://github.com/NEventStore/NEventStore/issues/399)
+- Added docker files to have test environments up and running in minutes.
+
+### Breaking Changes
+
+- Dropped net45, net451.
+- Created a new dialect (MicrosoftDataSqliteDialect) to support Microfot.Data.Sqlite up to version 2.2.6, there are issues with versions 3.x and 5.x.
+  System.Data.Sqlite is supported by the default SqliteDialect.
+- [Commits] table structure has been changed due to [#15](https://github.com/NEventStore/NEventStore.Persistence.SQL/pull/15), you'll need to update it manually: 
+  the [Items] column has been modified:
+    - MsSql from 'tinyint' to 'int'.
+    - MySql from 'tinyint' to 'int'.
+    - PostgreSql from 'smallint' to 'int'.
+- the default SqlDialects now use DbType.DateTime2 to store dates: `ISqlDialect.GetDateTimeDbType()`, if you need something else override the default dialects and adapt them to your needs. 
+
 ## 7.2.0
 
 Fixes incorrect NEventStore reference, assembly version numbers and NuGet package [#30](https://github.com/NEventStore/NEventStore.Persistence.SQL/issues/30)

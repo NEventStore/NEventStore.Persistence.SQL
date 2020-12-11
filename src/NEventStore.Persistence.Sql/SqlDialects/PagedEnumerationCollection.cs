@@ -5,15 +5,16 @@ namespace NEventStore.Persistence.Sql.SqlDialects
     using System.Collections.Generic;
     using System.Data;
     using System.Transactions;
+    using Microsoft.Extensions.Logging;
     using NEventStore.Logging;
     using NEventStore.Persistence.Sql;
 
     public class PagedEnumerationCollection : IEnumerable<IDataRecord>, IEnumerator<IDataRecord>
     {
-        private static readonly ILog Logger = LogFactory.BuildLogger(typeof (PagedEnumerationCollection));
+        private static readonly ILogger Logger = LogFactory.BuildLogger(typeof (PagedEnumerationCollection));
         private readonly IDbCommand _command;
         private readonly ISqlDialect _dialect;
-        private readonly IEnumerable<IDisposable> _disposable = new IDisposable[] {};
+        private readonly IEnumerable<IDisposable> _disposable = Array.Empty<IDisposable>();
         private readonly NextPageDelegate _nextpage;
         private readonly int _pageSize;
         private readonly TransactionScope _scope;
@@ -72,7 +73,7 @@ namespace NEventStore.Persistence.Sql.SqlDialects
                 return true;
             }
 
-            if (Logger.IsVerboseEnabled) Logger.Verbose(Messages.QueryCompleted);
+            Logger.LogTrace(Messages.QueryCompleted);
             return false;
         }
 
@@ -110,24 +111,15 @@ namespace NEventStore.Persistence.Sql.SqlDialects
             _position = 0;
             _current = null;
 
-            if (_reader != null)
-            {
-                _reader.Dispose();
-            }
+            _reader?.Dispose();
 
             _reader = null;
 
-            if (_command != null)
-            {
-                _command.Dispose();
-            }
+            _command?.Dispose();
 
             // queries do not modify state and thus calling Complete() on a so-called 'failed' query only
             // allows any outer transaction scope to decide the fate of the transaction
-            if (_scope != null)
-            {
-                _scope.Complete(); // caller will dispose scope.
-            }
+            _scope?.Complete();
 
             foreach (var dispose in _disposable)
             {
@@ -160,7 +152,7 @@ namespace NEventStore.Persistence.Sql.SqlDialects
                 return false;
             }
 
-            if (Logger.IsVerboseEnabled) Logger.Verbose(Messages.EnumeratedRowCount, _position);
+            Logger.LogTrace(Messages.EnumeratedRowCount, _position);
             _reader.Dispose();
             _reader = OpenNextPage();
 
@@ -185,7 +177,7 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 
         private bool PageCompletelyEnumerated()
         {
-            return _position > 0 && 0 == _position%_pageSize;
+            return _position > 0 && _position%_pageSize == 0;
         }
 
         private IDataReader OpenNextPage()
@@ -196,7 +188,7 @@ namespace NEventStore.Persistence.Sql.SqlDialects
             }
             catch (Exception e)
             {
-                if (Logger.IsDebugEnabled) Logger.Debug(Messages.EnumerationThrewException, e.GetType());
+                Logger.LogDebug(Messages.EnumerationThrewException, e.GetType());
                 throw new StorageUnavailableException(e.Message, e);
             }
         }

@@ -3,6 +3,7 @@ namespace NEventStore.Persistence.Sql
     using System;
     using System.Collections.Generic;
     using System.Data;
+    using Microsoft.Extensions.Logging;
     using NEventStore.Logging;
     using NEventStore.Serialization;
 
@@ -18,11 +19,11 @@ namespace NEventStore.Persistence.Sql
         private const int CheckpointIndex = 7;
         private const int HeadersIndex = 8;
         private const int PayloadIndex = 9;
-        private static readonly ILog Logger = LogFactory.BuildLogger(typeof (CommitExtensions));
+        private static readonly ILogger Logger = LogFactory.BuildLogger(typeof (CommitExtensions));
 
         public static ICommit GetCommit(this IDataRecord record, ISerialize serializer, ISqlDialect sqlDialect)
         {
-            if (Logger.IsVerboseEnabled) Logger.Verbose(Messages.DeserializingCommit, serializer.GetType());
+            Logger.LogTrace(Messages.DeserializingCommit, serializer.GetType());
             var headers = serializer.Deserialize<Dictionary<string, object>>(record, HeadersIndex);
             var events = serializer.Deserialize<List<EventMessage>>(record, PayloadIndex);
 

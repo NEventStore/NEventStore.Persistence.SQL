@@ -64,5 +64,7 @@ namespace NEventStore.Persistence.Sql
         DateTime ToDateTime(object value);
 
         NextPageDelegate NextPageDelegate { get; }
+
+        DbType GetDateTimeDbType();
     }
 }

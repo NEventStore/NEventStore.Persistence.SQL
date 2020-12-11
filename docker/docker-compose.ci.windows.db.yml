@@ -1,0 +1,59 @@
+# Root Docker Compose file to run the tests on the development machine using some pre-initialized databases
+# It must be used with powershell actions that mount the databases files.
+
+version: '2.4' # 2.4 supports "platform", 3.x does not.
+
+services:
+  sqlexpress:
+    platform: windows
+    image: christianacca/mssql-server-windows-express
+    environment:
+      - SA_PASSWORD=Password1
+      - ACCEPT_EULA=Y
+    ports:
+      - "50001:1433"
+#    volumes:
+#      - "C:\\Temp\\NEventStore:c:\\data"
+#      - "nes_sqldata_windows_ci:c:\\sql\\userdbs\\data"
+#      - "nes_sqllog_windows_ci:c:\\sql\\userdbs\\log"
+#      - "nes_sqlbackup_windows_ci:c:\\sql\\backup"
+
+  mongo:
+    platform: windows
+    image: mongo
+    ports:
+      - "50002:27017"
+#    volumes:
+#      - nes_mongodata_windows_ci:/data/db
+#      - nes_mongoconfig_windows_ci:/data/configdb
+
+  mysql:
+    platform: windows
+    image: mysql:5.7
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: Password1
+      MYSQL_DATABASE: NEventStore
+      MYSQL_USER: sa
+      MYSQL_PASSWORD: Password1
+    ports:
+      - "50003:3306"
+
+  postgres:
+    platform: windows
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: Password1
+      POSTGRES_USER: sa
+      POSTGRES_DB: NEventStore
+    ports:
+      - "50004:5432"
+
+#volumes:
+#  nes_sqldata_windows_ci:
+#  nes_sqllog_windows_ci:
+#  nes_sqlbackup_windows_ci:
+#  nes_mongodata_windows_ci:
+#  nes_mongoconfig_windows_ci:

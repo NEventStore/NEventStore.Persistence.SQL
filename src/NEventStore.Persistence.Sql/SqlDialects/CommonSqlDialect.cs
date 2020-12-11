@@ -219,5 +219,10 @@ namespace NEventStore.Persistence.Sql.SqlDialects
         {
             return new CommonDbStatement(this, scope, connection, transaction);
         }
+
+        public virtual DbType GetDateTimeDbType()
+        {
+            return DbType.DateTime2;
+        }
     }
 }

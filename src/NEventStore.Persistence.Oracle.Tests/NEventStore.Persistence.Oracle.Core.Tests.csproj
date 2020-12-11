@@ -4,8 +4,8 @@
     <TargetFrameworks>netcoreapp3.1;net461;net5.0</TargetFrameworks>
     <IsPackable>false</IsPackable>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <AssemblyName>NEventStore.Persistence.MsSql.Tests</AssemblyName>
-    <RootNamespace>NEventStore.Persistence.MsSql.Tests</RootNamespace>
+    <AssemblyName>NEventStore.Persistence.Oracle.Tests</AssemblyName>
+    <RootNamespace>NEventStore.Persistence.Oracle.Tests</RootNamespace>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -14,9 +14,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.Data.SqlClient" Version="4.8.2" />
+    <PackageReference Include="Oracle.ManagedDataAccess" Version="12.1.2400" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net461'">
+    <Reference Include="System.Data" />
     <Reference Include="System.Transactions" />
   </ItemGroup>
   <ItemGroup>
@@ -43,7 +44,6 @@
 
   <ItemGroup>
     <Compile Include="..\..\dependencies\NEventStore\src\NEventStore.Persistence.AcceptanceTests\PersistenceTests.cs" Link="PersistenceTests.cs" />
-    <Compile Include="..\NEventStore.Persistence.Sql.Tests\PersistenceTests.Transactions.cs" Link="PersistenceTests.Transactions.cs" />
   </ItemGroup>
 
   <ItemGroup>

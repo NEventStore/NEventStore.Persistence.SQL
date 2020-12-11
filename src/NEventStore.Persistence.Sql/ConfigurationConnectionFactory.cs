@@ -1,5 +1,5 @@
 // netstandard does not have support for DbFactoryProviders, we need a totally different way to initialize the driver
-#if !NETSTANDARD2_0
+#if NET461
 namespace NEventStore.Persistence.Sql
 {
     using System;
@@ -8,13 +8,14 @@ namespace NEventStore.Persistence.Sql
     using System.Data;
     using System.Data.Common;
     using System.Linq;
+    using Microsoft.Extensions.Logging;
     using NEventStore.Logging;
 
     public class ConfigurationConnectionFactory : IConnectionFactory
     {
         private const string DefaultConnectionName = "NEventStore";
 
-        private static readonly ILog Logger = LogFactory.BuildLogger(typeof (ConfigurationConnectionFactory));
+        private static readonly ILogger Logger = LogFactory.BuildLogger(typeof(ConfigurationConnectionFactory));
 
         private static readonly IDictionary<string, ConnectionStringSettings> CachedSettings =
             new Dictionary<string, ConnectionStringSettings>();
@@ -28,7 +29,7 @@ namespace NEventStore.Persistence.Sql
         public ConfigurationConnectionFactory(string connectionName)
         {
             _connectionName = connectionName ?? DefaultConnectionName;
-            if (Logger.IsDebugEnabled) Logger.Debug(Messages.ConfiguringConnections, _connectionName);
+            Logger.LogDebug(Messages.ConfiguringConnections, _connectionName);
         }
 
         public ConfigurationConnectionFactory(string connectionName, string providerName, string connectionString)
@@ -44,7 +45,7 @@ namespace NEventStore.Persistence.Sql
 
         public virtual IDbConnection Open()
         {
-            if (Logger.IsVerboseEnabled) Logger.Verbose(Messages.OpeningMasterConnection, _connectionName);
+            Logger.LogTrace(Messages.OpeningMasterConnection, _connectionName);
             return Open(_connectionName);
         }
 
@@ -74,12 +75,12 @@ namespace NEventStore.Persistence.Sql
 
             try
             {
-                if (Logger.IsVerboseEnabled) Logger.Verbose(Messages.OpeningConnection, setting.Name);
+                Logger.LogTrace(Messages.OpeningConnection, setting.Name);
                 connection.Open();
             }
             catch (Exception e)
             {
-                if (Logger.IsWarnEnabled) Logger.Warn(Messages.OpenFailed, setting.Name);
+                Logger.LogWarning(Messages.OpenFailed, setting.Name);
                 throw new StorageUnavailableException(e.Message, e);
             }
 
@@ -90,8 +91,7 @@ namespace NEventStore.Persistence.Sql
         {
             lock (CachedSettings)
             {
-                ConnectionStringSettings setting;
-                if (CachedSettings.TryGetValue(connectionName, out setting))
+                if (CachedSettings.TryGetValue(connectionName, out ConnectionStringSettings setting))
                 {
                     return setting;
                 }
@@ -105,20 +105,19 @@ namespace NEventStore.Persistence.Sql
         {
             lock (CachedFactories)
             {
-                DbProviderFactory factory;
-                if (CachedFactories.TryGetValue(setting.Name, out factory))
+                if (CachedFactories.TryGetValue(setting.Name, out DbProviderFactory factory))
                 {
                     return factory;
                 }
                 factory = DbProviderFactories.GetFactory(setting.ProviderName);
-                if (Logger.IsDebugEnabled) Logger.Debug(Messages.DiscoveredConnectionProvider, setting.Name, factory.GetType());
+                Logger.LogDebug(Messages.DiscoveredConnectionProvider, setting.Name, factory.GetType());
                 return CachedFactories[setting.Name] = factory;
             }
         }
 
         protected virtual ConnectionStringSettings GetConnectionStringSettings(string connectionName)
         {
-            if (Logger.IsDebugEnabled) Logger.Debug(Messages.DiscoveringConnectionSettings, connectionName);
+            Logger.LogDebug(Messages.DiscoveringConnectionSettings, connectionName);
 
             ConnectionStringSettings settings = _connectionStringSettings ?? ConfigurationManager.ConnectionStrings
                                                                     .Cast<ConnectionStringSettings>()

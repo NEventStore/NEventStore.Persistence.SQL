@@ -109,4 +109,12 @@ namespace NEventStore.Persistence.Sql.SqlDialects
             return base.OpenTransaction(connection);
         }
     }
+
+    public class MsSql2005Dialect : MsSqlDialect
+    {
+        public override DbType GetDateTimeDbType()
+        {
+            return DbType.DateTime;
+        }
+    }
 }

@@ -5,8 +5,9 @@ SQL Persistence Engine for NEventStore
 
 NEventStore.Persistence.Sql currently supports:
 
-- dotnet framework 4.5
-- dotnet standard 2.0, dotnet core 2.0
+- .net framework 4.6.1
+- .net standard 2.0
+- .net 5.0
 - MsSql
 - SqlLite
 - MySql

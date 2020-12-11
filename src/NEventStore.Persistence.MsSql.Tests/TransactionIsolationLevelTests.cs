@@ -4,7 +4,7 @@ using System.Data;
 using System.Linq;
 using System.Transactions;
 using FluentAssertions;
-#if !NETSTANDARD2_0
+#if NET461
 using NEventStore.Diagnostics;
 #endif
 using NEventStore.Persistence.AcceptanceTests.BDD;
@@ -30,7 +30,7 @@ namespace NEventStore.Persistence.AcceptanceTests
 #if MSTEST
     [TestClass]
 #endif
-    public class when_reusing_a_connection_from_the_connection_pool_without_a_transaction_scope :
+    public class When_reusing_a_connection_from_the_connection_pool_without_a_transaction_scope :
         IsolationLevelConcern
     {
         protected override void Because()
@@ -42,12 +42,12 @@ namespace NEventStore.Persistence.AcceptanceTests
 
             Recorder.IsRecording = true;
             // Enumerate fully to make sure the underlying DB stuff (command/reader etc.) is disposed
-            var commits = Persistence.GetFrom(0).ToArray();
+            Persistence.GetFrom(0).ToArray();
             Recorder.IsRecording = false;
         }
 
         [Fact]
-        public void should_run_command_in_non_default_isolation_level()
+        public void Should_run_command_in_non_default_isolation_level()
         {
             Recorder.StatementsWithIsolationLevels.Select(i => i.IsolationLevel)
                 .Should().BeEquivalentTo(new[] {IsolationLevel.ReadCommitted});
@@ -56,7 +56,7 @@ namespace NEventStore.Persistence.AcceptanceTests
 
     public abstract class IsolationLevelConcern : SpecificationBase, IDisposable
     {
-        private IsolationLevelPersistenceEngineFixture _fixture;
+        private readonly IsolationLevelPersistenceEngineFixture _fixture;
 
         protected IPersistStreams Persistence
         {
@@ -75,36 +75,36 @@ namespace NEventStore.Persistence.AcceptanceTests
 
         protected override void Cleanup()
         {
-            _fixture.Dispose();
+            _fixture?.Dispose();
         }
 
         public void Dispose()
         {
-            if (_fixture != null)
-            {
-                _fixture.Dispose();
-            }
+            _fixture?.Dispose();
         }
 
         /// <summary>
+        /// <para>
         /// This code was meant to be run right before every test in the fixture to give time
         /// to do further initialization before the PersistenceEngineFixture was created.
         /// Unfortunately the 3 frameworks
-        /// have very different ways of doing this: 
+        /// have very different ways of doing this:
         /// - NUnit: TestFixtureSetUp
         /// - MSTest: ClassInitialize (not inherited, will be ignored if defined on a base class)
         /// - xUnit: IUseFixture + SetFixture
         /// We need a way to also have some configuration before the PersistenceEngineFixture is created.
-        /// 
+        /// </para>
+        /// <para>
         /// We'de decided to use the test constructor to do the job, it's your responsibility to guarantee
         /// One time initialization (for anything that need it, if you have multiple tests on a fixture)
         /// depending on the framework you are using.
-        /// 
-        /// We can solve the also adding an optional 'config' delegate to be executed as the first line in this base constructor.
-        /// 
+        /// </para>
+        /// <para>We can solve the also adding an optional 'config' delegate to be executed as the first line in this base constructor.</para>
+        /// <para>
         /// quick workaround:
         /// - the 'Reinitialize()' method can be called to rerun the initialization after we changed the configuration
         /// in the constructor
+        /// </para>
         /// </summary>
         protected IsolationLevelConcern()
         {
@@ -123,7 +123,7 @@ namespace NEventStore.Persistence.AcceptanceTests
         public IsolationLevelPersistenceEngineFixture()
         {
             _recorder = new IsolationLevelRecorder();
-#if !NETSTANDARD2_0
+#if NET461
             _connectionFactory = new EnviromentConnectionFactory("MsSql", "System.Data.SqlClient");
 #else
             _connectionFactory = new EnviromentConnectionFactory("MsSql", System.Data.SqlClient.SqlClientFactory.Instance);
@@ -136,12 +136,12 @@ namespace NEventStore.Persistence.AcceptanceTests
 
         public void Initialize()
         {
-            if (_persistence != null && !_persistence.IsDisposed)
+            if (_persistence?.IsDisposed == false)
             {
                 _persistence.Drop();
                 _persistence.Dispose();
             }
-#if !NETSTANDARD2_0
+#if NET461
             _persistence = new PerformanceCounterPersistenceEngine(_createPersistence(), "tests");
 #else
             _persistence = _createPersistence();
@@ -166,7 +166,7 @@ namespace NEventStore.Persistence.AcceptanceTests
 
         public void Dispose()
         {
-            if (_persistence != null && !_persistence.IsDisposed)
+            if (_persistence?.IsDisposed == false)
             {
                 _persistence.Drop();
                 _persistence.Dispose();

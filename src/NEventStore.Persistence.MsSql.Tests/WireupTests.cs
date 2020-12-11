@@ -22,7 +22,7 @@ namespace NEventStore.Persistence.AcceptanceTests
 #if MSTEST
     [TestClass]
 #endif
-    public class when_specifying_a_hasher : SpecificationBase
+    public class When_specifying_a_hasher : SpecificationBase
     {
         private bool _hasherInvoked;
         private IStoreEvents _eventStore;
@@ -31,7 +31,7 @@ namespace NEventStore.Persistence.AcceptanceTests
         {
             _eventStore = Wireup
                 .Init()
-#if !NETSTANDARD2_0
+#if NET461
                 .UsingSqlPersistence(new EnviromentConnectionFactory("MsSql", "System.Data.SqlClient"))
 #else
                 .UsingSqlPersistence(new EnviromentConnectionFactory("MsSql", System.Data.SqlClient.SqlClientFactory.Instance))
@@ -68,7 +68,7 @@ namespace NEventStore.Persistence.AcceptanceTests
         }
 
         [Fact]
-        public void should_invoke_hasher()
+        public void Should_invoke_hasher()
         {
             _hasherInvoked.Should().BeTrue();
         }

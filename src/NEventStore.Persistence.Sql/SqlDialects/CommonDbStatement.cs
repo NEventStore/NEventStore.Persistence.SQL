@@ -4,13 +4,14 @@ namespace NEventStore.Persistence.Sql.SqlDialects
     using System.Collections.Generic;
     using System.Data;
     using System.Transactions;
+    using Microsoft.Extensions.Logging;
     using NEventStore.Logging;
     using NEventStore.Persistence.Sql;
 
     public class CommonDbStatement : IDbStatement
     {
         private const int InfinitePageSize = 0;
-        private static readonly ILog Logger = LogFactory.BuildLogger(typeof(CommonDbStatement));
+        private static readonly ILogger Logger = LogFactory.BuildLogger(typeof(CommonDbStatement));
         private readonly IDbConnection _connection;
         private readonly ISqlDialect _dialect;
         private readonly TransactionScope _scope;
@@ -30,7 +31,7 @@ namespace NEventStore.Persistence.Sql.SqlDialects
             _transaction = transaction;
         }
 
-        protected IDictionary<string, Tuple<object, DbType?>> Parameters { get; private set; }
+        protected IDictionary<string, Tuple<object, DbType?>> Parameters { get; }
 
         protected ISqlDialect Dialect
         {
@@ -47,7 +48,7 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 
         public virtual void AddParameter(string name, object value, DbType? parameterType = null)
         {
-            if (Logger.IsDebugEnabled) Logger.Debug(Messages.AddingParameter, name);
+            Logger.LogDebug(Messages.AddingParameter, name);
             Parameters[name] = Tuple.Create(_dialect.CoalesceParameterValue(value), parameterType);
         }
 
@@ -59,7 +60,7 @@ namespace NEventStore.Persistence.Sql.SqlDialects
             }
             catch (Exception)
             {
-                if (Logger.IsDebugEnabled) Logger.Debug(Messages.ExceptionSuppressed);
+                Logger.LogDebug(Messages.ExceptionSuppressed);
                 return 0;
             }
         }
@@ -113,7 +114,7 @@ namespace NEventStore.Persistence.Sql.SqlDialects
             int pageSize = _dialect.CanPage ? PageSize : InfinitePageSize;
             if (pageSize > 0)
             {
-                if (Logger.IsVerboseEnabled) Logger.Verbose(Messages.MaxPageSize, pageSize);
+                Logger.LogTrace(Messages.MaxPageSize, pageSize);
                 Parameters.Add(_dialect.Limit, Tuple.Create((object)pageSize, (DbType?)null));
             }
 
@@ -122,22 +123,13 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 
         protected virtual void Dispose(bool disposing)
         {
-            if (Logger.IsVerboseEnabled) Logger.Verbose(Messages.DisposingStatement);
+            Logger.LogTrace(Messages.DisposingStatement);
 
-            if (_transaction != null)
-            {
-                _transaction.Dispose();
-            }
+            _transaction?.Dispose();
 
-            if (_connection != null)
-            {
-                _connection.Dispose();
-            }
+            _connection?.Dispose();
 
-            if (_scope != null)
-            {
-                _scope.Dispose();
-            }
+            _scope?.Dispose();
         }
 
         protected virtual IEnumerable<IDataRecord> ExecuteQuery(string queryText, NextPageDelegate nextpage, int pageSize)
@@ -158,7 +150,7 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 
         protected virtual IDbCommand BuildCommand(string statement)
         {
-            if (Logger.IsVerboseEnabled) Logger.Verbose(Messages.CreatingCommand);
+            Logger.LogTrace(Messages.CreatingCommand);
             IDbCommand command = _connection.CreateCommand();
 
             if (Settings.CommandTimeout > 0)
@@ -169,8 +161,8 @@ namespace NEventStore.Persistence.Sql.SqlDialects
             command.Transaction = _transaction;
             command.CommandText = statement;
 
-            if (Logger.IsVerboseEnabled) Logger.Verbose(Messages.ClientControlledTransaction, _transaction != null);
-            if (Logger.IsVerboseEnabled) Logger.Verbose(Messages.CommandTextToExecute, statement);
+            Logger.LogTrace(Messages.ClientControlledTransaction, _transaction != null);
+            Logger.LogTrace(Messages.CommandTextToExecute, statement);
 
             BuildParameters(command);
 
@@ -191,7 +183,7 @@ namespace NEventStore.Persistence.Sql.SqlDialects
             parameter.ParameterName = name;
             SetParameterValue(parameter, value, dbType);
 
-            if (Logger.IsVerboseEnabled) Logger.Verbose(Messages.BindingParameter, name, parameter.Value);
+            Logger.LogTrace(Messages.BindingParameter, name, parameter.Value);
             command.Parameters.Add(parameter);
         }
 
