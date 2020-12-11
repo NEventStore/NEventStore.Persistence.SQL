@@ -49,7 +49,11 @@ build:
   verbosity: minimal
 after_build:
 - cmd: >-
-    REM dotnet pack ./src/NEventStore.Persistence.Sql/NEventStore.Persistence.Sql.Core.csproj -c %CONFIGURATION% --no-build -o artifacts /p:PackageVersion=%GitVersion_NuGetVersion%
+    REM dotnet pack ./src/NEventStore.Persistence.Sql/NEventStore.Persistence.Sql.Core.csproj -c %CONFIGURATION% --no-build -o artifacts -p:PackageVersion=%GitVersion_NuGetVersion%
+
+
+    REM use .nuspec file, projects with submodule generate wrong PackageReferences
+
 
     nuget pack ./src/.nuget/NEventStore.Persistence.Sql.nuspec -properties "version=%GitVersion_NuGetVersion%;configuration=%CONFIGURATION%" -OutputDirectory artifacts
 test_script:
