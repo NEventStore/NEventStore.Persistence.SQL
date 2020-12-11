@@ -13,6 +13,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		..\appveyor.yml = ..\appveyor.yml
 		..\Changelog.md = ..\Changelog.md
 		.nuget\NEventStore.Persistence.Sql.nuspec = .nuget\NEventStore.Persistence.Sql.nuspec
+		..\README.md = ..\README.md
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NEventStore.Persistence.AcceptanceTests.Core", "..\dependencies\NEventStore\src\NEventStore.Persistence.AcceptanceTests\NEventStore.Persistence.AcceptanceTests.Core.csproj", "{8F9CC671-02C9-4C91-889A-6C3D9FB5905D}"

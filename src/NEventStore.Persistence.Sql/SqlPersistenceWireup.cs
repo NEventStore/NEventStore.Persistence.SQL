@@ -3,6 +3,7 @@ namespace NEventStore
 {
     using System;
     using System.Transactions;
+    using Microsoft.Extensions.Logging;
     using NEventStore.Logging;
     using NEventStore.Persistence.Sql;
     using NEventStore.Serialization;
@@ -10,7 +11,7 @@ namespace NEventStore
     public class SqlPersistenceWireup : PersistenceWireup
     {
         private const int DefaultPageSize = 512;
-        private static readonly ILog Logger = LogFactory.BuildLogger(typeof(SqlPersistenceWireup));
+        private static readonly ILogger Logger = LogFactory.BuildLogger(typeof(SqlPersistenceWireup));
         private int _pageSize = DefaultPageSize;
 
         public SqlPersistenceWireup(Wireup wireup, IConnectionFactory connectionFactory)
@@ -18,9 +19,9 @@ namespace NEventStore
         {
             Container.Register(TransactionSuppressionBehavior.Disabled);
 
-            if (Logger.IsDebugEnabled) Logger.Debug(Messages.ConnectionFactorySpecified, connectionFactory);
+            Logger.LogDebug(Messages.ConnectionFactorySpecified, connectionFactory);
 
-            if (Logger.IsVerboseEnabled) Logger.Verbose(Messages.AutoDetectDialect);
+            Logger.LogTrace(Messages.AutoDetectDialect);
             Container.Register<ISqlDialect>(_ => null); // auto-detect
             Container.Register<IStreamIdHasher>(_ => new Sha1StreamIdHasher());
 
@@ -43,21 +44,21 @@ namespace NEventStore
 
         public virtual SqlPersistenceWireup WithDialect(ISqlDialect instance)
         {
-            if (Logger.IsDebugEnabled) Logger.Debug(Messages.DialectSpecified, instance.GetType());
+            Logger.LogDebug(Messages.DialectSpecified, instance.GetType());
             Container.Register(instance);
             return this;
         }
 
         public virtual SqlPersistenceWireup PageEvery(int records)
         {
-            if (Logger.IsDebugEnabled) Logger.Debug(Messages.PagingSpecified, records);
+            Logger.LogDebug(Messages.PagingSpecified, records);
             _pageSize = records;
             return this;
         }
 
         public virtual SqlPersistenceWireup WithStreamIdHasher(IStreamIdHasher instance)
         {
-            if (Logger.IsDebugEnabled) Logger.Debug(Messages.StreamIdHasherSpecified, instance.GetType());
+            Logger.LogDebug(Messages.StreamIdHasherSpecified, instance.GetType());
             Container.Register(instance);
             return this;
         }
@@ -77,7 +78,7 @@ namespace NEventStore
         // [Obsolete("It Will be removed in a future release. Transaction management should be handled manually by the user.")]
         public SqlPersistenceWireup SuppressAmbientTransaction()
         {
-            if (Logger.IsInfoEnabled) Logger.Info("Enabling Suppress Ambient Transaction behavior (a TransactionScope with TransactionScopeOption.Suppress option will surround any operation).");
+            Logger.LogInformation("Enabling Suppress Ambient Transaction behavior (a TransactionScope with TransactionScopeOption.Suppress option will surround any operation).");
             Container.Register(TransactionSuppressionBehavior.Enabled);
             Container.Register(TransactionScopeOption.Suppress);
             return this;
@@ -102,7 +103,7 @@ namespace NEventStore
         // [Obsolete("It Will be removed in a future release. Transaction management should be handled manually by the user.")]
         public virtual SqlPersistenceWireup EnlistInAmbientTransaction()
         {
-            if (Logger.IsInfoEnabled) Logger.Info("Configuring persistence engine to enlist in ambient transactions using TransactionScope.");
+            Logger.LogInformation("Configuring persistence engine to enlist in ambient transactions using TransactionScope.");
             Container.Register(TransactionSuppressionBehavior.Enabled);
             Container.Register(TransactionScopeOption.Required);
             return this;
@@ -110,7 +111,7 @@ namespace NEventStore
             // check if EnableTransactionSuppression was previously called.
             if (Container.Resolve<DeprecatedTransactionSuppressionBehavior>() == DeprecatedTransactionSuppressionBehavior.Enabled)
             {
-                if (Logger.IsInfoEnabled) Logger.Info("Configuring persistence engine to enlist in ambient transactions using TransactionScope.");
+                Logger.LogInformation("Configuring persistence engine to enlist in ambient transactions using TransactionScope.");
                 Container.Register(TransactionScopeOption.Required);
                 return this;
             }

@@ -10,19 +10,18 @@ namespace NEventStore.Persistence.Sql.Tests
         private readonly string _envVarKey;
         private readonly DbProviderFactory _dbProviderFactory;
 
-#if !NETSTANDARD2_0
+#if NET461
         public EnviromentConnectionFactory(string envDatabaseName, string providerInvariantName)
         {
             _envVarKey = string.Format("NEventStore.{0}", envDatabaseName);
             _dbProviderFactory = DbProviderFactories.GetFactory(providerInvariantName);
         }
-#else
+#endif
         public EnviromentConnectionFactory(string envDatabaseName, DbProviderFactory dbProviderFactory)
         {
             _envVarKey = string.Format("NEventStore.{0}", envDatabaseName);
             _dbProviderFactory = dbProviderFactory;
         }
-#endif
 
         public IDbConnection Open()
         {

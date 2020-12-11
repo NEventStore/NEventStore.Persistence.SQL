@@ -1,4 +1,5 @@
-﻿using NEventStore.Logging;
+﻿using Microsoft.Extensions.Logging;
+using NEventStore.Logging;
 using System;
 using System.Data;
 using System.Data.Common;
@@ -7,7 +8,7 @@ namespace NEventStore.Persistence.Sql
 {
     public class NetStandardConnectionFactory : IConnectionFactory
     {
-        private static readonly ILog Logger = LogFactory.BuildLogger(typeof(NetStandardConnectionFactory));
+        private static readonly ILogger Logger = LogFactory.BuildLogger(typeof(NetStandardConnectionFactory));
 
         private readonly DbProviderFactory _providerFactory;
         private readonly string _connectionString;
@@ -25,7 +26,7 @@ namespace NEventStore.Persistence.Sql
 
         public IDbConnection Open()
         {
-            if (Logger.IsVerboseEnabled) Logger.Verbose(Messages.OpeningMasterConnection, _connectionString);
+            Logger.LogTrace(Messages.OpeningMasterConnection, _connectionString);
             return Open(_connectionString);
         }
 
@@ -47,12 +48,12 @@ namespace NEventStore.Persistence.Sql
 
             try
             {
-                if (Logger.IsVerboseEnabled) Logger.Verbose(Messages.OpeningConnection, connectionString);
+                Logger.LogTrace(Messages.OpeningConnection, connectionString);
                 connection.Open();
             }
             catch (Exception e)
             {
-                if (Logger.IsWarnEnabled) Logger.Warn(Messages.OpenFailed, connectionString);
+                Logger.LogWarning(Messages.OpenFailed, connectionString);
                 throw new StorageUnavailableException(e.Message, e);
             }
 

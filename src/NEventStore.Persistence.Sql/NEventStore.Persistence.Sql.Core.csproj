@@ -1,118 +1,111 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net45;net451</TargetFrameworks>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <RootNamespace>NEventStore.Persistence.Sql</RootNamespace>
-    <AssemblyName>NEventStore.Persistence.Sql</AssemblyName>
-    <ApplicationIcon />
-    <OutputType>Library</OutputType>
-    <StartupObject />
-  </PropertyGroup>
+    <PropertyGroup>
+        <TargetFrameworks>netstandard2.0;net461;net5.0</TargetFrameworks>
+        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+        <RootNamespace>NEventStore.Persistence.Sql</RootNamespace>
+        <AssemblyName>NEventStore.Persistence.Sql</AssemblyName>
+        <ApplicationIcon />
+        <OutputType>Library</OutputType>
+        <StartupObject />
+    </PropertyGroup>
 
-  <PropertyGroup>
-    <PackageId>NEventStore.Persistence.SQL</PackageId>
-    <Title>NEventStore SQL Persistence Plugin</Title>
-    <Authors>NEventStore Dev Team</Authors>
-    <PackageProjectUrl>http://neventstore.org</PackageProjectUrl>
-    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <Description>Additional persistence provider for NEventStore using SQL databases.</Description>
-    <PackageTags>events, event sourcing, cqrs, storage, persistence, database</PackageTags>
-    <PackageReleaseNotes></PackageReleaseNotes>
-  </PropertyGroup>
+    <PropertyGroup>
+        <PackageId>NEventStore.Persistence.SQL</PackageId>
+        <Title>NEventStore SQL Persistence Plugin</Title>
+        <Authors>NEventStore Dev Team</Authors>
+        <PackageProjectUrl>http://neventstore.org</PackageProjectUrl>
+        <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+        <Description>Additional persistence provider for NEventStore using SQL databases.</Description>
+        <PackageTags>events, event sourcing, cqrs, storage, persistence, database</PackageTags>
+        <PackageReleaseNotes></PackageReleaseNotes>
+    </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-    <DefineConstants Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">TRACE;DEBUG;NETSTANDARD2_0</DefineConstants>
-    <DefineConstants Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">NETSTANDARD2_0</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net45'">
-    <DefineConstants Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">TRACE;DEBUG</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net451'">
-    <DefineConstants Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">TRACE;DEBUG;NET451</DefineConstants>
-  </PropertyGroup>
+    <PropertyGroup>
+        <DefineConstants Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">TRACE;DEBUG</DefineConstants>
+    </PropertyGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-    <PackageReference Include="System.Data.SqlClient" Version="4.6.1" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net45' Or '$(TargetFramework)' == 'net451'">
-    <Reference Include="System.Configuration" />
-    <Reference Include="System.Transactions" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Web" />
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
+        <PackageReference Include="System.Data.SqlClient" Version="4.8.2" />
+    </ItemGroup>
+    <ItemGroup Condition="'$(TargetFramework)' == 'net461'">
+        <Reference Include="System.Configuration" />
+        <Reference Include="System.Transactions" />
+        <Reference Include="System.Web" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\dependencies\NEventStore\src\NEventStore\NEventStore.Core.csproj" />
-  </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\..\dependencies\NEventStore\src\NEventStore\NEventStore.Core.csproj" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <Compile Update="Messages.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Messages.resx</DependentUpon>
-    </Compile>
-    <Compile Update="SqlDialects\CommonSqlStatements.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>CommonSqlStatements.resx</DependentUpon>
-    </Compile>
-    <Compile Update="SqlDialects\MsSqlStatements.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>MsSqlStatements.resx</DependentUpon>
-    </Compile>
-    <Compile Update="SqlDialects\MySqlStatements.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>MySqlStatements.resx</DependentUpon>
-    </Compile>
-    <Compile Update="SqlDialects\OracleNativeStatements.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>OracleNativeStatements.resx</DependentUpon>
-    </Compile>
-    <Compile Update="SqlDialects\PostgreSqlStatements.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>PostgreSqlStatements.resx</DependentUpon>
-    </Compile>
-    <Compile Update="SqlDialects\SqliteStatements.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>SqliteStatements.resx</DependentUpon>
-    </Compile>
-  </ItemGroup>
+    <ItemGroup>
+        <Compile Update="Messages.Designer.cs">
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>Messages.resx</DependentUpon>
+        </Compile>
+        <Compile Update="SqlDialects\CommonSqlStatements.Designer.cs">
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>CommonSqlStatements.resx</DependentUpon>
+        </Compile>
+        <Compile Update="SqlDialects\MsSqlStatements.Designer.cs">
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>MsSqlStatements.resx</DependentUpon>
+        </Compile>
+        <Compile Update="SqlDialects\MySqlStatements.Designer.cs">
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>MySqlStatements.resx</DependentUpon>
+        </Compile>
+        <Compile Update="SqlDialects\OracleNativeStatements.Designer.cs">
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>OracleNativeStatements.resx</DependentUpon>
+        </Compile>
+        <Compile Update="SqlDialects\PostgreSqlStatements.Designer.cs">
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>PostgreSqlStatements.resx</DependentUpon>
+        </Compile>
+        <Compile Update="SqlDialects\SqliteStatements.Designer.cs">
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>SqliteStatements.resx</DependentUpon>
+        </Compile>
+    </ItemGroup>
 
-  <ItemGroup>
-    <EmbeddedResource Update="Messages.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Messages.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-    <EmbeddedResource Update="SqlDialects\CommonSqlStatements.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>CommonSqlStatements.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-    <EmbeddedResource Update="SqlDialects\MsSqlStatements.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>MsSqlStatements.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-    <EmbeddedResource Update="SqlDialects\MySqlStatements.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>MySqlStatements.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-    <EmbeddedResource Update="SqlDialects\OracleNativeStatements.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>OracleNativeStatements.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-    <EmbeddedResource Update="SqlDialects\PostgreSqlStatements.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>PostgreSqlStatements.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-    <EmbeddedResource Update="SqlDialects\SqliteStatements.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>SqliteStatements.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-  </ItemGroup>
+    <ItemGroup>
+        <EmbeddedResource Update="Messages.resx">
+            <Generator>ResXFileCodeGenerator</Generator>
+            <LastGenOutput>Messages.Designer.cs</LastGenOutput>
+        </EmbeddedResource>
+        <EmbeddedResource Update="SqlDialects\CommonSqlStatements.resx">
+            <Generator>ResXFileCodeGenerator</Generator>
+            <LastGenOutput>CommonSqlStatements.Designer.cs</LastGenOutput>
+        </EmbeddedResource>
+        <EmbeddedResource Update="SqlDialects\MsSqlStatements.resx">
+            <Generator>ResXFileCodeGenerator</Generator>
+            <LastGenOutput>MsSqlStatements.Designer.cs</LastGenOutput>
+        </EmbeddedResource>
+        <EmbeddedResource Update="SqlDialects\MySqlStatements.resx">
+            <Generator>ResXFileCodeGenerator</Generator>
+            <LastGenOutput>MySqlStatements.Designer.cs</LastGenOutput>
+        </EmbeddedResource>
+        <EmbeddedResource Update="SqlDialects\OracleNativeStatements.resx">
+            <Generator>ResXFileCodeGenerator</Generator>
+            <LastGenOutput>OracleNativeStatements.Designer.cs</LastGenOutput>
+        </EmbeddedResource>
+        <EmbeddedResource Update="SqlDialects\PostgreSqlStatements.resx">
+            <Generator>ResXFileCodeGenerator</Generator>
+            <LastGenOutput>PostgreSqlStatements.Designer.cs</LastGenOutput>
+        </EmbeddedResource>
+        <EmbeddedResource Update="SqlDialects\SqliteStatements.resx">
+            <Generator>ResXFileCodeGenerator</Generator>
+            <LastGenOutput>SqliteStatements.Designer.cs</LastGenOutput>
+        </EmbeddedResource>
+    </ItemGroup>
 
 </Project>

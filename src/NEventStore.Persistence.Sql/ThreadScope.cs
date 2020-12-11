@@ -3,6 +3,7 @@ namespace NEventStore.Persistence.Sql
     using System;
     using System.Threading;
     using System.Web;
+    using Microsoft.Extensions.Logging;
     using NEventStore.Logging;
 
     // HttpContext.Current is not a good idea, it's not supported in netstandard, possible alternatives (that requires some setup):
@@ -10,11 +11,11 @@ namespace NEventStore.Persistence.Sql
 
     public class ThreadScope<T> : IDisposable where T : class
     {
-#if !NETSTANDARD2_0
+#if NET461
         private readonly HttpContext _context = HttpContext.Current;
 #endif
 
-        private readonly ILog _logger = LogFactory.BuildLogger(typeof(ThreadScope<T>));
+        private readonly ILogger _logger = LogFactory.BuildLogger(typeof(ThreadScope<T>));
         private readonly bool _rootScope;
         private readonly string _threadKey;
         private bool _disposed;
@@ -25,7 +26,7 @@ namespace NEventStore.Persistence.Sql
 
             T parent = Load();
             _rootScope = parent == null;
-            if (_logger.IsDebugEnabled) _logger.Debug(Messages.OpeningThreadScope, _threadKey, _rootScope);
+            _logger.LogDebug(Messages.OpeningThreadScope, _threadKey, _rootScope);
 
             Current = parent ?? factory();
 
@@ -55,29 +56,28 @@ namespace NEventStore.Persistence.Sql
                 return;
             }
 
-            if (_logger.IsDebugEnabled) _logger.Debug(Messages.DisposingThreadScope, _rootScope);
+            _logger.LogDebug(Messages.DisposingThreadScope, _rootScope);
             _disposed = true;
             if (!_rootScope)
             {
                 return;
             }
 
-            if (_logger.IsVerboseEnabled) _logger.Verbose(Messages.CleaningRootThreadScope);
+            _logger.LogTrace(Messages.CleaningRootThreadScope);
             Store(null);
 
-            var resource = Current as IDisposable;
-            if (resource == null)
+            if (!(Current is IDisposable resource))
             {
                 return;
             }
 
-            if (_logger.IsVerboseEnabled) _logger.Verbose(Messages.DisposingRootThreadScopeResources);
+            _logger.LogTrace(Messages.DisposingRootThreadScopeResources);
             resource.Dispose();
         }
 
         private T Load()
         {
-#if !NETSTANDARD2_0
+#if NET461
             if (_context != null)
             {
                 return _context.Items[_threadKey] as T;
@@ -88,7 +88,7 @@ namespace NEventStore.Persistence.Sql
 
         private void Store(T value)
         {
-#if !NETSTANDARD2_0
+#if NET461
             if (_context != null)
             {
                 _context.Items[_threadKey] = value;

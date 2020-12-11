@@ -90,9 +90,7 @@ namespace NEventStore.Persistence.AcceptanceTests
                 // Single transaction scope
                 using (var scope = new TransactionScope(TransactionScopeOption.Required,
                         new TransactionOptions { IsolationLevel = _transationIsolationLevel }
-#if NET451 || NETSTANDARD2_0
                     , TransactionScopeAsyncFlowOption.Enabled
-#endif
                 ))
                 {
                     for (int i = 0; i < Loop; i++)
@@ -111,7 +109,7 @@ namespace NEventStore.Persistence.AcceptanceTests
                                 stream.CommitChanges(Guid.NewGuid());
                             }
                         }
-                    };
+                    }
                     Debug.WriteLine("Completing transaction");
                     if (_completeTransaction)
                     {
@@ -251,9 +249,7 @@ namespace NEventStore.Persistence.AcceptanceTests
                 // multiple transaction scopes: 1 for each connection
                 using (var scope = new TransactionScope(TransactionScopeOption.Required,
                     new TransactionOptions { IsolationLevel = _transationIsolationLevel }
-#if NET451 || NETSTANDARD2_0
                 , TransactionScopeAsyncFlowOption.Enabled
-#endif
                     ))
                 {
                     int j;
@@ -449,9 +445,7 @@ namespace NEventStore.Persistence.AcceptanceTests
                 // Single transaction scope
                 using (var scope = new TransactionScope(TransactionScopeOption.Required,
                         new TransactionOptions { IsolationLevel = _transationIsolationLevel }
-#if NET451 || NETSTANDARD2_0
                     , TransactionScopeAsyncFlowOption.Enabled
-#endif
                 ))
                 {
                     var res = Parallel.For(0, Loop, i =>
@@ -563,12 +557,12 @@ namespace NEventStore.Persistence.AcceptanceTests
             ) : base(enlistInAmbientTransaction, transationIsolationLevel, completeTransaction: true)
         { }
 
-#if NET45
+#if NET461
         // some of these tests fails with a local instance of sql sever
         [Fact]
         public void should_throw_an_StorageUnavailableException()
         {
-            Console.WriteLine($"net45 {_enlistInAmbientTransaction} {_transationIsolationLevel}");
+            Console.WriteLine($"net461 {_enlistInAmbientTransaction} {_transationIsolationLevel}");
             _thrown.Should().BeOfType<AggregateException>();
             AggregateException aex = _thrown as AggregateException;
             aex.InnerExceptions
@@ -625,35 +619,7 @@ namespace NEventStore.Persistence.AcceptanceTests
             }
         }
         */
-#endif
-
-#if NET451
-        [Fact]
-        public void should_throw_an_StorageUnavailableException()
-        {
-            Console.WriteLine($"net451 {_enlistInAmbientTransaction} {_transationIsolationLevel}");
-            _thrown.Should().BeOfType<AggregateException>();
-            AggregateException aex = _thrown as AggregateException;
-            aex.InnerExceptions
-                .Any(e => e.GetType().IsAssignableFrom(typeof(StorageUnavailableException)))
-                .Should().BeTrue();
-
-            //var storageExceptions = aex.InnerExceptions
-            //    .Where(e => e.GetType().IsAssignableFrom(typeof(StorageUnavailableException)))
-            //    .Select(e => e.Message);
-            //storageExceptions.Should()
-            //    .Match(c =>
-            //        c.Contains("This platform does not support distributed transactions.")
-            //        || c.Contains("The Promote method returned an invalid value for the distributed transaction.")
-            //    );
-
-            //.Contain("This platform does not support distributed transactions.");
-            // the following error means the transaction is being promoted to a distributed one, and still not supported
-            //    "The Promote method returned an invalid value for the distributed transaction.");
-        }
-#endif
-
-#if NETSTANDARD2_0
+#else
         [Fact]
         public void should_throw_an_StorageUnavailableException()
         {
