@@ -1,5 +1,17 @@
 # NEventStore.Persistence.Sql
 
+## PostgreSQL Warning
+
+If you upgrade Npgsql to version 6.0 and up you must take into account the breaking changes
+made about the timezones handling [Timestamp rationalization and improvements](https://www.npgsql.org/efcore/release-notes/6.0.html#timestamp-rationalization-and-improvements).
+
+Possible solutions:
+- manually migrate the Table schema and update the "CommitStamp" column type from "timestamp" to "timestamptz".
+- disable the new behavior by calling:
+  ```
+  AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+  ```
+
 ## 9.0.0
 
 - Updated NEventStore core library to 9.0.0.
@@ -11,7 +23,7 @@
 - Supports net5.0, net4.6.1.
 - Schema initialization does not work with case insensitive database collations [#27](https://github.com/NEventStore/NEventStore.Persistence.SQL/issues/27)
 - Use 32bit integer for the items column on the Commits table [#15](https://github.com/NEventStore/NEventStore.Persistence.SQL/pull/15)
-- SqlPersistenceEngine, commit stamps are only saving with datetime precision, even though DB field is datetime2 [#1](https://github.com/NEventStore/NEventStore.Persistence.SQL/issues/1), [#399](https://github.com/NEventStore/NEventStore/issues/399)
+- SqlPersistenceEngine, commit stamps are only saved with datetime precision, even though DB field is datetime2 [#1](https://github.com/NEventStore/NEventStore.Persistence.SQL/issues/1), [#399](https://github.com/NEventStore/NEventStore/issues/399)
 - Added docker files to have test environments up and running in minutes.
 
 ### Breaking Changes
