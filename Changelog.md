@@ -1,8 +1,13 @@
 # NEventStore.Persistence.Sql
 
+## 9.0.0
+
+- Updated NEventStore core library to 9.0.0.
+- Added support for net6.0.
+
 ## 8.0.0
 
-- Updated NEventStore core library to 8.0.0
+- Updated NEventStore core library to 8.0.0.
 - Supports net5.0, net4.6.1.
 - Schema initialization does not work with case insensitive database collations [#27](https://github.com/NEventStore/NEventStore.Persistence.SQL/issues/27)
 - Use 32bit integer for the items column on the Commits table [#15](https://github.com/NEventStore/NEventStore.Persistence.SQL/pull/15)
