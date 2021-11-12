@@ -1,21 +1,10 @@
 # NEventStore.Persistence.Sql
 
-## PostgreSQL Warning
-
-If you upgrade Npgsql to version 6.0 and up you must take into account the breaking changes
-made about the timezones handling [Timestamp rationalization and improvements](https://www.npgsql.org/efcore/release-notes/6.0.html#timestamp-rationalization-and-improvements).
-
-Possible solutions:
-- manually migrate the Table schema and update the "CommitStamp" column type from "timestamp" to "timestamptz".
-- disable the new behavior by calling:
-  ```
-  AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
-  ```
-
 ## 9.0.0
 
 - Updated NEventStore core library to 9.0.0.
 - Added support for net6.0.
+- Added a new PostgreSQL dialect (`PostgreNpgsql6Dialect`) to deal with Npgsql version 6 timestamp breaking changes. If you update the driver you might need to update the table schema manually [#34](https://github.com/NEventStore/NEventStore.Persistence.SQL/issues/34).
 
 ## 8.0.0
 

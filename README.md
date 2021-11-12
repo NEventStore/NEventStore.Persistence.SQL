@@ -8,6 +8,7 @@ NEventStore.Persistence.Sql currently supports:
 - .net framework 4.6.1
 - .net standard 2.0
 - .net 5.0
+- .net 6.0
 - MsSql
 - SqlLite
 - MySql
@@ -21,6 +22,19 @@ Branches:
 
 - master [![Build status](https://ci.appveyor.com/api/projects/status/5difan7hap8vwhwe/branch/master?svg=true)](https://ci.appveyor.com/project/AGiorgetti/neventstore-persistence-sql/branch/master)
 - develop [![Build status](https://ci.appveyor.com/api/projects/status/5difan7hap8vwhwe/branch/develop?svg=true)](https://ci.appveyor.com/project/AGiorgetti/neventstore-persistence-sql/branch/develop)
+
+## PostgreSQL Warning
+
+If you upgrade Npgsql to version 6.0 and up you must take into account the breaking changes
+made about the timezones handling [Timestamp rationalization and improvements](https://www.npgsql.org/efcore/release-notes/6.0.html#timestamp-rationalization-and-improvements).
+
+Possible solutions:
+- manually migrate the Table schema and update the "CommitStamp" column type from "timestamp" to "timestamptz".
+- disable the new behavior by calling:
+  ```
+  AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+  ```
+- use the new `PostgreNpgsql6Dialect`.
 
 ## How to Build (locally)
 
