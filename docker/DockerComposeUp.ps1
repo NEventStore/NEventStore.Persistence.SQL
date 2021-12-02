@@ -13,9 +13,9 @@ Write-Host "Creating Databases"
 Start-Sleep -Seconds 20
 
 if ($platform -eq "linux") {
-docker exec nesci_sqlexpress_1 /opt/mssql-tools/bin/sqlcmd -l 60 -S localhost -U sa -P Password1 -Q "CREATE DATABASE NEventStore"
+docker exec nesci-sqlexpress-1 /opt/mssql-tools/bin/sqlcmd -l 60 -S localhost -U sa -P Password1 -Q "CREATE DATABASE NEventStore"
 }
 
 if ($platform -eq "windows") {
-docker exec nesci_sqlexpress_1 sqlcmd -l 60 -S localhost -U sa -P Password1 -Q "CREATE DATABASE NEventStore"
+docker exec nesci-sqlexpress-1 sqlcmd -l 60 -S localhost -U sa -P Password1 -Q "CREATE DATABASE NEventStore"
 }

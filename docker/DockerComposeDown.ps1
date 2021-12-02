@@ -10,15 +10,15 @@ if ($platform -eq "linux") {
     # workaround is to kill the containers manually
 
     #Write-Host "LCOW stopping bug, hack: killing the containers (https://github.com/moby/moby/issues/37919)."
-    #docker kill -s 9 nesci_sqlexpress_1
-    #docker kill -s 9 nesci_mongo_1
-    #docker kill -s 9 nesci_mysql_1
-    #docker kill -s 9 nesci_postgres_1
+    #docker kill -s 9 nesci-sqlexpress-1
+    #docker kill -s 9 nesci-mongo-1
+    #docker kill -s 9 nesci-mysql-1
+    #docker kill -s 9 nesci-postgres-1
 }
 # -v "removes all the volumes, there's no need to do it manually"
 docker-compose -f docker-compose.ci.$platform.db.yml -p nesci down -v
 
 # remove unneeded volumes, so we start clear every time
 #Write-Host "Removing volumes:"
-#docker volume rm nesci_h8_sqldata_${platform}_ci
-#docker volume rm nesci_h8_mongodata_${platform}_ci
+#docker volume rm nesci-h8-sqldata-${platform}_ci
+#docker volume rm nesci-h8_mongodata-${platform}_ci

@@ -1,12 +1,18 @@
 # NEventStore.Persistence.Sql
 
+## 9.0.0
+
+- Updated NEventStore core library to 9.0.0.
+- Added support for net6.0.
+- Added a new PostgreSQL dialect (`PostgreNpgsql6Dialect`) to deal with Npgsql version 6 timestamp breaking changes. If you update the driver you might need to update the table schema manually [#34](https://github.com/NEventStore/NEventStore.Persistence.SQL/issues/34).
+
 ## 8.0.0
 
-- Updated NEventStore core library to 8.0.0
+- Updated NEventStore core library to 8.0.0.
 - Supports net5.0, net4.6.1.
 - Schema initialization does not work with case insensitive database collations [#27](https://github.com/NEventStore/NEventStore.Persistence.SQL/issues/27)
 - Use 32bit integer for the items column on the Commits table [#15](https://github.com/NEventStore/NEventStore.Persistence.SQL/pull/15)
-- SqlPersistenceEngine, commit stamps are only saving with datetime precision, even though DB field is datetime2 [#1](https://github.com/NEventStore/NEventStore.Persistence.SQL/issues/1), [#399](https://github.com/NEventStore/NEventStore/issues/399)
+- SqlPersistenceEngine, commit stamps are only saved with datetime precision, even though DB field is datetime2 [#1](https://github.com/NEventStore/NEventStore.Persistence.SQL/issues/1), [#399](https://github.com/NEventStore/NEventStore/issues/399)
 - Added docker files to have test environments up and running in minutes.
 
 ### Breaking Changes
