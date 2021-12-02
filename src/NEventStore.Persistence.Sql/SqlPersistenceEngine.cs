@@ -13,7 +13,7 @@ namespace NEventStore.Persistence.Sql
     public class SqlPersistenceEngine : IPersistStreams
     {
         private static readonly ILogger Logger = LogFactory.BuildLogger(typeof(SqlPersistenceEngine));
-        private static readonly DateTime EpochTime = new DateTime(1970, 1, 1);
+        private static readonly DateTime EpochTime = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
         private readonly IConnectionFactory _connectionFactory;
         private readonly ISqlDialect _dialect;
         private readonly int _pageSize;
