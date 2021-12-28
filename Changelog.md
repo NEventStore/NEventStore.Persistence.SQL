@@ -1,5 +1,10 @@
 # NEventStore.Persistence.Sql
 
+## 9.0.1 
+
+- Added documentation files to NuGet packages (improved intellisense support) [#36](https://github.com/NEventStore/NEventStore.Persistence.SQL/issues/36)
+- Updated NEventStore reference to 9.0.1
+
 ## 9.0.0
 
 - Updated NEventStore core library to 9.0.0.

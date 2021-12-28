@@ -50,5 +50,6 @@
   <files>
     <!--<file src="bin\$configuration$\**" target="lib"/>-->
     <file src="..\NEventStore.Persistence.Sql\bin\$configuration$\**\NEventStore.Persistence.Sql.dll" target="lib"/>
+    <file src="..\NEventStore.Persistence.Sql\bin\$configuration$\**\NEventStore.Persistence.Sql.xml" target="lib"/>
   </files>
 </package>
