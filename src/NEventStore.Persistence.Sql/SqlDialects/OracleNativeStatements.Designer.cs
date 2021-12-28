@@ -19,7 +19,7 @@ namespace NEventStore.Persistence.Sql.SqlDialects {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class OracleNativeStatements {
@@ -152,7 +152,7 @@ namespace NEventStore.Persistence.Sql.SqlDialects {
         ///SELECT BucketId, StreamId, StreamIdOriginal, StreamRevision, CommitId, CommitSequence, CommitStamp, CheckpointNumber, Headers, Payload 
         ///FROM Commits 
         ///WHERE BucketId = :BucketId AND CommitStamp &gt;= :CommitStamp 
-        ///ORDER BY CommitStamp, StreamId, CommitSequence.
+        ///ORDER BY CheckpointNumber.
         /// </summary>
         internal static string GetCommitsFromInstant {
             get {
@@ -168,7 +168,7 @@ namespace NEventStore.Persistence.Sql.SqlDialects {
         ///   AND StreamRevision &gt;= :StreamRevision
         ///   AND (StreamRevision - Items) &lt; :MaxStreamRevision
         ///   AND CommitSequence &gt; :CommitSequence 
-        ///ORDER BY CommitSequence.
+        ///ORDER BY CheckpointNumber.
         /// </summary>
         internal static string GetCommitsFromStartingRevision {
             get {

@@ -4,6 +4,7 @@
 
 - Added documentation files to NuGet packages (improved intellisense support) [#36](https://github.com/NEventStore/NEventStore.Persistence.SQL/issues/36)
 - Updated NEventStore reference to 9.0.1
+- Commit order of commits with same timestamp is random when using GetFrom/GetFromTo with a DateTime [#35](https://github.com/NEventStore/NEventStore.Persistence.SQL/issues/35)
 
 ## 9.0.0
 

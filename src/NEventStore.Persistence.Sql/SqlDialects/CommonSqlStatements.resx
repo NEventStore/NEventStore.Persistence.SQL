@@ -147,7 +147,7 @@ AND NOT EXISTS
     <value>SELECT BucketId, StreamId, StreamIdOriginal, StreamRevision, CommitId, CommitSequence, CommitStamp, CheckpointNumber, Headers, Payload
   FROM Commits
  WHERE BucketId = @BucketId AND CommitStamp &gt;= @CommitStamp
- ORDER BY CommitStamp, StreamId, CommitSequence
+ ORDER BY CheckpointNumber
  LIMIT @Limit OFFSET @Skip;</value>
   </data>
   <data name="GetCommitsFromToInstant" xml:space="preserve">
@@ -156,7 +156,7 @@ AND NOT EXISTS
  WHERE BucketId = @BucketId
    AND CommitStamp &gt;= @CommitStampStart
    AND CommitStamp &lt; @CommitStampEnd
- ORDER BY CommitStamp, StreamId, CommitSequence
+ ORDER BY CheckpointNumber
  LIMIT @Limit OFFSET @Skip;</value>
   </data>
   <data name="GetCommitsFromStartingRevision" xml:space="preserve">

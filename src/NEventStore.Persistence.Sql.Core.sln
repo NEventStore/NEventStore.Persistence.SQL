@@ -35,6 +35,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{7C2C7C
 		.nuget\NEventStore.Persistence.Sql.nuspec = .nuget\NEventStore.Persistence.Sql.nuspec
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docker", "docker", "{C68C813A-B71E-4F21-8CE8-31220D2B3E10}"
+	ProjectSection(SolutionItems) = preProject
+		..\docker\docker-compose.ci.linux.db.yml = ..\docker\docker-compose.ci.linux.db.yml
+		..\docker\docker-compose.ci.windows.db.yml = ..\docker\docker-compose.ci.windows.db.yml
+		..\docker\DockerComposeDown.ps1 = ..\docker\DockerComposeDown.ps1
+		..\docker\DockerComposeUp.ps1 = ..\docker\DockerComposeUp.ps1
+		..\docker\Readme.md = ..\docker\Readme.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -80,6 +89,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{6F7B51D5-C6F0-4D10-BCCD-E813F005BF21} = {7B0D03A4-5CB2-4674-AE01-F33F321B6FA4}
 		{8F9CC671-02C9-4C91-889A-6C3D9FB5905D} = {7B0D03A4-5CB2-4674-AE01-F33F321B6FA4}
+		{C68C813A-B71E-4F21-8CE8-31220D2B3E10} = {A05F912F-86CC-4106-BEB4-B1856BCA6739}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B46B87FE-AC30-4F44-A951-896E9276AB28}

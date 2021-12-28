@@ -5,6 +5,7 @@ version: '2.4' # 2.4 supports "platform", 3.x does not.
 
 services:
   sqlexpress:
+    container_name: nesci-sqlexpress-1
     platform: windows
     image: christianacca/mssql-server-windows-express
     environment:
@@ -18,16 +19,18 @@ services:
 #      - "nes_sqllog_windows_ci:c:\\sql\\userdbs\\log"
 #      - "nes_sqlbackup_windows_ci:c:\\sql\\backup"
 
-  mongo:
-    platform: windows
-    image: mongo
-    ports:
-      - "50002:27017"
-#    volumes:
-#      - nes_mongodata_windows_ci:/data/db
-#      - nes_mongoconfig_windows_ci:/data/configdb
+#  mongo:
+#    container_name: nesci-mongo-1
+#    platform: windows
+#    image: mongo
+#    ports:
+#      - "50002:27017"
+##    volumes:
+##      - nes_mongodata_windows_ci:/data/db
+##      - nes_mongoconfig_windows_ci:/data/configdb
 
   mysql:
+    container_name: nesci-mysql-1
     platform: windows
     image: mysql:5.7
     command: --default-authentication-plugin=mysql_native_password
@@ -41,6 +44,7 @@ services:
       - "50003:3306"
 
   postgres:
+    container_name: nesci-postgres-1
     platform: windows
     image: postgres
     restart: always
