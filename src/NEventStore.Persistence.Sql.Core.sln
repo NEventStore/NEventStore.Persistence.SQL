@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.28407.52
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.31911.260
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NEventStore.Core", "..\dependencies\NEventStore\src\NEventStore\NEventStore.Core.csproj", "{6F7B51D5-C6F0-4D10-BCCD-E813F005BF21}"
 EndProject
@@ -29,6 +29,20 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NEventStore.Persistence.MySql.Core.Tests", "NEventStore.Persistence.MySql.Tests\NEventStore.Persistence.MySql.Core.Tests.csproj", "{440599CA-0C6E-4BA5-A518-289396300373}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NEventStore.Persistence.PostgreSql.Core.Tests", "NEventStore.Persistence.PostgreSql.Tests\NEventStore.Persistence.PostgreSql.Core.Tests.csproj", "{E81E631B-AEF4-432D-8A5B-3F75B856F0CB}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{7C2C7CFB-3AAD-47D3-8357-B17044696816}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\NEventStore.Persistence.Sql.nuspec = .nuget\NEventStore.Persistence.Sql.nuspec
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docker", "docker", "{C68C813A-B71E-4F21-8CE8-31220D2B3E10}"
+	ProjectSection(SolutionItems) = preProject
+		..\docker\docker-compose.ci.linux.db.yml = ..\docker\docker-compose.ci.linux.db.yml
+		..\docker\docker-compose.ci.windows.db.yml = ..\docker\docker-compose.ci.windows.db.yml
+		..\docker\DockerComposeDown.ps1 = ..\docker\DockerComposeDown.ps1
+		..\docker\DockerComposeUp.ps1 = ..\docker\DockerComposeUp.ps1
+		..\docker\Readme.md = ..\docker\Readme.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -75,6 +89,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{6F7B51D5-C6F0-4D10-BCCD-E813F005BF21} = {7B0D03A4-5CB2-4674-AE01-F33F321B6FA4}
 		{8F9CC671-02C9-4C91-889A-6C3D9FB5905D} = {7B0D03A4-5CB2-4674-AE01-F33F321B6FA4}
+		{C68C813A-B71E-4F21-8CE8-31220D2B3E10} = {A05F912F-86CC-4106-BEB4-B1856BCA6739}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B46B87FE-AC30-4F44-A951-896E9276AB28}
