@@ -19,7 +19,7 @@ namespace NEventStore.Persistence.Sql.SqlDialects {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class CommonSqlStatements {
@@ -149,7 +149,7 @@ namespace NEventStore.Persistence.Sql.SqlDialects {
         ///   Looks up a localized string similar to SELECT BucketId, StreamId, StreamIdOriginal, StreamRevision, CommitId, CommitSequence, CommitStamp, CheckpointNumber, Headers, Payload
         ///  FROM Commits
         /// WHERE BucketId = @BucketId AND CommitStamp &gt;= @CommitStamp
-        /// ORDER BY CommitStamp, StreamId, CommitSequence
+        /// ORDER BY CheckpointNumber
         /// LIMIT @Limit OFFSET @Skip;.
         /// </summary>
         internal static string GetCommitsFromInstant {
@@ -210,7 +210,7 @@ namespace NEventStore.Persistence.Sql.SqlDialects {
         /// WHERE BucketId = @BucketId
         ///   AND CommitStamp &gt;= @CommitStampStart
         ///   AND CommitStamp &lt; @CommitStampEnd
-        /// ORDER BY CommitStamp, StreamId, CommitSequence
+        /// ORDER BY CheckpointNumber
         /// LIMIT @Limit OFFSET @Skip;.
         /// </summary>
         internal static string GetCommitsFromToInstant {
