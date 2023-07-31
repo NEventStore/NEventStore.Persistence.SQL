@@ -125,7 +125,7 @@
     StreamIdOriginal varchar(1000) charset utf8 NOT NULL,
     StreamRevision int NOT NULL CHECK (StreamRevision &gt; 0),
     Items int NOT NULL CHECK (Items &gt; 0),
-    CommitId binary(16) NOT NULL CHECK (CommitId != 0),
+    CommitId binary(16) NOT NULL CHECK (CommitId &lt;&gt; 0x00),
     CommitSequence int NOT NULL CHECK (CommitSequence &gt; 0),
     CommitStamp bigint NOT NULL,
     CheckpointNumber bigint AUTO_INCREMENT,
