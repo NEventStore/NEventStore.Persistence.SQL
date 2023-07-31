@@ -1,5 +1,17 @@
 # NEventStore.Persistence.Sql
 
+## 9.1.1
+
+- Target Framework supported: netstandard2.0, net462
+- Updated System.Data.SqlClient 4.8.5
+- Fix: NEventStore constraint failed with MySql 8.x (works with 5.7) [#487](https://github.com/NEventStore/NEventStore/issues/487)
+
+### Breaking Change
+
+- The fix for [#487](https://github.com/NEventStore/NEventStore/issues/487) changed how the `Commits` table is created for MySql 8.x:
+  to update an existing database in order to run on 8.x you need to manually update the `Commits` table schema and change the constraint of the `CommitId` column
+  from: `CommitId binary(16) NOT NULL CHECK (CommitId != 0)` to: `CommitId binary(16) NOT NULL CHECK (CommitId <> 0x00)`.
+
 ## 9.0.1 
 
 - Added documentation files to NuGet packages (improved intellisense support) [#36](https://github.com/NEventStore/NEventStore.Persistence.SQL/issues/36)

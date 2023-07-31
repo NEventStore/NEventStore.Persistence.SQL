@@ -6,7 +6,7 @@
 
     public partial class PersistenceEngineFixture
     {
-#if NET461
+#if NET462
         public PersistenceEngineFixture()
         {
             _createPersistence = pageSize =>
