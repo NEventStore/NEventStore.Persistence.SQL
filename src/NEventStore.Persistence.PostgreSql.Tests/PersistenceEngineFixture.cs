@@ -14,7 +14,7 @@ namespace NEventStore.Persistence.AcceptanceTests
             // It will be done when creating the PostgreNpgsql6Dialect dialect
             // AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
-#if NET461
+#if NET462
             _createPersistence = pageSize =>
                 new SqlPersistenceFactory(
                     new EnviromentConnectionFactory("PostgreSql", "Npgsql"),

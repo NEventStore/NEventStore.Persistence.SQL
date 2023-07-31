@@ -31,7 +31,7 @@ namespace NEventStore.Persistence.AcceptanceTests
         {
             _eventStore = Wireup
                 .Init()
-#if NET461
+#if NET462
                 .UsingSqlPersistence(new EnviromentConnectionFactory("MsSql", "System.Data.SqlClient"))
 #else
                 .UsingSqlPersistence(new EnviromentConnectionFactory("MsSql", System.Data.SqlClient.SqlClientFactory.Instance))

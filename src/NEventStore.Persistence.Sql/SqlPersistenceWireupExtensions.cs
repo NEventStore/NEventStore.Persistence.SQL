@@ -7,7 +7,7 @@ namespace NEventStore
     public static class SqlPersistenceWireupExtensions
     {
         // netstandard does not have support for DbFactoryProviders, we need a totally different way to initialize the driver
-#if NET461
+#if NET462
         public static SqlPersistenceWireup UsingSqlPersistence(this Wireup wireup, string connectionName)
         {
             var factory = new ConfigurationConnectionFactory(connectionName);
@@ -29,7 +29,7 @@ namespace NEventStore
 
         public static SqlPersistenceWireup UsingSqlPersistence(this Wireup wireup, IConnectionFactory factory)
         {
-#if NET461
+#if NET462
             // init the global seetings if needed
             int timeout = 0;
             if (int.TryParse(System.Configuration.ConfigurationManager.AppSettings["NEventStore.SqlCommand.Timeout"], out timeout))

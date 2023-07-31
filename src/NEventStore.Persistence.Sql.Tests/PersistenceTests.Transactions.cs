@@ -557,7 +557,7 @@ namespace NEventStore.Persistence.AcceptanceTests
             ) : base(enlistInAmbientTransaction, transationIsolationLevel, completeTransaction: true)
         { }
 
-#if NET461
+#if NET462
         // some of these tests fails with a local instance of sql sever
         [Fact]
         public void should_throw_an_StorageUnavailableException()

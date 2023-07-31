@@ -5,10 +5,8 @@ SQL Persistence Engine for NEventStore
 
 NEventStore.Persistence.Sql currently supports:
 
-- .net framework 4.6.1
+- .net framework 4.6.2
 - .net standard 2.0
-- .net 5.0
-- .net 6.0
 - MsSql
 - SqlLite
 - MySql
@@ -56,6 +54,18 @@ To build the project locally on a Windows Machine:
 - Install [Chocolatey](https://chocolatey.org/).
 - Optional: update `.\src\.nuget\NEventStore.Persistence.Sql.nuspec` file if needed (before creating relase packages).
 - Open a Powershell console in Administrative mode and run the build script `build.ps1` in the root of the repository.
+
+## How to Run Unit Tests (locally)
+
+- Install Database engines or use Docker to run them in a container (you can use the scripts in `./docker` folder).
+- Define the following environment variables:
+
+  ```
+  NEventStore.MsSql="Server=localhost,50001;Database=NEventStore;User Id=sa;Password=Password1;"
+  NEventStore.MySql="Server=localhost;Port=50003;Database=NEventStore;Uid=sa;Pwd=Password1;AutoEnlist=false;"
+  NEventStore.PostgreSql="Server=localhost;Port=50004;Database=NEventStore;Uid=sa;Pwd=Password1;Enlist=false;"
+  NEventStore.Oracle="Data Source=localhost:1521/XE;User Id=system;Password=Password1;Persist Security Info=True;"
+  ```
 
 ## How to contribute
 

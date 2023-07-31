@@ -4,7 +4,7 @@ using System.Data;
 using System.Linq;
 using System.Transactions;
 using FluentAssertions;
-#if NET461
+#if NET462
 using NEventStore.Diagnostics;
 #endif
 using NEventStore.Persistence.AcceptanceTests.BDD;
@@ -123,7 +123,7 @@ namespace NEventStore.Persistence.AcceptanceTests
         public IsolationLevelPersistenceEngineFixture()
         {
             _recorder = new IsolationLevelRecorder();
-#if NET461
+#if NET462
             _connectionFactory = new EnviromentConnectionFactory("MsSql", "System.Data.SqlClient");
 #else
             _connectionFactory = new EnviromentConnectionFactory("MsSql", System.Data.SqlClient.SqlClientFactory.Instance);
@@ -141,7 +141,7 @@ namespace NEventStore.Persistence.AcceptanceTests
                 _persistence.Drop();
                 _persistence.Dispose();
             }
-#if NET461
+#if NET462
             _persistence = new PerformanceCounterPersistenceEngine(_createPersistence(), "tests");
 #else
             _persistence = _createPersistence();
