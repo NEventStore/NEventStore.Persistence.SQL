@@ -1,5 +1,9 @@
 # NEventStore.Persistence.Sql
 
+## 9.1.2
+
+- fixed .nuspec file (wrong net462 references)
+
 ## 9.1.1
 
 - Target Framework supported: netstandard2.0, net462
