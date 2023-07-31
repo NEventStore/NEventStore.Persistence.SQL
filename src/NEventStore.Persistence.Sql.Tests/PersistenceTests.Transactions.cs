@@ -557,12 +557,12 @@ namespace NEventStore.Persistence.AcceptanceTests
             ) : base(enlistInAmbientTransaction, transationIsolationLevel, completeTransaction: true)
         { }
 
-#if NET461
+#if NET462
         // some of these tests fails with a local instance of sql sever
         [Fact]
         public void should_throw_an_StorageUnavailableException()
         {
-            Console.WriteLine($"net461 {_enlistInAmbientTransaction} {_transationIsolationLevel}");
+            Console.WriteLine($"net462 {_enlistInAmbientTransaction} {_transationIsolationLevel}");
             _thrown.Should().BeOfType<AggregateException>();
             AggregateException aex = _thrown as AggregateException;
             aex.InnerExceptions
