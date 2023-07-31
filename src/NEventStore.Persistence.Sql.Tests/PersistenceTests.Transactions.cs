@@ -25,6 +25,10 @@ namespace NEventStore.Persistence.AcceptanceTests
     using Xunit.Should;
 #endif
 
+    // The following tests actually works well only for MsSqlServer
+    // we'll need some refactoring to have initialization work
+    // for different of kinds of databases.
+
     public enum TransactionScopeConcern
     {
         NoTransaction = 0,
@@ -319,11 +323,11 @@ namespace NEventStore.Persistence.AcceptanceTests
         public Unsupported_Multiple_Completing_TransactionScopes_When_EnlistInAmbientTransaction_is_and_IsolationLevel_is(
             TransactionScopeConcern enlistInAmbientTransaction,
             IsolationLevel transationIsolationLevel
-            ) : base(enlistInAmbientTransaction, transationIsolationLevel, true)
+            ) : base(enlistInAmbientTransaction, transationIsolationLevel, completeTransaction: true)
         { }
 
         [Fact]
-        public void should_throw_an_Exception_only_if_no_transaction_or_enlist_in_ambient_transaction_and_IsolationLevel_is_Serializable()
+        public void Should_throw_an_Exception_only_if_no_transaction_or_enlist_in_ambient_transaction_and_IsolationLevel_is_Serializable()
         {
             _thrown.Should().BeOfType<AggregateException>();
             _thrown.InnerException.Should().BeOfType<StorageException>();
