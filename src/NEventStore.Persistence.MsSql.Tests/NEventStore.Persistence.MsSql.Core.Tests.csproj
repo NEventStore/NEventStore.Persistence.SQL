@@ -14,7 +14,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.Data.SqlClient" Version="4.8.5" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.0" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net462'">
     <Reference Include="System.Transactions" />

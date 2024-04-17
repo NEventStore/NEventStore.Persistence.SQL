@@ -5,7 +5,11 @@ using IsolationLevel = System.Data.IsolationLevel;
 namespace NEventStore.Persistence.Sql.SqlDialects
 {
     using System;
+#if NET462
     using System.Data.SqlClient;
+#else
+    using Microsoft.Data.SqlClient;
+#endif
 
     public class MsSqlDialect : CommonSqlDialect
     {
