@@ -5,7 +5,11 @@ namespace NEventStore.Persistence.AcceptanceTests
     using NEventStore.Persistence.Sql;
     using NEventStore.Persistence.Sql.SqlDialects;
     using NEventStore.Serialization;
+#if NET462
     using System.Data.SqlClient;
+#else
+    using Microsoft.Data.SqlClient;
+#endif
     using System.Transactions;
 
     public partial class PersistenceEngineFixture

@@ -10,9 +10,14 @@ namespace NEventStore.Persistence.AcceptanceTests
 #if MSTEST
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 #endif
+#if NET462
+    using System.Data.SqlClient;
+#else
+    using Microsoft.Data.SqlClient;
+#endif
 #if NUNIT
     using NUnit.Framework;
-    using System.Data.SqlClient;
+    
 #endif
 #if XUNIT
     using Xunit;
@@ -34,7 +39,7 @@ namespace NEventStore.Persistence.AcceptanceTests
 #if NET462
                 .UsingSqlPersistence(new EnviromentConnectionFactory("MsSql", "System.Data.SqlClient"))
 #else
-                .UsingSqlPersistence(new EnviromentConnectionFactory("MsSql", System.Data.SqlClient.SqlClientFactory.Instance))
+                .UsingSqlPersistence(new EnviromentConnectionFactory("MsSql", Microsoft.Data.SqlClient.SqlClientFactory.Instance))
 #endif
                 .WithDialect(new MsSqlDialect())
                 .WithStreamIdHasher(streamId =>

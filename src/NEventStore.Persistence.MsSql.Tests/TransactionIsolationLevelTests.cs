@@ -6,6 +6,7 @@ using System.Transactions;
 using FluentAssertions;
 #if NET462
 using NEventStore.Diagnostics;
+using System.Data.SqlClient;
 #endif
 using NEventStore.Persistence.AcceptanceTests.BDD;
 using NEventStore.Persistence.Sql;
@@ -18,7 +19,6 @@ using IsolationLevel = System.Data.IsolationLevel;
 #endif
 #if NUNIT
 using NUnit.Framework;
-using System.Data.SqlClient;
 #endif
 #if XUNIT
     using Xunit;
@@ -126,7 +126,7 @@ namespace NEventStore.Persistence.AcceptanceTests
 #if NET462
             _connectionFactory = new EnviromentConnectionFactory("MsSql", "System.Data.SqlClient");
 #else
-            _connectionFactory = new EnviromentConnectionFactory("MsSql", System.Data.SqlClient.SqlClientFactory.Instance);
+            _connectionFactory = new EnviromentConnectionFactory("MsSql", Microsoft.Data.SqlClient.SqlClientFactory.Instance);
 #endif
             _createPersistence = () =>
                 new SqlPersistenceFactory(_connectionFactory,
