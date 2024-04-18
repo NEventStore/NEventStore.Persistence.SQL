@@ -12,7 +12,9 @@
     <summary>Sql persistence provider for NEventStore.</summary>
     <language>es-US</language>
     <tags>events, event sourcing, cqrs, storage, persistence, database, sql</tags>
-    <!-- 
+		<readme>docs\README.md</readme>
+		<license type="file">LICENSE.txt</license>
+    <!--
     Until this is on develop branch, this version should be the previous version, so it made it compatible
 	with pre-release of the actual version. Ex, if we are on 6.0.0 unstable, dependency from NEventStore should
 	be latest stable version so it can take prerelease of 6.0.0 version.
@@ -41,5 +43,7 @@
     <!--<file src="bin\$configuration$\**" target="lib"/>-->
     <file src="..\NEventStore.Persistence.Sql\bin\$configuration$\**\NEventStore.Persistence.Sql.dll" target="lib"/>
     <file src="..\NEventStore.Persistence.Sql\bin\$configuration$\**\NEventStore.Persistence.Sql.xml" target="lib"/>
+		<file src="..\..\README.md" target="docs\" />
+		<file src="..\..\LICENSE.txt" target="" />
   </files>
 </package>

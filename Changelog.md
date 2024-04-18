@@ -1,6 +1,6 @@
 # NEventStore.Persistence.Sql
 
-## vNext
+## 9.2.0
 
 - Using Microsoft.Data.SqlClient instead of System.Data.SqlClient [#40](https://github.com/NEventStore/NEventStore.Persistence.SQL/issues/40)
 
