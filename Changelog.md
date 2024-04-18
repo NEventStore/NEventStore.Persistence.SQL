@@ -1,5 +1,14 @@
 # NEventStore.Persistence.Sql
 
+## vNext
+
+- Using Microsoft.Data.SqlClient instead of System.Data.SqlClient [#40](https://github.com/NEventStore/NEventStore.Persistence.SQL/issues/40)
+
+### Breaking Change
+
+- System.Data.SqlClient is not supported anymore.
+- To properly update to Microsoft.Data.SqlClient follow the guirelines in [SqlClient porting cheat sheet](https://github.com/dotnet/SqlClient/blob/main/porting-cheat-sheet.md).
+
 ## 9.1.2
 
 - fixed .nuspec file (wrong net462 references)

@@ -60,7 +60,7 @@ To build the project locally on a Windows Machine:
 - Define the following environment variables:
 
   ```
-  NEventStore.MsSql="Server=localhost,50001;Database=NEventStore;User Id=sa;Password=Password1;"
+  NEventStore.MsSql="Server=localhost,50001;Database=NEventStore;User Id=sa;Password=Password1;TrustServerCertificate=True;"
   NEventStore.MySql="Server=localhost;Port=50003;Database=NEventStore;Uid=sa;Pwd=Password1;AutoEnlist=false;"
   NEventStore.PostgreSql="Server=localhost;Port=50004;Database=NEventStore;Uid=sa;Pwd=Password1;Enlist=false;"
   NEventStore.Oracle="Data Source=localhost:1521/XE;User Id=system;Password=Password1;Persist Security Info=True;"
