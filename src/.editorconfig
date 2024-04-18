@@ -1,7 +1,28 @@
-[*]
+﻿[*]
+
 end_of_line = crlf
-indent_style = space
-indent_size = 4
+indent_style = tab
+trim_trailing_whitespace = true
 
 [*.xml]
-indent_style = space
+
+indent_style = tab
+
+[*.cs]
+
+csharp_new_line_before_open_brace = all
+
+# RCS1229: Use async/await when necessary.
+dotnet_diagnostic.RCS1229.severity = error
+
+# IDE0063: Use simple 'using' statement
+csharp_prefer_simple_using_statement = false
+
+# IDE0090: Use 'new(...)'
+csharp_style_implicit_object_creation_when_type_is_apparent = false
+
+# IDE0290: Use primary constructor
+csharp_style_prefer_primary_constructors = false
+
+# IDE0028: Simplify collection initialization
+dotnet_style_collection_initializer = false
