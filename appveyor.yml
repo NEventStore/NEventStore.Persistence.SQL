@@ -22,6 +22,7 @@ environment:
   NEventStore.MsSql: Server=localhost\SQL2017;Database=NEventStore;User Id=sa;Password=Password12!;
   NEventStore.MySql: Server=localhost;Database=NEventStore;Uid=root;Pwd=Password12!;AutoEnlist=false;
   NEventStore.PostgreSql: Server=localhost;Database=NEventStore;Uid=postgres;Pwd=Password12!;Enlist=false;
+  IGNORE_NORMALISATION_GIT_HEAD_MOVE: 1
 services:
 - mssql2017
 - mysql
