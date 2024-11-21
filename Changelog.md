@@ -1,5 +1,9 @@
 # NEventStore.Persistence.Sql
 
+## 9.3.0
+
+- Added a dedicated `ISerializeEvents` interface that allows customizing event deserialization with access to metadata from the `ICommit` class.
+
 ## 9.2.0
 
 - Using Microsoft.Data.SqlClient instead of System.Data.SqlClient [#40](https://github.com/NEventStore/NEventStore.Persistence.SQL/issues/40)
