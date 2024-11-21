@@ -19,6 +19,7 @@ namespace NEventStore.Persistence.Sql
         private readonly int _pageSize;
         private readonly TransactionScopeOption? _scopeOption;
         private readonly ISerialize _serializer;
+        private readonly ISerializeEvents _eventSerializer;
         private bool _disposed;
         private int _initialized;
         private readonly IStreamIdHasher _streamIdHasher;
@@ -27,15 +28,17 @@ namespace NEventStore.Persistence.Sql
             IConnectionFactory connectionFactory,
             ISqlDialect dialect,
             ISerialize serializer,
+            ISerializeEvents eventSerializer,
             int pageSize,
             TransactionScopeOption? scopeOption = null)
-            : this(connectionFactory, dialect, serializer, pageSize, new Sha1StreamIdHasher(), scopeOption)
+            : this(connectionFactory, dialect, serializer, eventSerializer, pageSize, new Sha1StreamIdHasher(), scopeOption)
         { }
 
         public SqlPersistenceEngine(
             IConnectionFactory connectionFactory,
             ISqlDialect dialect,
             ISerialize serializer,
+            ISerializeEvents eventSerializer,
             int pageSize,
             IStreamIdHasher streamIdHasher,
             TransactionScopeOption? scopeOption = null)
@@ -53,6 +56,7 @@ namespace NEventStore.Persistence.Sql
             _connectionFactory = connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
             _dialect = dialect ?? throw new ArgumentNullException(nameof(dialect));
             _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
+            _eventSerializer = eventSerializer ?? throw new ArgumentNullException(nameof(eventSerializer));
             _scopeOption = scopeOption;
             _pageSize = pageSize;
             _streamIdHasher = new StreamIdHasherValidator(streamIdHasher);
@@ -91,7 +95,7 @@ namespace NEventStore.Persistence.Sql
                     query.AddParameter(_dialect.CommitSequence, 0);
                     return query
                         .ExecutePagedQuery(statement, _dialect.NextPageDelegate)
-                        .Select(x => x.GetCommit(_serializer, _dialect));
+                        .Select(x => x.GetCommit(_serializer, _eventSerializer, _dialect));
                 });
         }
 
@@ -107,7 +111,7 @@ namespace NEventStore.Persistence.Sql
                     query.AddParameter(_dialect.BucketId, bucketId, DbType.AnsiString);
                     query.AddParameter(_dialect.CommitStamp, start, _dialect.GetDateTimeDbType());
                     return query.ExecutePagedQuery(statement, (q, r) => { })
-                            .Select(x => x.GetCommit(_serializer, _dialect));
+                            .Select(x => x.GetCommit(_serializer, _eventSerializer, _dialect));
                 });
         }
 
@@ -125,7 +129,7 @@ namespace NEventStore.Persistence.Sql
                     query.AddParameter(_dialect.CommitStampStart, start, _dialect.GetDateTimeDbType());
                     query.AddParameter(_dialect.CommitStampEnd, end, _dialect.GetDateTimeDbType());
                     return query.ExecutePagedQuery(statement, (q, r) => { })
-                        .Select(x => x.GetCommit(_serializer, _dialect));
+                        .Select(x => x.GetCommit(_serializer, _eventSerializer, _dialect));
                 });
         }
 
@@ -243,7 +247,7 @@ namespace NEventStore.Persistence.Sql
                 query.AddParameter(_dialect.BucketId, bucketId, DbType.AnsiString);
                 query.AddParameter(_dialect.CheckpointNumber, checkpointToken);
                 return query.ExecutePagedQuery(statement, (q, r) => { })
-                    .Select(x => x.GetCommit(_serializer, _dialect));
+                    .Select(x => x.GetCommit(_serializer, _eventSerializer, _dialect));
             });
         }
 
@@ -257,7 +261,7 @@ namespace NEventStore.Persistence.Sql
                 query.AddParameter(_dialect.FromCheckpointNumber, from);
                 query.AddParameter(_dialect.ToCheckpointNumber, to);
                 return query.ExecutePagedQuery(statement, (q, r) => { })
-                    .Select(x => x.GetCommit(_serializer, _dialect));
+                    .Select(x => x.GetCommit(_serializer, _eventSerializer, _dialect));
             });
         }
 
@@ -269,7 +273,7 @@ namespace NEventStore.Persistence.Sql
                 string statement = _dialect.GetCommitsFromCheckpoint;
                 query.AddParameter(_dialect.CheckpointNumber, checkpointToken);
                 return query.ExecutePagedQuery(statement, (q, r) => { })
-                    .Select(x => x.GetCommit(_serializer, _dialect));
+                    .Select(x => x.GetCommit(_serializer, _eventSerializer, _dialect));
             });
         }
 
@@ -282,7 +286,7 @@ namespace NEventStore.Persistence.Sql
                 query.AddParameter(_dialect.FromCheckpointNumber, from);
                 query.AddParameter(_dialect.ToCheckpointNumber, to);
                 return query.ExecutePagedQuery(statement, (q, r) => { })
-                    .Select(x => x.GetCommit(_serializer, _dialect));
+                    .Select(x => x.GetCommit(_serializer, _eventSerializer, _dialect));
             });
         }
 

@@ -15,9 +15,10 @@ namespace NEventStore.Persistence.Sql
         public SqlPersistenceFactory(
             string connectionName,
             ISerialize serializer,
+            ISerializeEvents eventSerializer,
             ISqlDialect dialect = null,
             TransactionScopeOption? scopeOption = null)
-            : this(serializer, scopeOption, null, DefaultPageSize)
+            : this(serializer, eventSerializer, scopeOption, null, DefaultPageSize)
         {
             ConnectionFactory = new ConfigurationConnectionFactory(connectionName);
             Dialect = dialect ?? ResolveDialect(new ConfigurationConnectionFactory(connectionName).Settings);
@@ -27,19 +28,22 @@ namespace NEventStore.Persistence.Sql
         public SqlPersistenceFactory(
             IConnectionFactory factory,
             ISerialize serializer,
+            ISerializeEvents eventSerializer,
             ISqlDialect dialect,
             IStreamIdHasher streamIdHasher = null,
             TransactionScopeOption? scopeOption = null,
             int pageSize = DefaultPageSize)
-            : this(serializer, scopeOption, streamIdHasher, pageSize)
+            : this(serializer, eventSerializer, scopeOption, streamIdHasher, pageSize)
         {
             ConnectionFactory = factory;
             Dialect = dialect ?? throw new ArgumentNullException(nameof(dialect));
         }
 
-        private SqlPersistenceFactory(ISerialize serializer, TransactionScopeOption? scopeOption, IStreamIdHasher streamIdHasher, int pageSize)
+        private SqlPersistenceFactory(ISerialize serializer, ISerializeEvents eventSerializer,
+            TransactionScopeOption? scopeOption, IStreamIdHasher streamIdHasher, int pageSize)
         {
             Serializer = serializer;
+            EventSerializer = eventSerializer;
             _scopeOption = scopeOption;
             StreamIdHasher = streamIdHasher ?? new Sha1StreamIdHasher();
             PageSize = pageSize;
@@ -51,13 +55,15 @@ namespace NEventStore.Persistence.Sql
 
         protected virtual ISerialize Serializer { get; }
 
+        protected virtual ISerializeEvents EventSerializer { get; }
+
         protected virtual IStreamIdHasher StreamIdHasher { get; }
 
         protected int PageSize { get; set; }
 
         public virtual IPersistStreams Build()
         {
-            return new SqlPersistenceEngine(ConnectionFactory, Dialect, Serializer, PageSize, StreamIdHasher, _scopeOption);
+            return new SqlPersistenceEngine(ConnectionFactory, Dialect, Serializer, EventSerializer, PageSize, StreamIdHasher, _scopeOption);
         }
 
 #if NET462

@@ -21,19 +21,30 @@ namespace NEventStore.Persistence.Sql
         private const int PayloadIndex = 9;
         private static readonly ILogger Logger = LogFactory.BuildLogger(typeof (CommitExtensions));
 
-        public static ICommit GetCommit(this IDataRecord record, ISerialize serializer, ISqlDialect sqlDialect)
+        public static ICommit GetCommit(this IDataRecord record, ISerialize serializer, ISerializeEvents eventSerializer, ISqlDialect sqlDialect)
         {
             Logger.LogTrace(Messages.DeserializingCommit, serializer.GetType());
-            var headers = serializer.Deserialize<Dictionary<string, object>>(record, HeadersIndex);
-            var events = serializer.Deserialize<List<EventMessage>>(record, PayloadIndex);
 
-            return new Commit(record[BucketIdIndex].ToString(),
-                record[StreamIdOriginalIndex].ToString(),
-                record[StreamRevisionIndex].ToInt(),
-                record[CommitIdIndex].ToGuid(),
-                record[CommitSequenceIndex].ToInt(),
-                sqlDialect.ToDateTime(record[CommitStampIndex]),
-                record[CheckpointIndex].ToLong(),
+            var bucketId = record[BucketIdIndex].ToString();
+            var streamId = record[StreamIdOriginalIndex].ToString();
+            var streamRevision = record[StreamRevisionIndex].ToInt();
+            var commitId = record[CommitIdIndex].ToGuid();
+            var commitSequence = record[CommitSequenceIndex].ToInt();
+            var commitStamp = sqlDialect.ToDateTime(record[CommitStampIndex]);
+            var checkpointToken = record.CheckpointNumber();
+
+            var headers = serializer.Deserialize<Dictionary<string, object>>(record, HeadersIndex);
+
+            var events = eventSerializer.DeserializeEventMessages((byte[])record[PayloadIndex], bucketId, streamId,
+	            streamRevision, commitId, commitSequence, commitStamp, checkpointToken, headers);
+
+            return new Commit(bucketId,
+                streamId,
+                streamRevision,
+                commitId,
+                commitSequence,
+                commitStamp,
+                checkpointToken,
                 headers,
                 events);
         }

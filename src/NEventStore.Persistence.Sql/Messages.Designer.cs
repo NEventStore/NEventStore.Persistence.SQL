@@ -349,6 +349,15 @@ namespace NEventStore.Persistence.Sql {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Registering event serializer of type &apos;{0}&apos;.
+        /// </summary>
+        internal static string EventSerializerSpecified {
+            get {
+                return ResourceManager.GetString("EventSerializerSpecified", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Executed statement threw an exception, but the exception was suppressed..
         /// </summary>
         internal static string ExceptionSuppressed {

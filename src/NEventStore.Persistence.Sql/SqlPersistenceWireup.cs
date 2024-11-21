@@ -24,6 +24,7 @@ namespace NEventStore
             Logger.LogTrace(Messages.AutoDetectDialect);
             Container.Register<ISqlDialect>(_ => null); // auto-detect
             Container.Register<IStreamIdHasher>(_ => new Sha1StreamIdHasher());
+            Container.Register<ISerializeEvents>(c => new DefaultEventSerializer(c.Resolve<ISerialize>()));
 
             Container.Register(c =>
             {
@@ -35,6 +36,7 @@ namespace NEventStore
                 return new SqlPersistenceFactory(
                     connectionFactory,
                     c.Resolve<ISerialize>(),
+                    c.Resolve<ISerializeEvents>(),
                     c.Resolve<ISqlDialect>(),
                     c.Resolve<IStreamIdHasher>(),
                     scopeOptions,
@@ -66,6 +68,19 @@ namespace NEventStore
         public virtual SqlPersistenceWireup WithStreamIdHasher(Func<string, string> getStreamIdHash)
         {
             return WithStreamIdHasher(new DelegateStreamIdHasher(getStreamIdHash));
+        }
+
+        public virtual SqlPersistenceWireup WithEventSerializer(ISerializeEvents instance)
+        {
+            Logger.LogDebug(Messages.EventSerializerSpecified, instance.GetType());
+            Container.Register(instance);
+            return this;
+        }
+
+        public virtual SqlPersistenceWireup WithEventSerializer(Func<ISerialize, ISerializeEvents> eventSerializerFactory)
+        {
+            var instance = eventSerializerFactory(Container.Resolve<ISerialize>());
+            return WithEventSerializer(instance);
         }
 
         /// <summary>

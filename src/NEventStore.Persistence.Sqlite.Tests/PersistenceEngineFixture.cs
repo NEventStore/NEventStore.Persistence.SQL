@@ -10,21 +10,31 @@
         public PersistenceEngineFixture()
         {
             _createPersistence = pageSize =>
-                new SqlPersistenceFactory(
-                    new ConfigurationConnectionFactory("NEventStore.Persistence.AcceptanceTests.Properties.Settings.SQLite"),
-                    new BinarySerializer(),
+            {
+                var serializer = new BinarySerializer();
+                return new SqlPersistenceFactory(
+                    new ConfigurationConnectionFactory(
+                        "NEventStore.Persistence.AcceptanceTests.Properties.Settings.SQLite"),
+                    serializer,
+                    new DefaultEventSerializer(serializer),
                     new SqliteDialect(),
                     pageSize: pageSize).Build();
+            };
         }
-#else        
+#else
         public PersistenceEngineFixture()
         {
             _createPersistence = pageSize =>
-                new SqlPersistenceFactory(
-                    new NetStandardConnectionFactory(System.Data.SQLite.SQLiteFactory.Instance, "Data Source=NEventStore.db;"),
-                    new BinarySerializer(),
+            {
+                var serializer = new BinarySerializer();
+                return new SqlPersistenceFactory(
+                    new NetStandardConnectionFactory(System.Data.SQLite.SQLiteFactory.Instance,
+                        "Data Source=NEventStore.db;"),
+                    serializer,
+                    new DefaultEventSerializer(serializer),
                     new SqliteDialect(),
                     pageSize: pageSize).Build();
+            };
 
             /*
              * There are issues with Microsoft.Data.Sqlite > 2.2.6
