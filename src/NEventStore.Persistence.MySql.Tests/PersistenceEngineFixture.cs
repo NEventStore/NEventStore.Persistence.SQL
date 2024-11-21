@@ -13,20 +13,28 @@ namespace NEventStore.Persistence.AcceptanceTests
         {
 #if NET462
             _createPersistence = pageSize =>
-                    new SqlPersistenceFactory(
-                        new EnviromentConnectionFactory("MySql", "MySql.Data.MySqlClient"),
-                        new BinarySerializer(),
-                        new MySqlDialect(),
-                        pageSize: pageSize).Build();
+            {
+                var serializer = new BinarySerializer();
+                return new SqlPersistenceFactory(
+                    new EnviromentConnectionFactory("MySql", "MySql.Data.MySqlClient"),
+                    serializer,
+                    new DefaultEventSerializer(serializer),
+                    new MySqlDialect(),
+                    pageSize: pageSize).Build();
+            };
 
             // Wireup.Init().UsingSqlPersistence("test");
 #else
             _createPersistence = pageSize =>
-                new SqlPersistenceFactory(
+            {
+                var serializer = new BinarySerializer();
+                return new SqlPersistenceFactory(
                     new EnviromentConnectionFactory("MySql", MySqlClientFactory.Instance),
-                    new BinarySerializer(),
+                    serializer,
+                    new DefaultEventSerializer(serializer),
                     new MySqlDialect(),
                     pageSize: pageSize).Build();
+            };
 
             // Wireup.Init().UsingSqlPersistence("test");
 #endif

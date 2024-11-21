@@ -16,18 +16,26 @@ namespace NEventStore.Persistence.AcceptanceTests
 
 #if NET462
             _createPersistence = pageSize =>
-                new SqlPersistenceFactory(
+            {
+                var serializer = new BinarySerializer();
+                return new SqlPersistenceFactory(
                     new EnviromentConnectionFactory("PostgreSql", "Npgsql"),
-                    new BinarySerializer(),
+                    serializer,
+                    new DefaultEventSerializer(serializer),
                     new PostgreNpgsql6Dialect(npgsql6timestamp: true),
                     pageSize: pageSize).Build();
+            };
 #else
             _createPersistence = pageSize =>
-                new SqlPersistenceFactory(
+            {
+                var serializer = new BinarySerializer();
+                return new SqlPersistenceFactory(
                     new EnviromentConnectionFactory("PostgreSql", Npgsql.NpgsqlFactory.Instance),
-                    new BinarySerializer(),
+                    serializer,
+                    new DefaultEventSerializer(serializer),
                     new PostgreNpgsql6Dialect(npgsql6timestamp: true),
                     pageSize: pageSize).Build();
+            };
 #endif
         }
     }
