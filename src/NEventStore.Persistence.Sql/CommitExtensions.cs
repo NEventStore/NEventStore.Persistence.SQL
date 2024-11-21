@@ -32,11 +32,11 @@ namespace NEventStore.Persistence.Sql
             var commitSequence = record[CommitSequenceIndex].ToInt();
             var commitStamp = sqlDialect.ToDateTime(record[CommitStampIndex]);
             var checkpointToken = record.CheckpointNumber();
-
             var headers = serializer.Deserialize<Dictionary<string, object>>(record, HeadersIndex);
+            var payloadBytes = record.GetByteArray(PayloadIndex);
 
-            var events = eventSerializer.DeserializeEventMessages((byte[])record[PayloadIndex], bucketId, streamId,
-	            streamRevision, commitId, commitSequence, commitStamp, checkpointToken, headers);
+            var events = eventSerializer.DeserializeEventMessages(payloadBytes, bucketId, streamId,
+                streamRevision, commitId, commitSequence, commitStamp, checkpointToken, headers);
 
             return new Commit(bucketId,
                 streamId,
@@ -66,19 +66,23 @@ namespace NEventStore.Persistence.Sql
 
         public static T Deserialize<T>(this ISerialize serializer, IDataRecord record, int index)
         {
+            var bytes = record.GetByteArray(index);
+            return bytes.Length == 0 ? default(T) : serializer.Deserialize<T>(bytes);
+        }
+
+        internal static byte[] GetByteArray(this IDataRecord record, int index)
+        {
             if (index >= record.FieldCount)
             {
-                return default(T);
+                return default;
             }
+            var value = record[index];
 
-            object value = record[index];
             if (value == null || value == DBNull.Value)
             {
-                return default(T);
+                return default;
             }
-
-            var bytes = (byte[]) value;
-            return bytes.Length == 0 ? default(T) : serializer.Deserialize<T>(bytes);
+            return (byte[])value;
         }
     }
 }
