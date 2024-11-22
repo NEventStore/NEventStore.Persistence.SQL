@@ -11,7 +11,7 @@ namespace NEventStore.Persistence.Sql.SqlDialects
     {
         private readonly ISqlDialect _dialect;
 
-        public OracleDbStatement(ISqlDialect dialect, TransactionScope scope, IDbConnection connection, IDbTransaction transaction)
+        public OracleDbStatement(ISqlDialect dialect, TransactionScope? scope, IDbConnection connection, IDbTransaction? transaction)
             : base(dialect, scope, connection, transaction)
         {
             _dialect = dialect;
@@ -21,9 +21,9 @@ namespace NEventStore.Persistence.Sql.SqlDialects
         {
             name = name.Replace('@', ':');
 
-            if (value is Guid)
+            if (value is Guid guid)
             {
-                base.AddParameter(name, ((Guid) value).ToByteArray(), null);
+                base.AddParameter(name, guid.ToByteArray(), null);
             }
             else
             {
@@ -53,10 +53,7 @@ namespace NEventStore.Persistence.Sql.SqlDialects
         {
             IDbCommand command = base.BuildCommand(statement);
             PropertyInfo pi = command.GetType().GetProperty("BindByName");
-            if (pi != null)
-            {
-                pi.SetValue(command, true, null);
-            }
+            pi?.SetValue(command, true, null);
             return command;
         }
 

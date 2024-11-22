@@ -5,7 +5,7 @@ using IsolationLevel = System.Data.IsolationLevel;
 namespace NEventStore.Persistence.Sql.SqlDialects
 {
 	using System;
-	
+
 	public class MsSqlDialect : CommonSqlDialect
 	{
 		private const int UniqueIndexViolation = 2601;
@@ -95,12 +95,12 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 
 		public override bool IsDuplicate(Exception exception)
 		{
-			var dbException = exception as Microsoft.Data.SqlClient.SqlException;
-			return dbException != null
-				   && (dbException.Number == UniqueIndexViolation || dbException.Number == UniqueKeyViolation);
+			return exception is Microsoft.Data.SqlClient.SqlException dbException
+				&& (dbException.Number == UniqueIndexViolation || dbException.Number == UniqueKeyViolation);
 		}
 
-		public override IDbTransaction OpenTransaction(IDbConnection connection)
+		/// <inheritdoc/>
+		public override IDbTransaction? OpenTransaction(IDbConnection connection)
 		{
 			if (Transaction.Current == null)
 				return connection.BeginTransaction(IsolationLevel.ReadCommitted);

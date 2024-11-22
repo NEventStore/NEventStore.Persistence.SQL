@@ -3,6 +3,9 @@ using System.Collections.Generic;
 
 namespace NEventStore.Persistence.Sql
 {
+    /// <summary>
+    ///    Represents a mechanism for serializing and deserializing event messages.
+	/// </summary>
     public interface ISerializeEvents
     {
         /// <summary>

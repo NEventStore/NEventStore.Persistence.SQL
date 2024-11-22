@@ -8,7 +8,7 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 
     public class OracleNativeDialect : CommonSqlDialect
     {
-        private Action<IConnectionFactory, IDbConnection, IDbStatement, byte[]> _addPayloadParamater;
+        private Action<IConnectionFactory, IDbConnection, IDbStatement, byte[]>? _addPayloadParameter;
 
         public override string AppendSnapshotToCommit
         {
@@ -170,16 +170,16 @@ namespace NEventStore.Persistence.Sql.SqlDialects
             get { return MakeOracleParameter(base.MaxStreamRevision); }
         }
 
-        public override IDbStatement BuildStatement(TransactionScope scope, IDbConnection connection, IDbTransaction transaction)
+        public override IDbStatement BuildStatement(TransactionScope? scope, IDbConnection connection, IDbTransaction? transaction)
         {
             return new OracleDbStatement(this, scope, connection, transaction);
         }
 
         public override object CoalesceParameterValue(object value)
         {
-            if (value is Guid)
+            if (value is Guid guid)
             {
-                value = ((Guid)value).ToByteArray();
+                value = guid.ToByteArray();
             }
 
             return value;
@@ -201,31 +201,31 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 
         public override NextPageDelegate NextPageDelegate
         {
-            get { return (q, r) => { }; }
+            get { return (_, _) => { }; }
         }
 
-        public override void AddPayloadParamater(IConnectionFactory connectionFactory, IDbConnection connection, IDbStatement cmd, byte[] payload)
+        public override void AddPayloadParameter(IConnectionFactory connectionFactory, IDbConnection connection, IDbStatement cmd, byte[] payload)
         {
-            if (_addPayloadParamater == null)
+            if (_addPayloadParameter == null)
             {
                 string dbProviderAssemblyName = connectionFactory.GetDbProviderFactoryType().Assembly.GetName().Name;
                 const string oracleManagedDataAcccessAssemblyName = "Oracle.ManagedDataAccess";
                 const string oracleDataAcccessAssemblyName = "Oracle.DataAccess";
                 if (dbProviderAssemblyName.Equals(oracleManagedDataAcccessAssemblyName, StringComparison.Ordinal))
                 {
-                    _addPayloadParamater = CreateOraAddPayloadAction(oracleManagedDataAcccessAssemblyName);
+                    _addPayloadParameter = CreateOraAddPayloadAction(oracleManagedDataAcccessAssemblyName);
                 }
                 else if (dbProviderAssemblyName.Equals(oracleDataAcccessAssemblyName, StringComparison.Ordinal))
                 {
-                    _addPayloadParamater = CreateOraAddPayloadAction(oracleDataAcccessAssemblyName);
+                    _addPayloadParameter = CreateOraAddPayloadAction(oracleDataAcccessAssemblyName);
                 }
                 else
                 {
-                    _addPayloadParamater = (connectionFactory2, connection2, cmd2, payload2)
-                        => base.AddPayloadParamater(connectionFactory2, connection2, cmd2, payload2);
+                    _addPayloadParameter = (connectionFactory2, connection2, cmd2, payload2)
+                        => base.AddPayloadParameter(connectionFactory2, connection2, cmd2, payload2);
                 }
             }
-            _addPayloadParamater(connectionFactory, connection, cmd, payload);
+            _addPayloadParameter(connectionFactory, connection, cmd, payload);
         }
 
         private Action<IConnectionFactory, IDbConnection, IDbStatement, byte[]> CreateOraAddPayloadAction(
@@ -235,18 +235,18 @@ namespace NEventStore.Persistence.Sql.SqlDialects
             var oracleParamaterType = assembly.GetType(assemblyName + ".Client.OracleParameter", true);
             var oracleParamaterValueProperty = oracleParamaterType.GetProperty("Value");
             var oracleBlobType = assembly.GetType(assemblyName + ".Types.OracleBlob", true);
-            var oracleBlobWriteMethod = oracleBlobType.GetMethod("Write", new[] { typeof(Byte[]), typeof(int), typeof(int) });
+            var oracleBlobWriteMethod = oracleBlobType.GetMethod("Write", [typeof(Byte[]), typeof(int), typeof(int)]);
             Type oracleParamapterType = assembly.GetType(assemblyName + ".Client.OracleDbType", true);
             FieldInfo blobField = oracleParamapterType.GetField("Blob");
             var blobDbType = blobField.GetValue(null);
 
             return (_, connection2, cmd2, payload2) =>
             {
-                object payloadParam = Activator.CreateInstance(oracleParamaterType, new[] { Payload, blobDbType });
+                object payloadParam = Activator.CreateInstance(oracleParamaterType, [Payload, blobDbType]);
                 ((OracleDbStatement)cmd2).AddParameter(Payload, payloadParam);
                 object oracleConnection = ((ConnectionScope)connection2).Current;
-                object oracleBlob = Activator.CreateInstance(oracleBlobType, new[] { oracleConnection });
-                oracleBlobWriteMethod.Invoke(oracleBlob, new object[] { payload2, 0, payload2.Length });
+                object oracleBlob = Activator.CreateInstance(oracleBlobType, [oracleConnection]);
+                oracleBlobWriteMethod.Invoke(oracleBlob, [payload2, 0, payload2.Length]);
                 oracleParamaterValueProperty.SetValue(payloadParam, oracleBlob, null);
             };
         }
@@ -256,7 +256,7 @@ namespace NEventStore.Persistence.Sql.SqlDialects
             query = RemovePaging(query);
             if (query.EndsWith(";"))
             {
-                query = query.TrimEnd(new[] { ';' });
+                query = query.TrimEnd([';']);
             }
             string value = OracleNativeStatements.LimitedQueryFormat.FormatWith(query);
             return value;

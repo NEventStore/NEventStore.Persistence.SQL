@@ -1,70 +1,78 @@
 namespace NEventStore.Persistence.Sql
 {
-    using System;
-    using System.Data;
-    using System.Transactions;
-    using NEventStore.Persistence.Sql.SqlDialects;
+	using System;
+	using System.Data;
+	using System.Transactions;
+	using NEventStore.Persistence.Sql.SqlDialects;
 
-    public interface ISqlDialect
-    {
-        string InitializeStorage { get; }
-        string PurgeStorage { get; }
-        string PurgeBucket { get; }
-        string Drop { get; }
-        string DeleteStream { get; }
+	/// <summary>
+	/// Represents a SQL dialect.
+	/// </summary>
+	public interface ISqlDialect
+	{
+		string InitializeStorage { get; }
+		string PurgeStorage { get; }
+		string PurgeBucket { get; }
+		string Drop { get; }
+		string DeleteStream { get; }
 
-        string GetCommitsFromStartingRevision { get; }
-        string GetCommitsFromInstant { get; }
-        string GetCommitsFromToInstant { get; }
+		string GetCommitsFromStartingRevision { get; }
+		string GetCommitsFromInstant { get; }
+		string GetCommitsFromToInstant { get; }
 
-        string PersistCommit { get; }
-        string DuplicateCommit { get; }
+		string PersistCommit { get; }
+		string DuplicateCommit { get; }
 
-        string GetStreamsRequiringSnapshots { get; }
-        string GetSnapshot { get; }
-        string AppendSnapshotToCommit { get; }
+		string GetStreamsRequiringSnapshots { get; }
+		string GetSnapshot { get; }
+		string AppendSnapshotToCommit { get; }
 
-        string BucketId { get; }
-        string StreamId { get; }
-        string StreamIdOriginal { get; }
-        string StreamRevision { get; }
-        string MaxStreamRevision { get; }
-        string Items { get; }
-        string CommitId { get; }
-        string CommitSequence { get; }
-        string CommitStamp { get; }
-        string CommitStampStart { get; }
-        string CommitStampEnd { get; }
-        string Headers { get; }
-        string Payload { get; }
-        string Threshold { get; }
+		string BucketId { get; }
+		string StreamId { get; }
+		string StreamIdOriginal { get; }
+		string StreamRevision { get; }
+		string MaxStreamRevision { get; }
+		string Items { get; }
+		string CommitId { get; }
+		string CommitSequence { get; }
+		string CommitStamp { get; }
+		string CommitStampStart { get; }
+		string CommitStampEnd { get; }
+		string Headers { get; }
+		string Payload { get; }
+		string Threshold { get; }
 
-        string Limit { get; }
-        string Skip { get; }
-        bool CanPage { get; }
-        string CheckpointNumber { get; }
-        string FromCheckpointNumber { get; }
-        string ToCheckpointNumber { get; }
-        string GetCommitsFromCheckpoint { get; }
-        string GetCommitsFromToCheckpoint { get; }
-        string GetCommitsFromBucketAndCheckpoint { get; }
-        string GetCommitsFromToBucketAndCheckpoint { get; }
+		string Limit { get; }
+		string Skip { get; }
+		bool CanPage { get; }
+		string CheckpointNumber { get; }
+		string FromCheckpointNumber { get; }
+		string ToCheckpointNumber { get; }
+		string GetCommitsFromCheckpoint { get; }
+		string GetCommitsFromToCheckpoint { get; }
+		string GetCommitsFromBucketAndCheckpoint { get; }
+		string GetCommitsFromToBucketAndCheckpoint { get; }
 
-        object CoalesceParameterValue(object value);
+		object CoalesceParameterValue(object value);
 
-        IDbTransaction OpenTransaction(IDbConnection connection);
+		/// <summary>
+		/// Opens a Transaction.
+		/// </summary>
+		IDbTransaction? OpenTransaction(IDbConnection connection);
 
-        IDbStatement BuildStatement(
-            TransactionScope scope, IDbConnection connection, IDbTransaction transaction);
+		/// <summary>
+		/// Builds a statement.
+		/// </summary>
+		IDbStatement BuildStatement(TransactionScope? scope, IDbConnection connection, IDbTransaction? transaction);
 
-        bool IsDuplicate(Exception exception);
+		bool IsDuplicate(Exception exception);
 
-        void AddPayloadParamater(IConnectionFactory connectionFactory, IDbConnection connection, IDbStatement cmd, byte[] payload);
+		void AddPayloadParameter(IConnectionFactory connectionFactory, IDbConnection connection, IDbStatement cmd, byte[] payload);
 
-        DateTime ToDateTime(object value);
+		DateTime ToDateTime(object value);
 
-        NextPageDelegate NextPageDelegate { get; }
+		NextPageDelegate NextPageDelegate { get; }
 
-        DbType GetDateTimeDbType();
-    }
+		DbType GetDateTimeDbType();
+	}
 }
