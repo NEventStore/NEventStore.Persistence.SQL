@@ -12,25 +12,25 @@
     <summary>Sql persistence provider for NEventStore.</summary>
     <language>es-US</language>
     <tags>events, event sourcing, cqrs, storage, persistence, database, sql</tags>
-		<readme>docs\README.md</readme>
-		<license type="file">LICENSE.txt</license>
+    <readme>docs\README.md</readme>
+    <license type="file">LICENSE.txt</license>
     <!--
     Until this is on develop branch, this version should be the previous version, so it made it compatible
-	with pre-release of the actual version. Ex, if we are on 6.0.0 unstable, dependency from NEventStore should
-	be latest stable version so it can take prerelease of 6.0.0 version.
-	With (5.4 we are telling NuGet that we need a version greater than 5.4 so we are allowing all the prerelease
-	6.x.x versions
-	-->
+  with pre-release of the actual version. Ex, if we are on 6.0.0 unstable, dependency from NEventStore should
+  be latest stable version so it can take prerelease of 6.0.0 version.
+  With (5.4 we are telling NuGet that we need a version greater than 5.4 so we are allowing all the prerelease
+  6.x.x versions
+  -->
     <dependencies>
       <group targetFramework=".NETFramework4.6.2">
         <dependency id="NEventStore" version="[9.1.1,10.0.0)" exclude="Build,Analyzers"/>
         <dependency id="Microsoft.Extensions.Logging.Abstractions" version="7.0.1" exclude="Build,Analyzers" />
-        <dependency id="Microsoft.Data.SqlClient" version="5.2.0" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Data.SqlClient" version="5.2.2" exclude="Build,Analyzers" />
       </group>
       <group targetFramework=".NETStandard2.0">
         <dependency id="NEventStore" version="[9.1.1,10.0.0)" exclude="Build,Analyzers"/>
         <dependency id="Microsoft.Extensions.Logging.Abstractions" version="7.0.1" exclude="Build,Analyzers" />
-        <dependency id="Microsoft.Data.SqlClient" version="5.2.0" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Data.SqlClient" version="5.2.2" exclude="Build,Analyzers" />
       </group>
     </dependencies>
     <frameworkAssemblies>
@@ -43,7 +43,7 @@
     <!--<file src="bin\$configuration$\**" target="lib"/>-->
     <file src="..\NEventStore.Persistence.Sql\bin\$configuration$\**\NEventStore.Persistence.Sql.dll" target="lib"/>
     <file src="..\NEventStore.Persistence.Sql\bin\$configuration$\**\NEventStore.Persistence.Sql.xml" target="lib"/>
-		<file src="..\..\README.md" target="docs\" />
-		<file src="..\..\LICENSE.txt" target="" />
+    <file src="..\..\README.md" target="docs\" />
+    <file src="..\..\LICENSE.txt" target="" />
   </files>
 </package>
