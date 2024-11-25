@@ -28,7 +28,7 @@ namespace NEventStore.Persistence.Sql
 		/// <inheritdoc/>
 		public ICollection<EventMessage> DeserializeEventMessages(byte[] input, string bucketId, string streamId,
 			int streamRevision, Guid commitId,
-			int commitSequence, DateTime commitStamp, long checkpoint, IReadOnlyDictionary<string, object> headers)
+			int commitSequence, DateTime commitStamp, long checkpoint, IReadOnlyDictionary<string, object>? headers)
 		{
 			return _serializer.Deserialize<List<EventMessage>>(input);
 		}
