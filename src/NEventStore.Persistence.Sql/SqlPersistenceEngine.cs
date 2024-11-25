@@ -10,6 +10,9 @@ namespace NEventStore.Persistence.Sql
 	using NEventStore.Logging;
 	using NEventStore.Serialization;
 
+	/// <summary>
+	/// Represents a persistence engine that stores and retrieves events from a SQL database.
+	/// </summary>
 	public class SqlPersistenceEngine : IPersistStreams
 	{
 		private static readonly ILogger Logger = LogFactory.BuildLogger(typeof(SqlPersistenceEngine));
@@ -24,6 +27,9 @@ namespace NEventStore.Persistence.Sql
 		private int _initialized;
 		private readonly IStreamIdHasher _streamIdHasher;
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="SqlPersistenceEngine"/> class.
+		/// </summary>
 		public SqlPersistenceEngine(
 			IConnectionFactory connectionFactory,
 			ISqlDialect dialect,
@@ -34,6 +40,9 @@ namespace NEventStore.Persistence.Sql
 			: this(connectionFactory, dialect, serializer, eventSerializer, pageSize, new Sha1StreamIdHasher(), scopeOption)
 		{ }
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="SqlPersistenceEngine"/> class.
+		/// </summary>
 		public SqlPersistenceEngine(
 			IConnectionFactory connectionFactory,
 			ISqlDialect dialect,
@@ -64,12 +73,14 @@ namespace NEventStore.Persistence.Sql
 			Logger.LogDebug(Messages.UsingScope, _scopeOption.ToString());
 		}
 
+		/// <inheritdoc/>
 		public void Dispose()
 		{
 			Dispose(true);
 			GC.SuppressFinalize(this);
 		}
 
+		/// <inheritdoc/>
 		public virtual void Initialize()
 		{
 			if (Interlocked.Increment(ref _initialized) > 1)
@@ -81,6 +92,7 @@ namespace NEventStore.Persistence.Sql
 			ExecuteCommand(statement => statement.ExecuteWithoutExceptions(_dialect.InitializeStorage));
 		}
 
+		/// <inheritdoc/>
 		public virtual IEnumerable<ICommit> GetFrom(string bucketId, string streamId, int minRevision, int maxRevision)
 		{
 			Logger.LogDebug(Messages.GettingAllCommitsBetween, streamId, minRevision, maxRevision);
@@ -99,6 +111,7 @@ namespace NEventStore.Persistence.Sql
 				});
 		}
 
+		/// <inheritdoc/>
 		public virtual IEnumerable<ICommit> GetFrom(string bucketId, DateTime start)
 		{
 			start = start.AddTicks(-(start.Ticks % TimeSpan.TicksPerSecond)); // Rounds down to the nearest second.
@@ -115,6 +128,7 @@ namespace NEventStore.Persistence.Sql
 				});
 		}
 
+		/// <inheritdoc/>
 		public virtual IEnumerable<ICommit> GetFromTo(string bucketId, DateTime start, DateTime end)
 		{
 			start = start.AddTicks(-(start.Ticks % TimeSpan.TicksPerSecond)); // Rounds down to the nearest second.
@@ -133,6 +147,7 @@ namespace NEventStore.Persistence.Sql
 				});
 		}
 
+		/// <inheritdoc/>
 		public virtual ICommit Commit(CommitAttempt attempt)
 		{
 			ICommit commit;
@@ -156,6 +171,7 @@ namespace NEventStore.Persistence.Sql
 			return commit;
 		}
 
+		/// <inheritdoc/>
 		public virtual IEnumerable<IStreamHead> GetStreamsToSnapshot(string bucketId, int maxThreshold)
 		{
 			Logger.LogDebug(Messages.GettingStreamsToSnapshot);
@@ -171,6 +187,7 @@ namespace NEventStore.Persistence.Sql
 				});
 		}
 
+		/// <inheritdoc/>
 		public virtual ISnapshot GetSnapshot(string bucketId, string streamId, int maxRevision)
 		{
 			Logger.LogDebug(Messages.GettingRevision, streamId, maxRevision);
@@ -185,6 +202,7 @@ namespace NEventStore.Persistence.Sql
 				}).FirstOrDefault();
 		}
 
+		/// <inheritdoc/>
 		public virtual bool AddSnapshot(ISnapshot snapshot)
 		{
 			Logger.LogDebug(Messages.AddingSnapshot, snapshot.StreamId, snapshot.StreamRevision);
@@ -199,12 +217,14 @@ namespace NEventStore.Persistence.Sql
 				}) > 0;
 		}
 
+		/// <inheritdoc/>
 		public virtual void Purge()
 		{
 			Logger.LogWarning(Messages.PurgingStorage);
 			ExecuteCommand(cmd => cmd.ExecuteNonQuery(_dialect.PurgeStorage));
 		}
 
+		/// <inheritdoc/>
 		public void Purge(string bucketId)
 		{
 			Logger.LogWarning(Messages.PurgingBucket, bucketId);
@@ -215,12 +235,14 @@ namespace NEventStore.Persistence.Sql
 				});
 		}
 
+		/// <inheritdoc/>
 		public void Drop()
 		{
 			Logger.LogWarning(Messages.DroppingTables);
 			ExecuteCommand(cmd => cmd.ExecuteNonQuery(_dialect.Drop));
 		}
 
+		/// <inheritdoc/>
 		public void DeleteStream(string bucketId, string streamId)
 		{
 			Logger.LogWarning(Messages.DeletingStream, streamId, bucketId);
@@ -233,6 +255,7 @@ namespace NEventStore.Persistence.Sql
 				});
 		}
 
+		/// <inheritdoc/>
 		public IEnumerable<ICommit> GetFrom(string bucketId, Int64 checkpointToken)
 		{
 			Logger.LogDebug(Messages.GettingAllCommitsFromBucketAndCheckpoint, bucketId, checkpointToken);
@@ -246,6 +269,7 @@ namespace NEventStore.Persistence.Sql
 			});
 		}
 
+		/// <inheritdoc/>
 		public IEnumerable<ICommit> GetFromTo(String bucketId, Int64 from, Int64 to)
 		{
 			Logger.LogDebug(Messages.GettingCommitsFromBucketAndFromToCheckpoint, bucketId, from, to);
@@ -260,6 +284,7 @@ namespace NEventStore.Persistence.Sql
 			});
 		}
 
+		/// <inheritdoc/>
 		public IEnumerable<ICommit> GetFrom(Int64 checkpointToken)
 		{
 			Logger.LogDebug(Messages.GettingAllCommitsFromCheckpoint, checkpointToken);
@@ -272,6 +297,7 @@ namespace NEventStore.Persistence.Sql
 			});
 		}
 
+		/// <inheritdoc/>
 		public IEnumerable<ICommit> GetFromTo(Int64 from, Int64 to)
 		{
 			Logger.LogDebug(Messages.GettingCommitsFromToCheckpoint, from, to);
@@ -285,11 +311,13 @@ namespace NEventStore.Persistence.Sql
 			});
 		}
 
+		/// <inheritdoc/>
 		public bool IsDisposed
 		{
 			get { return _disposed; }
 		}
 
+		/// <inheritdoc/>
 		protected virtual void Dispose(bool disposing)
 		{
 			if (!disposing || _disposed)
@@ -301,6 +329,7 @@ namespace NEventStore.Persistence.Sql
 			_disposed = true;
 		}
 
+		/// <inheritdoc/>
 		protected virtual void OnPersistCommit(IDbStatement cmd, CommitAttempt attempt)
 		{ }
 
@@ -349,6 +378,10 @@ namespace NEventStore.Persistence.Sql
 				});
 		}
 
+		/// <summary>
+		/// Executes a query against the database.
+		/// </summary>
+		/// <exception cref="StorageException"></exception>
 		protected virtual IEnumerable<T> ExecuteQuery<T>(Func<IDbStatement, IEnumerable<T>> query)
 		{
 			ThrowWhenDisposed();
@@ -415,6 +448,10 @@ namespace NEventStore.Persistence.Sql
 			return ExecuteCommand((_, statement) => command(statement));
 		}
 
+		/// <summary>
+		/// Executes a command against the database.
+		/// </summary>
+		/// <exception cref="StorageException"></exception>
 		protected virtual T ExecuteCommand<T>(Func<IDbConnection, IDbStatement, T> command)
 		{
 			ThrowWhenDisposed();

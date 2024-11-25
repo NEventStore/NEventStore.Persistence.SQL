@@ -47,6 +47,6 @@ namespace NEventStore.Persistence.Sql
 		/// <summary>
 		/// Execute a paged query command.
 		/// </summary>
-		IEnumerable<IDataRecord> ExecutePagedQuery(string queryText, NextPageDelegate nextpage);
+		IEnumerable<IDataRecord> ExecutePagedQuery(string queryText, NextPageDelegate nextPage);
 	}
 }
