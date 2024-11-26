@@ -16,6 +16,11 @@ namespace NEventStore.Persistence.Sql
             _serializer = serializer;
         }
 
+        public byte[] SerializeEventMessages(IReadOnlyList<EventMessage> eventMessages)
+        {
+            return _serializer.Serialize(eventMessages);
+        }
+
         public ICollection<EventMessage> DeserializeEventMessages(byte[] input, string bucketId, string streamId,
             int streamRevision, Guid commitId,
             int commitSequence, DateTime commitStamp, long checkpoint, IReadOnlyDictionary<string, object> headers)
