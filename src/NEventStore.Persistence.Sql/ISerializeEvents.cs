@@ -6,7 +6,14 @@ namespace NEventStore.Persistence.Sql
     public interface ISerializeEvents
     {
         /// <summary>
-        ///     Deserializes the stream provided and reconstructs the corresponding object graph.
+        ///     Serializes the event messages.
+        /// </summary>
+        /// <param name="eventMessages">The messages to serialize.</param>
+        /// <returns>A byte array representing the serialized messages.</returns>
+        byte[] SerializeEventMessages(IReadOnlyList<EventMessage> eventMessages);
+
+        /// <summary>
+        ///     Deserializes the bytes provided and reconstructs the corresponding object graph.
         /// </summary>
         /// <param name="input">The bytes from which the object will be reconstructed.</param>
         /// <param name="bucketId">The <see cref="ICommit.BucketId" />.</param>
