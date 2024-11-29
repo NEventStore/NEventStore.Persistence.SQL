@@ -1,6 +1,6 @@
 # NEventStore.Persistence.Sql
 
-## 9.3.0
+## 9.3.1
 
 - Added a dedicated `ISerializeEvents` interface that allows customizing event deserialization with access to metadata from the `ICommit` class. [#47](https://github.com/NEventStore/NEventStore.Persistence.SQL/issues/47), [#49](https://github.com/NEventStore/NEventStore.Persistence.SQL/issues/49), [#506](https://github.com/NEventStore/NEventStore/issues/506)
 - Improved some Comments and Documentation.
