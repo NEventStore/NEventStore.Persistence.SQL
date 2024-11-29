@@ -1,23 +1,26 @@
 namespace NEventStore.Persistence.Sql
 {
-    using System;
+	using System;
 
-    public class DelegateStreamIdHasher : IStreamIdHasher
-    {
-        private readonly Func<string, string> _getHash;
+	/// <summary>
+	/// Defines a method to generate a hash of a stream ID.
+	/// </summary>
+	public class DelegateStreamIdHasher : IStreamIdHasher
+	{
+		private readonly Func<string, string> _getHash;
 
-        public DelegateStreamIdHasher(Func<string, string> getHash)
-        {
-            if (getHash == null)
-            {
-                throw new ArgumentNullException("getHash");
-            }
-            _getHash = getHash;
-        }
-
-        public string GetHash(string streamId)
-        {
-            return _getHash(streamId);
-        }
-    }
+		/// <summary>
+		/// Initializes a new instance of the <see cref="DelegateStreamIdHasher"/> class.
+		/// </summary>
+		/// <exception cref="ArgumentNullException"></exception>
+		public DelegateStreamIdHasher(Func<string, string> getHash)
+		{
+			_getHash = getHash ?? throw new ArgumentNullException(nameof(getHash));
+		}
+		/// <inheritdoc/>
+		public string GetHash(string streamId)
+		{
+			return _getHash(streamId);
+		}
+	}
 }

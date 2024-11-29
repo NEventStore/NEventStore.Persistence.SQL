@@ -1,15 +1,11 @@
 ﻿// ReSharper disable once CheckNamespace
+#pragma warning disable IDE0130 // Namespace does not match folder structure
 namespace NEventStore
+#pragma warning restore IDE0130 // Namespace does not match folder structure
 {
-    using System;
-    using System.Transactions;
-    using NEventStore.Logging;
-    using NEventStore.Persistence.Sql;
-    using NEventStore.Serialization;
-
-    internal enum TransactionSuppressionBehavior
-    {
-        Disabled = 0,
-        Enabled = 1
-    }
+	internal enum TransactionSuppressionBehavior
+	{
+		Disabled = 0,
+		Enabled = 1
+	}
 }

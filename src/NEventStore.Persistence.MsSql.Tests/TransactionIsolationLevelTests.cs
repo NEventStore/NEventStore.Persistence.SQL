@@ -124,9 +124,13 @@ namespace NEventStore.Persistence.AcceptanceTests
 			_recorder = new IsolationLevelRecorder();
 			_connectionFactory = new EnviromentConnectionFactory("MsSql", Microsoft.Data.SqlClient.SqlClientFactory.Instance);
 			_createPersistence = () =>
-				new SqlPersistenceFactory(_connectionFactory,
-					new BinarySerializer(),
+			{
+				var serializer = new BinarySerializer();
+				return new SqlPersistenceFactory(_connectionFactory,
+					serializer,
+					new DefaultEventSerializer(serializer),
 					new IsolationLevelRecordingSqlDialect(_recorder)).Build();
+			};
 		}
 
 		public void Initialize()

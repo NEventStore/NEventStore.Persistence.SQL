@@ -2,7 +2,7 @@ version: 1.0.{build}
 image: Visual Studio 2022
 configuration: Release
 init:
-- cmd: ''
+  - ps: Start-Service MySQL80, postgresql-x64-15
 assembly_info:
   patch: true
   file: '**\AssemblyInfo.*'
@@ -19,13 +19,12 @@ dotnet_csproj:
   file_version: '{version}'
   informational_version: '{version}'
 environment:
-  NEventStore.MsSql: Server=localhost\SQL2017;Database=NEventStore;User Id=sa;Password=Password12!;
+  NEventStore.MsSql: Server=localhost\SQL2017;Database=NEventStore;User Id=sa;Password=Password12!;TrustServerCertificate=True;
   NEventStore.MySql: Server=localhost;Database=NEventStore;Uid=root;Pwd=Password12!;AutoEnlist=false;
   NEventStore.PostgreSql: Server=localhost;Database=NEventStore;Uid=postgres;Pwd=Password12!;Enlist=false;
+  IGNORE_NORMALISATION_GIT_HEAD_MOVE: 1
 services:
 - mssql2017
-- mysql
-- postgresql
 install:
 - cmd: >-
     choco install gitversion.portable -pre -y
@@ -49,13 +48,13 @@ build:
   verbosity: minimal
 after_build:
 - cmd: >-
-    REM dotnet pack ./src/NEventStore.Persistence.Sql/NEventStore.Persistence.Sql.Core.csproj -c %CONFIGURATION% --no-build -o artifacts -p:PackageVersion=%GitVersion_NuGetVersion%
+    REM dotnet pack ./src/NEventStore.Persistence.Sql/NEventStore.Persistence.Sql.Core.csproj -c %CONFIGURATION% --no-build -o artifacts -p:PackageVersion=%GitVersion_SemVer%
 
 
     REM use .nuspec file, projects with submodule generate wrong PackageReferences
 
 
-    nuget pack ./src/.nuget/NEventStore.Persistence.Sql.nuspec -properties "version=%GitVersion_NuGetVersion%;configuration=%CONFIGURATION%" -OutputDirectory artifacts
+    nuget pack ./src/.nuget/NEventStore.Persistence.Sql.nuspec -properties "version=%GitVersion_SemVer%;configuration=%CONFIGURATION%" -OutputDirectory artifacts
 test_script:
 - ps: >-
     $dbName = "NEventStore"
@@ -72,7 +71,7 @@ test_script:
 
     $env:MYSQL_PWD="Password12!"
 
-    $mysqlcmd = '"C:\Program Files\MySQL\MySQL Server 5.7\bin\mysql" -e "create database $dbName;" --user=root'
+    $mysqlcmd = '"C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql" -e "create database $dbName;" --user=root'
 
     iex "& $mysqlcmd"
 
@@ -83,7 +82,7 @@ test_script:
 
     $env:PGPASSWORD="Password12!"
 
-    $pgcmd = '"C:\Program Files\PostgreSQL\9.6\bin\createdb" $dbName'
+    $pgcmd = '"C:\Program Files\PostgreSQL\15\bin\createdb" $dbName'
 
     iex "& $pgcmd"
 
