@@ -46,6 +46,7 @@
     <!--<file src="bin\$configuration$\**" target="lib"/>-->
     <file src="..\NEventStore.Persistence.Sql\bin\$configuration$\**\NEventStore.Persistence.Sql.dll" target="lib"/>
     <file src="..\NEventStore.Persistence.Sql\bin\$configuration$\**\NEventStore.Persistence.Sql.xml" target="lib"/>
+    <file src="..\NEventStore.Persistence.Sql\bin\$configuration$\**\NEventStore.Persistence.Sql.pdb" target="lib"/>
     <file src="..\..\README.md" target="docs\" />
     <file src="..\..\LICENSE.txt" target="" />
     <file src="..\..\icon.png" target="" />
