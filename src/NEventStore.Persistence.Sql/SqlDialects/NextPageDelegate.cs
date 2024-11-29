@@ -1,6 +1,9 @@
 namespace NEventStore.Persistence.Sql.SqlDialects
 {
-    using System.Data;
+	using System.Data;
 
-    public delegate void NextPageDelegate(IDbCommand command, IDataRecord current);
+	/// <summary>
+	/// Delegate for the next page of a query.
+	/// </summary>
+	public delegate void NextPageDelegate(IDbCommand command, IDataRecord current);
 }

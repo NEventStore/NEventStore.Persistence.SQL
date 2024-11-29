@@ -1,12 +1,20 @@
 namespace NEventStore.Persistence.Sql
 {
-    using System;
-    using System.Data;
+	using System;
+	using System.Data;
 
-    public interface IConnectionFactory
-    {
-        IDbConnection Open();
-
-        Type GetDbProviderFactoryType();
-    }
+	/// <summary>
+	/// Represents a connection factory.
+	/// </summary>
+	public interface IConnectionFactory
+	{
+		/// <summary>
+		/// Opens a new connection.
+		/// </summary>
+		IDbConnection Open();
+		/// <summary>
+		/// Gets the type of the database provider factory.
+		/// </summary>
+		Type GetDbProviderFactoryType();
+	}
 }

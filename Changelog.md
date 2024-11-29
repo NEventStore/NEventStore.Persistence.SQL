@@ -2,7 +2,12 @@
 
 ## 9.3.0
 
-- Added a dedicated `ISerializeEvents` interface that allows customizing event deserialization with access to metadata from the `ICommit` class.
+- Added a dedicated `ISerializeEvents` interface that allows customizing event deserialization with access to metadata from the `ICommit` class. [#47](https://github.com/NEventStore/NEventStore.Persistence.SQL/issues/47), [#49](https://github.com/NEventStore/NEventStore.Persistence.SQL/issues/49), [#506](https://github.com/NEventStore/NEventStore/issues/506)
+- Improved some Comments and Documentation.
+- Updated Microsoft.Data.SqlClient to version 5.2.2
+- Updated nuget package to include symbols and new icon.
+
+Thanks to: [@chrischu](https://github.com/chrischu)
 
 ## 9.2.0
 
