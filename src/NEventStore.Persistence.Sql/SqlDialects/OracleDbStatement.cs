@@ -1,12 +1,10 @@
+using System.Data;
+using System.Data.Common;
+using System.Reflection;
+using System.Transactions;
+
 namespace NEventStore.Persistence.Sql.SqlDialects
 {
-	using System;
-	using System.Data;
-	using System.Data.Common;
-	using System.Reflection;
-	using System.Transactions;
-	using NEventStore.Persistence.Sql;
-
 	/// <summary>
 	/// Represents a SQL dialect for Oracle.
 	/// </summary>
@@ -16,7 +14,7 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 		/// <summary>
 		/// Initializes a new instance of the <see cref="OracleDbStatement"/> class.
 		/// </summary>
-		public OracleDbStatement(ISqlDialect dialect, TransactionScope? scope, IDbConnection connection, IDbTransaction? transaction)
+		public OracleDbStatement(ISqlDialect dialect, TransactionScope? scope, DbConnection connection, DbTransaction? transaction)
 			: base(dialect, scope, connection, transaction)
 		{
 			_dialect = dialect;
@@ -54,9 +52,9 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 			}
 		}
 		/// <inheritdoc/>
-		protected override IDbCommand BuildCommand(string statement)
+		protected override DbCommand BuildCommand(string statement)
 		{
-			IDbCommand command = base.BuildCommand(statement);
+			DbCommand command = base.BuildCommand(statement);
 			PropertyInfo pi = command.GetType().GetProperty("BindByName");
 			pi?.SetValue(command, true, null);
 			return command;

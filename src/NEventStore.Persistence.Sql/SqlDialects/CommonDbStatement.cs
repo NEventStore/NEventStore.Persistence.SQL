@@ -1,13 +1,11 @@
+using System.Data;
+using System.Data.Common;
+using System.Transactions;
+using Microsoft.Extensions.Logging;
+using NEventStore.Logging;
+
 namespace NEventStore.Persistence.Sql.SqlDialects
 {
-	using System;
-	using System.Collections.Generic;
-	using System.Data;
-	using System.Transactions;
-	using Microsoft.Extensions.Logging;
-	using NEventStore.Logging;
-	using NEventStore.Persistence.Sql;
-
 	/// <summary>
 	/// Common implementation of <see cref="IDbStatement"/> that provides basic functionality for executing SQL commands.
 	/// </summary>
@@ -15,9 +13,9 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 	{
 		private const int InfinitePageSize = 0;
 		private static readonly ILogger Logger = LogFactory.BuildLogger(typeof(CommonDbStatement));
-		private readonly IDbConnection _connection;
+		private readonly DbConnection _connection;
 		private readonly TransactionScope? _scope;
-		private readonly IDbTransaction? _transaction;
+		private readonly DbTransaction? _transaction;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="CommonDbStatement"/> class.
@@ -25,8 +23,8 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 		public CommonDbStatement(
 			ISqlDialect dialect,
 			TransactionScope? scope,
-			IDbConnection connection,
-			IDbTransaction? transaction)
+			DbConnection connection,
+			DbTransaction? transaction)
 		{
 			Parameters = new Dictionary<string, Tuple<object, DbType?>>();
 
@@ -169,10 +167,10 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 		/// <summary>
 		/// Builds a command to be executed.
 		/// </summary>
-		protected virtual IDbCommand BuildCommand(string statement)
+		protected virtual DbCommand BuildCommand(string statement)
 		{
 			Logger.LogTrace(Messages.CreatingCommand);
-			IDbCommand command = _connection.CreateCommand();
+			DbCommand command = _connection.CreateCommand();
 
 			if (Settings.CommandTimeout > 0)
 			{

@@ -1,10 +1,10 @@
+using System.Data;
+using System.Data.Common;
+using System.Transactions;
+using NEventStore.Persistence.Sql.SqlDialects;
+
 namespace NEventStore.Persistence.Sql
 {
-	using System;
-	using System.Data;
-	using System.Transactions;
-	using NEventStore.Persistence.Sql.SqlDialects;
-
 	/// <summary>
 	/// Represents a SQL dialect.
 	/// </summary>
@@ -171,7 +171,7 @@ namespace NEventStore.Persistence.Sql
 		/// <summary>
 		/// Builds a statement.
 		/// </summary>
-		IDbStatement BuildStatement(TransactionScope? scope, IDbConnection connection, IDbTransaction? transaction);
+		IDbStatement BuildStatement(TransactionScope? scope, DbConnection connection, DbTransaction? transaction);
 		/// <summary>
 		/// Check if the exception represents a unique index violation.
 		/// </summary>

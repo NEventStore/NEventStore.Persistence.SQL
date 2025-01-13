@@ -1,11 +1,10 @@
+using System.Data;
+using System.Data.Common;
+using System.Reflection;
+using System.Transactions;
+
 namespace NEventStore.Persistence.Sql.SqlDialects
 {
-	using System;
-	using System.Data;
-	using System.Reflection;
-	using System.Transactions;
-	using NEventStore.Persistence.Sql;
-
 	/// <summary>
 	/// Represents a SQL dialect for Oracle.
 	/// </summary>
@@ -173,7 +172,7 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 			get { return MakeOracleParameter(base.MaxStreamRevision); }
 		}
 		/// <inheritdoc/>
-		public override IDbStatement BuildStatement(TransactionScope? scope, IDbConnection connection, IDbTransaction? transaction)
+		public override IDbStatement BuildStatement(TransactionScope? scope, DbConnection connection, DbTransaction? transaction)
 		{
 			return new OracleDbStatement(this, scope, connection, transaction);
 		}

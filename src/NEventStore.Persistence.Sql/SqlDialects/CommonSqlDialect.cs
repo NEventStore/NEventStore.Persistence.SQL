@@ -1,10 +1,9 @@
+using System.Data;
+using System.Data.Common;
+using System.Transactions;
+
 namespace NEventStore.Persistence.Sql.SqlDialects
 {
-	using System;
-	using System.Data;
-	using System.Transactions;
-	using NEventStore.Persistence.Sql;
-
 	/// <summary>
 	/// Represents a common SQL dialect.
 	/// </summary>
@@ -220,7 +219,7 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 		}
 
 		/// <inheritdoc/>
-		public virtual IDbStatement BuildStatement(TransactionScope? scope, IDbConnection connection, IDbTransaction? transaction)
+		public virtual IDbStatement BuildStatement(TransactionScope? scope, DbConnection connection, DbTransaction? transaction)
 		{
 			return new CommonDbStatement(this, scope, connection, transaction);
 		}
