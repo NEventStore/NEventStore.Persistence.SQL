@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
+﻿using System.Data;
 using System.Transactions;
 using FluentAssertions;
 #if NET462
@@ -11,23 +8,22 @@ using NEventStore.Persistence.AcceptanceTests.BDD;
 using NEventStore.Persistence.Sql;
 using NEventStore.Persistence.Sql.SqlDialects;
 using NEventStore.Persistence.Sql.Tests;
-using NEventStore.Serialization;
+using NEventStore.Serialization.Binary;
 using IsolationLevel = System.Data.IsolationLevel;
 #if MSTEST
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 #endif
 #if NUNIT
-using NUnit.Framework;
 #endif
 #if XUNIT
-    using Xunit;
-    using Xunit.Should;
+using Xunit;
+using Xunit.Should;
 #endif
 
 namespace NEventStore.Persistence.AcceptanceTests
 {
 #if MSTEST
-    [TestClass]
+	[TestClass]
 #endif
 	public class When_reusing_a_connection_from_the_connection_pool_without_a_transaction_scope :
 		IsolationLevelConcern
@@ -141,7 +137,7 @@ namespace NEventStore.Persistence.AcceptanceTests
 				_persistence.Dispose();
 			}
 #if NET462
-            _persistence = new PerformanceCounterPersistenceEngine(_createPersistence(), "tests");
+			_persistence = new PerformanceCounterPersistenceEngine(_createPersistence(), "tests");
 #else
 			_persistence = _createPersistence();
 #endif

@@ -6,6 +6,7 @@ namespace NEventStore.Persistence.AcceptanceTests
 	using NEventStore.Persistence.Sql;
 	using NEventStore.Persistence.Sql.SqlDialects;
 	using NEventStore.Serialization;
+	using NEventStore.Serialization.Binary;
 	using System.Transactions;
 
 	public partial class PersistenceEngineFixture

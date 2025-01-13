@@ -5,6 +5,7 @@ namespace NEventStore.Persistence.Sql
 	using System.Data;
 	using System.Linq;
 	using System.Threading;
+	using System.Threading.Tasks;
 	using System.Transactions;
 	using Microsoft.Extensions.Logging;
 	using NEventStore.Logging;
@@ -523,6 +524,66 @@ namespace NEventStore.Persistence.Sql
 		private static bool RecoverableException(Exception e)
 		{
 			return e is UniqueKeyViolationException || e is StorageUnavailableException;
+		}
+
+		public Task GetFromAsync(long checkpointToken, IAsyncObserver<ICommit> asyncObserver, CancellationToken cancellationToken)
+		{
+			throw new NotImplementedException();
+		}
+
+		public Task GetFromToAsync(long fromCheckpointToken, long toCheckpointToken, IAsyncObserver<ICommit> asyncObserver, CancellationToken cancellationToken)
+		{
+			throw new NotImplementedException();
+		}
+
+		public Task GetFromAsync(string bucketId, long checkpointToken, IAsyncObserver<ICommit> asyncObserver, CancellationToken cancellationToken)
+		{
+			throw new NotImplementedException();
+		}
+
+		public Task GetFromToAsync(string bucketId, long fromCheckpointToken, long toCheckpointToken, IAsyncObserver<ICommit> asyncObserver, CancellationToken cancellationToken)
+		{
+			throw new NotImplementedException();
+		}
+
+		public Task PurgeAsync(CancellationToken cancellationToken)
+		{
+			throw new NotImplementedException();
+		}
+
+		public Task PurgeAsync(string bucketId, CancellationToken cancellationToken)
+		{
+			throw new NotImplementedException();
+		}
+
+		public Task DeleteStreamAsync(string bucketId, string streamId, CancellationToken cancellationToken)
+		{
+			throw new NotImplementedException();
+		}
+
+		public Task GetFromAsync(string bucketId, string streamId, int minRevision, int maxRevision, IAsyncObserver<ICommit> observer, CancellationToken cancellationToken)
+		{
+			throw new NotImplementedException();
+		}
+
+		public Task<ICommit?> CommitAsync(CommitAttempt attempt, CancellationToken cancellationToken)
+		{
+			throw new NotImplementedException();
+		}
+
+		public Task<ISnapshot?> GetSnapshotAsync(string bucketId, string streamId, int maxRevision, CancellationToken cancellationToken)
+		{
+			throw new NotImplementedException();
+		}
+
+		public Task<bool> AddSnapshotAsync(ISnapshot snapshot, CancellationToken cancellationToken)
+		{
+			throw new NotImplementedException();
+		}
+
+		public Task GetStreamsToSnapshotAsync(string bucketId, int maxThreshold, IAsyncObserver<IStreamHead> asyncObserver, CancellationToken cancellationToken)
+		{
+			throw new NotImplementedException();
 		}
 
 		private class StreamIdHasherValidator : IStreamIdHasher

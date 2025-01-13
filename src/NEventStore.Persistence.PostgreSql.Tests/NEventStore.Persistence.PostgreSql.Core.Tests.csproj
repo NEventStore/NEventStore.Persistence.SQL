@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net7.0;net462</TargetFrameworks>
+    <TargetFrameworks>net8.0;net472</TargetFrameworks>
     <IsPackable>false</IsPackable>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <AssemblyName>NEventStore.Persistence.PostgreSql.Tests</AssemblyName>
@@ -13,19 +13,20 @@
     <DefineConstants Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">NUNIT</DefineConstants>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net462'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'net472'">
     <Reference Include="System.Transactions" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Npgsql" Version="7.0.4" />
-    <PackageReference Include="FluentAssertions" Version="6.12.2" />
+    <PackageReference Include="FluentAssertions" Version="7.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
-    <PackageReference Include="NUnit" Version="3.13.3" />
+    <PackageReference Include="NUnit" Version="4.3.2" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\dependencies\NEventStore\src\NEventStore.Persistence.AcceptanceTests\NEventStore.Persistence.AcceptanceTests.Core.csproj" />
+    <ProjectReference Include="..\..\dependencies\NEventStore\src\NEventStore.Serialization.Binary\NEventStore.Serialization.Binary.Core.csproj" />
     <ProjectReference Include="..\..\dependencies\NEventStore\src\NEventStore\NEventStore.Core.csproj" />
     <ProjectReference Include="..\NEventStore.Persistence.Sql.Tests\NEventStore.Persistence.Sql.Core.Tests.csproj" />
     <ProjectReference Include="..\NEventStore.Persistence.Sql\NEventStore.Persistence.Sql.Core.csproj" />
