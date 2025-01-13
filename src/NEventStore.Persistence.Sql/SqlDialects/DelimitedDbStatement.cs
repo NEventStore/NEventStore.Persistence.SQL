@@ -1,12 +1,9 @@
+using System.Data;
+using System.Data.Common;
+using System.Transactions;
+
 namespace NEventStore.Persistence.Sql.SqlDialects
 {
-	using System;
-	using System.Collections.Generic;
-	using System.Data;
-	using System.Linq;
-	using System.Transactions;
-	using NEventStore.Persistence.Sql;
-
 	/// <summary>
 	/// Represents a <see cref="IDbStatement"/> that splits the command text by a delimiter and executes each command separately.
 	/// </summary>
@@ -20,8 +17,8 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 		public DelimitedDbStatement(
 			ISqlDialect dialect,
 			TransactionScope scope,
-			IDbConnection connection,
-			IDbTransaction transaction)
+			DbConnection connection,
+			DbTransaction transaction)
 			: base(dialect, scope, connection, transaction)
 		{ }
 
