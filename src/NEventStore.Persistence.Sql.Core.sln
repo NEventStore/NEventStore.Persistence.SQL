@@ -13,6 +13,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		..\appveyor.yml = ..\appveyor.yml
 		..\build.ps1 = ..\build.ps1
 		..\Changelog.md = ..\Changelog.md
+		Directory.Build.props = Directory.Build.props
 		..\GitVersion.yml = ..\GitVersion.yml
 		..\icon.png = ..\icon.png
 		..\README.md = ..\README.md
@@ -45,6 +46,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docker", "docker", "{C68C81
 		..\docker\DockerComposeUp.ps1 = ..\docker\DockerComposeUp.ps1
 		..\docker\Readme.md = ..\docker\Readme.md
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NEventStore.Serialization.Binary.Core", "..\dependencies\NEventStore\src\NEventStore.Serialization.Binary\NEventStore.Serialization.Binary.Core.csproj", "{F61C5A0D-19AA-A699-E2E6-6707B9455C12}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -84,6 +87,10 @@ Global
 		{E81E631B-AEF4-432D-8A5B-3F75B856F0CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E81E631B-AEF4-432D-8A5B-3F75B856F0CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E81E631B-AEF4-432D-8A5B-3F75B856F0CB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F61C5A0D-19AA-A699-E2E6-6707B9455C12}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F61C5A0D-19AA-A699-E2E6-6707B9455C12}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F61C5A0D-19AA-A699-E2E6-6707B9455C12}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F61C5A0D-19AA-A699-E2E6-6707B9455C12}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -92,6 +99,7 @@ Global
 		{6F7B51D5-C6F0-4D10-BCCD-E813F005BF21} = {7B0D03A4-5CB2-4674-AE01-F33F321B6FA4}
 		{8F9CC671-02C9-4C91-889A-6C3D9FB5905D} = {7B0D03A4-5CB2-4674-AE01-F33F321B6FA4}
 		{C68C813A-B71E-4F21-8CE8-31220D2B3E10} = {A05F912F-86CC-4106-BEB4-B1856BCA6739}
+		{F61C5A0D-19AA-A699-E2E6-6707B9455C12} = {7B0D03A4-5CB2-4674-AE01-F33F321B6FA4}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B46B87FE-AC30-4F44-A951-896E9276AB28}

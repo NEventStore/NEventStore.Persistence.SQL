@@ -1,9 +1,10 @@
-﻿namespace NEventStore.Persistence.AcceptanceTests
-{
-    using NEventStore.Persistence.Sql;
-    using NEventStore.Persistence.Sql.SqlDialects;
-    using NEventStore.Serialization;
+﻿using NEventStore.Persistence.Sql;
+using NEventStore.Persistence.Sql.SqlDialects;
+using NEventStore.Serialization;
+using NEventStore.Serialization.Binary;
 
+namespace NEventStore.Persistence.AcceptanceTests
+{
     public partial class PersistenceEngineFixture
     {
 #if NET462

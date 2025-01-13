@@ -1,26 +1,23 @@
 ﻿using NEventStore.Persistence.Sql.Tests;
+using NEventStore.Persistence.AcceptanceTests.BDD;
+using NEventStore.Persistence.Sql;
+using NEventStore.Persistence.Sql.SqlDialects;
+using NEventStore.Serialization.Binary;
+using FluentAssertions;
+#if MSTEST
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+#endif
+#if NUNIT
+#endif
+#if XUNIT
+using Xunit;
+using Xunit.Should;
+#endif
 
 namespace NEventStore.Persistence.AcceptanceTests
 {
-	using System;
-	using NEventStore.Persistence.AcceptanceTests.BDD;
-	using NEventStore.Persistence.Sql;
-	using NEventStore.Persistence.Sql.SqlDialects;
-	using FluentAssertions;
 #if MSTEST
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
-#endif
-#if NUNIT
-	using NUnit.Framework;
-
-#endif
-#if XUNIT
-    using Xunit;
-    using Xunit.Should;
-#endif
-
-#if MSTEST
-    [TestClass]
+	[TestClass]
 #endif
 	public class When_specifying_a_hasher : SpecificationBase
 	{

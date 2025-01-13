@@ -1,12 +1,12 @@
 ﻿using NEventStore.Persistence.Sql.Tests;
+using NEventStore.Serialization.Binary;
+using global::MySql.Data.MySqlClient;
+using NEventStore.Persistence.Sql;
+using NEventStore.Persistence.Sql.SqlDialects;
+using NEventStore.Serialization;
 
 namespace NEventStore.Persistence.AcceptanceTests
 {
-    using global::MySql.Data.MySqlClient;
-    using NEventStore.Persistence.Sql;
-    using NEventStore.Persistence.Sql.SqlDialects;
-    using NEventStore.Serialization;
-
     public partial class PersistenceEngineFixture
     {
         public PersistenceEngineFixture()
