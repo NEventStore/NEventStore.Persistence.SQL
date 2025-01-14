@@ -1,8 +1,7 @@
+using System.Data.Common;
+
 namespace NEventStore.Persistence.Sql
 {
-	using System;
-	using System.Data;
-
 	/// <summary>
 	/// Represents a connection factory.
 	/// </summary>
@@ -11,7 +10,7 @@ namespace NEventStore.Persistence.Sql
 		/// <summary>
 		/// Opens a new connection.
 		/// </summary>
-		IDbConnection Open();
+		DbConnection Open();
 		/// <summary>
 		/// Gets the type of the database provider factory.
 		/// </summary>

@@ -1,16 +1,12 @@
+using System.Data;
+using System.Data.Common;
+using System.Transactions;
+using Microsoft.Extensions.Logging;
+using NEventStore.Logging;
+using NEventStore.Serialization;
+
 namespace NEventStore.Persistence.Sql
 {
-	using System;
-	using System.Collections.Generic;
-	using System.Data;
-	using System.Linq;
-	using System.Threading;
-	using System.Threading.Tasks;
-	using System.Transactions;
-	using Microsoft.Extensions.Logging;
-	using NEventStore.Logging;
-	using NEventStore.Serialization;
-
 	/// <summary>
 	/// Represents a persistence engine that stores and retrieves events from a SQL database.
 	/// </summary>
@@ -71,7 +67,10 @@ namespace NEventStore.Persistence.Sql
 			_pageSize = pageSize;
 			_streamIdHasher = new StreamIdHasherValidator(streamIdHasher);
 
-			Logger.LogDebug(Messages.UsingScope, _scopeOption.ToString());
+			if (Logger.IsEnabled(LogLevel.Debug))
+			{
+				Logger.LogDebug(Messages.UsingScope, _scopeOption.ToString());
+			}
 		}
 
 		/// <inheritdoc/>
@@ -89,14 +88,21 @@ namespace NEventStore.Persistence.Sql
 				return;
 			}
 
-			Logger.LogDebug(Messages.InitializingStorage);
+			if (Logger.IsEnabled(LogLevel.Debug))
+			{
+				Logger.LogDebug(Messages.InitializingStorage);
+			}
 			ExecuteCommand(statement => statement.ExecuteWithoutExceptions(_dialect.InitializeStorage));
 		}
 
 		/// <inheritdoc/>
 		public virtual IEnumerable<ICommit> GetFrom(string bucketId, string streamId, int minRevision, int maxRevision)
 		{
-			Logger.LogDebug(Messages.GettingAllCommitsBetween, streamId, minRevision, maxRevision);
+			if (Logger.IsEnabled(LogLevel.Debug))
+			{
+				Logger.LogDebug(Messages.GettingAllCommitsBetween, streamId, minRevision, maxRevision);
+			}
+
 			streamId = _streamIdHasher.GetHash(streamId);
 			return ExecuteQuery(query =>
 				{
@@ -113,36 +119,46 @@ namespace NEventStore.Persistence.Sql
 		}
 
 		/// <inheritdoc/>
-		public virtual IEnumerable<ICommit> GetFrom(string bucketId, DateTime start)
+		[Obsolete("DateTime is problematic in distributed systems. Use GetFrom(Int64 checkpointToken) instead. This method will be removed in a later version.")]
+		public virtual IEnumerable<ICommit> GetFrom(string bucketId, DateTime startDate)
 		{
-			start = start.AddTicks(-(start.Ticks % TimeSpan.TicksPerSecond)); // Rounds down to the nearest second.
-			start = start < EpochTime ? EpochTime : start;
+			startDate = startDate.AddTicks(-(startDate.Ticks % TimeSpan.TicksPerSecond)); // Rounds down to the nearest second.
+			startDate = startDate < EpochTime ? EpochTime : startDate;
 
-			Logger.LogDebug(Messages.GettingAllCommitsFrom, start, bucketId);
+			if (Logger.IsEnabled(LogLevel.Debug))
+			{
+				Logger.LogDebug(Messages.GettingAllCommitsFrom, startDate, bucketId);
+			}
+
 			return ExecuteQuery(query =>
 				{
 					string statement = _dialect.GetCommitsFromInstant;
 					query.AddParameter(_dialect.BucketId, bucketId, DbType.AnsiString);
-					query.AddParameter(_dialect.CommitStamp, start, _dialect.GetDateTimeDbType());
+					query.AddParameter(_dialect.CommitStamp, startDate, _dialect.GetDateTimeDbType());
 					return query.ExecutePagedQuery(statement, (_, _) => { })
 							.Select(x => x.GetCommit(_serializer, _eventSerializer, _dialect));
 				});
 		}
 
 		/// <inheritdoc/>
-		public virtual IEnumerable<ICommit> GetFromTo(string bucketId, DateTime start, DateTime end)
+		[Obsolete("DateTime is problematic in distributed systems. Use GetFromTo(Int64 fromCheckpointToken, Int64 toCheckpointToken) instead. This method will be removed in a later version.")]
+		public virtual IEnumerable<ICommit> GetFromTo(string bucketId, DateTime startDate, DateTime endDate)
 		{
-			start = start.AddTicks(-(start.Ticks % TimeSpan.TicksPerSecond)); // Rounds down to the nearest second.
-			start = start < EpochTime ? EpochTime : start;
-			end = end < EpochTime ? EpochTime : end;
+			startDate = startDate.AddTicks(-(startDate.Ticks % TimeSpan.TicksPerSecond)); // Rounds down to the nearest second.
+			startDate = startDate < EpochTime ? EpochTime : startDate;
+			endDate = endDate < EpochTime ? EpochTime : endDate;
 
-			Logger.LogDebug(Messages.GettingAllCommitsFromTo, start, end);
+			if (Logger.IsEnabled(LogLevel.Debug))
+			{
+				Logger.LogDebug(Messages.GettingAllCommitsFromTo, startDate, endDate);
+			}
+
 			return ExecuteQuery(query =>
 				{
 					string statement = _dialect.GetCommitsFromToInstant;
 					query.AddParameter(_dialect.BucketId, bucketId, DbType.AnsiString);
-					query.AddParameter(_dialect.CommitStampStart, start, _dialect.GetDateTimeDbType());
-					query.AddParameter(_dialect.CommitStampEnd, end, _dialect.GetDateTimeDbType());
+					query.AddParameter(_dialect.CommitStampStart, startDate, _dialect.GetDateTimeDbType());
+					query.AddParameter(_dialect.CommitStampEnd, endDate, _dialect.GetDateTimeDbType());
 					return query.ExecutePagedQuery(statement, (_, _) => { })
 						.Select(x => x.GetCommit(_serializer, _eventSerializer, _dialect));
 				});
@@ -155,18 +171,27 @@ namespace NEventStore.Persistence.Sql
 			try
 			{
 				commit = PersistCommit(attempt);
-				Logger.LogDebug(Messages.CommitPersisted, attempt.CommitId);
+				if (Logger.IsEnabled(LogLevel.Debug))
+				{
+					Logger.LogDebug(Messages.CommitPersisted, attempt.CommitId);
+				}
 			}
 			catch (UniqueKeyViolationException e)
 			{
 				if (DetectDuplicate(attempt))
 				{
 					var msg = String.Format(Messages.DuplicateCommit, attempt.CommitId, attempt.BucketId, attempt.StreamId, attempt.CommitSequence);
-					Logger.LogInformation(msg);
+					if (Logger.IsEnabled(LogLevel.Information))
+					{
+						Logger.LogInformation(msg);
+					}
 					throw new DuplicateCommitException($"{msg} inner exception: {e.Message}", e);
 				}
 
-				Logger.LogInformation(Messages.ConcurrentWriteDetected);
+				if (Logger.IsEnabled(LogLevel.Information))
+				{
+					Logger.LogInformation(Messages.ConcurrentWriteDetected);
+				}
 				throw new ConcurrencyException(e.Message, e);
 			}
 			return commit;
@@ -175,7 +200,11 @@ namespace NEventStore.Persistence.Sql
 		/// <inheritdoc/>
 		public virtual IEnumerable<IStreamHead> GetStreamsToSnapshot(string bucketId, int maxThreshold)
 		{
-			Logger.LogDebug(Messages.GettingStreamsToSnapshot);
+			if (Logger.IsEnabled(LogLevel.Debug))
+			{
+				Logger.LogDebug(Messages.GettingStreamsToSnapshot);
+			}
+
 			return ExecuteQuery(query =>
 				{
 					string statement = _dialect.GetStreamsRequiringSnapshots;
@@ -191,7 +220,11 @@ namespace NEventStore.Persistence.Sql
 		/// <inheritdoc/>
 		public virtual ISnapshot GetSnapshot(string bucketId, string streamId, int maxRevision)
 		{
-			Logger.LogDebug(Messages.GettingRevision, streamId, maxRevision);
+			if (Logger.IsEnabled(LogLevel.Debug))
+			{
+				Logger.LogDebug(Messages.GettingRevision, streamId, maxRevision);
+			}
+
 			var streamIdHash = _streamIdHasher.GetHash(streamId);
 			return ExecuteQuery(query =>
 				{
@@ -206,7 +239,11 @@ namespace NEventStore.Persistence.Sql
 		/// <inheritdoc/>
 		public virtual bool AddSnapshot(ISnapshot snapshot)
 		{
-			Logger.LogDebug(Messages.AddingSnapshot, snapshot.StreamId, snapshot.StreamRevision);
+			if (Logger.IsEnabled(LogLevel.Debug))
+			{
+				Logger.LogDebug(Messages.AddingSnapshot, snapshot.StreamId, snapshot.StreamRevision);
+			}
+
 			string streamId = _streamIdHasher.GetHash(snapshot.StreamId);
 			return ExecuteCommand((connection, cmd) =>
 				{
@@ -221,14 +258,20 @@ namespace NEventStore.Persistence.Sql
 		/// <inheritdoc/>
 		public virtual void Purge()
 		{
-			Logger.LogWarning(Messages.PurgingStorage);
+			if (Logger.IsEnabled(LogLevel.Warning))
+			{
+				Logger.LogWarning(Messages.PurgingStorage);
+			}
 			ExecuteCommand(cmd => cmd.ExecuteNonQuery(_dialect.PurgeStorage));
 		}
 
 		/// <inheritdoc/>
 		public void Purge(string bucketId)
 		{
-			Logger.LogWarning(Messages.PurgingBucket, bucketId);
+			if (Logger.IsEnabled(LogLevel.Warning))
+			{
+				Logger.LogWarning(Messages.PurgingBucket, bucketId);
+			}
 			ExecuteCommand(cmd =>
 				{
 					cmd.AddParameter(_dialect.BucketId, bucketId, DbType.AnsiString);
@@ -239,14 +282,21 @@ namespace NEventStore.Persistence.Sql
 		/// <inheritdoc/>
 		public void Drop()
 		{
-			Logger.LogWarning(Messages.DroppingTables);
+			if (Logger.IsEnabled(LogLevel.Warning))
+			{
+				Logger.LogWarning(Messages.DroppingTables);
+			}
 			ExecuteCommand(cmd => cmd.ExecuteNonQuery(_dialect.Drop));
 		}
 
 		/// <inheritdoc/>
 		public void DeleteStream(string bucketId, string streamId)
 		{
-			Logger.LogWarning(Messages.DeletingStream, streamId, bucketId);
+			if (Logger.IsEnabled(LogLevel.Warning))
+			{
+				Logger.LogWarning(Messages.DeletingStream, streamId, bucketId);
+			}
+
 			streamId = _streamIdHasher.GetHash(streamId);
 			ExecuteCommand(cmd =>
 				{
@@ -259,7 +309,11 @@ namespace NEventStore.Persistence.Sql
 		/// <inheritdoc/>
 		public IEnumerable<ICommit> GetFrom(string bucketId, Int64 checkpointToken)
 		{
-			Logger.LogDebug(Messages.GettingAllCommitsFromBucketAndCheckpoint, bucketId, checkpointToken);
+			if (Logger.IsEnabled(LogLevel.Debug))
+			{
+				Logger.LogDebug(Messages.GettingAllCommitsFromBucketAndCheckpoint, bucketId, checkpointToken);
+			}
+
 			return ExecuteQuery(query =>
 			{
 				string statement = _dialect.GetCommitsFromBucketAndCheckpoint;
@@ -273,7 +327,11 @@ namespace NEventStore.Persistence.Sql
 		/// <inheritdoc/>
 		public IEnumerable<ICommit> GetFromTo(String bucketId, Int64 from, Int64 to)
 		{
-			Logger.LogDebug(Messages.GettingCommitsFromBucketAndFromToCheckpoint, bucketId, from, to);
+			if (Logger.IsEnabled(LogLevel.Debug))
+			{
+				Logger.LogDebug(Messages.GettingCommitsFromBucketAndFromToCheckpoint, bucketId, from, to);
+			}
+
 			return ExecuteQuery(query =>
 			{
 				string statement = _dialect.GetCommitsFromToBucketAndCheckpoint;
@@ -288,7 +346,11 @@ namespace NEventStore.Persistence.Sql
 		/// <inheritdoc/>
 		public IEnumerable<ICommit> GetFrom(Int64 checkpointToken)
 		{
-			Logger.LogDebug(Messages.GettingAllCommitsFromCheckpoint, checkpointToken);
+			if (Logger.IsEnabled(LogLevel.Debug))
+			{
+				Logger.LogDebug(Messages.GettingAllCommitsFromCheckpoint, checkpointToken);
+			}
+
 			return ExecuteQuery(query =>
 			{
 				string statement = _dialect.GetCommitsFromCheckpoint;
@@ -301,7 +363,11 @@ namespace NEventStore.Persistence.Sql
 		/// <inheritdoc/>
 		public IEnumerable<ICommit> GetFromTo(Int64 from, Int64 to)
 		{
-			Logger.LogDebug(Messages.GettingCommitsFromToCheckpoint, from, to);
+			if (Logger.IsEnabled(LogLevel.Debug))
+			{
+				Logger.LogDebug(Messages.GettingCommitsFromToCheckpoint, from, to);
+			}
+
 			return ExecuteQuery(query =>
 			{
 				string statement = _dialect.GetCommitsFromToCheckpoint;
@@ -326,7 +392,10 @@ namespace NEventStore.Persistence.Sql
 				return;
 			}
 
-			Logger.LogDebug(Messages.ShuttingDownPersistence);
+			if (Logger.IsEnabled(LogLevel.Debug))
+			{
+				Logger.LogDebug(Messages.ShuttingDownPersistence);
+			}
 			_disposed = true;
 		}
 
@@ -336,7 +405,11 @@ namespace NEventStore.Persistence.Sql
 
 		private ICommit PersistCommit(CommitAttempt attempt)
 		{
-			Logger.LogDebug(Messages.AttemptingToCommit, attempt.Events.Count, attempt.StreamId, attempt.CommitSequence, attempt.BucketId);
+			if (Logger.IsEnabled(LogLevel.Debug))
+			{
+				Logger.LogDebug(Messages.AttemptingToCommit, attempt.Events.Count, attempt.StreamId, attempt.CommitSequence, attempt.BucketId);
+			}
+
 			string streamId = _streamIdHasher.GetHash(attempt.StreamId);
 			return ExecuteCommand((connection, cmd) =>
 			{
@@ -388,8 +461,8 @@ namespace NEventStore.Persistence.Sql
 			ThrowWhenDisposed();
 
 			TransactionScope? scope = OpenQueryScope();
-			IDbConnection? connection = null;
-			IDbTransaction? transaction = null;
+			DbConnection? connection = null;
+			DbTransaction? transaction = null;
 			IDbStatement? statement = null;
 
 			try
@@ -399,7 +472,10 @@ namespace NEventStore.Persistence.Sql
 				statement = _dialect.BuildStatement(scope, connection, transaction);
 				statement.PageSize = _pageSize;
 
-				Logger.LogTrace(Messages.ExecutingQuery);
+				if (Logger.IsEnabled(LogLevel.Trace))
+				{
+					Logger.LogTrace(Messages.ExecutingQuery);
+				}
 				return query(statement);
 			}
 			catch (Exception e)
@@ -409,7 +485,10 @@ namespace NEventStore.Persistence.Sql
 				connection?.Dispose();
 				scope?.Dispose();
 
-				Logger.LogDebug(Messages.StorageThrewException, e.GetType());
+				if (Logger.IsEnabled(LogLevel.Debug))
+				{
+					Logger.LogDebug(Messages.StorageThrewException, e.GetType());
+				}
 				if (e is StorageUnavailableException)
 				{
 					throw;
@@ -440,7 +519,10 @@ namespace NEventStore.Persistence.Sql
 				return;
 			}
 
-			Logger.LogWarning(Messages.AlreadyDisposed);
+			if (Logger.IsEnabled(LogLevel.Warning))
+			{
+				Logger.LogWarning(Messages.AlreadyDisposed);
+			}
 			throw new ObjectDisposedException(Messages.AlreadyDisposed);
 		}
 
@@ -453,20 +535,26 @@ namespace NEventStore.Persistence.Sql
 		/// Executes a command against the database.
 		/// </summary>
 		/// <exception cref="StorageException"></exception>
-		protected virtual T ExecuteCommand<T>(Func<IDbConnection, IDbStatement, T> command)
+		protected virtual T ExecuteCommand<T>(Func<DbConnection, IDbStatement, T> command)
 		{
 			ThrowWhenDisposed();
 
 			using (var scope = OpenCommandScope())
-			using (IDbConnection connection = _connectionFactory.Open())
+			using (var connection = _connectionFactory.Open())
 			using (var transaction = _dialect.OpenTransaction(connection))
 			using (IDbStatement statement = _dialect.BuildStatement(scope, connection, transaction))
 			{
 				try
 				{
-					Logger.LogTrace(Messages.ExecutingCommand);
+					if (Logger.IsEnabled(LogLevel.Trace))
+					{
+						Logger.LogTrace(Messages.ExecutingCommand);
+					}
 					T rowsAffected = command(connection, statement);
-					Logger.LogTrace(Messages.CommandExecuted, rowsAffected);
+					if (Logger.IsEnabled(LogLevel.Trace))
+					{
+						Logger.LogTrace(Messages.CommandExecuted, rowsAffected);
+					}
 
 					transaction?.Commit();
 
@@ -476,13 +564,19 @@ namespace NEventStore.Persistence.Sql
 				}
 				catch (Exception e)
 				{
-					Logger.LogDebug(Messages.StorageThrewException, e.GetType());
+					if (Logger.IsEnabled(LogLevel.Debug))
+					{
+						Logger.LogDebug(Messages.StorageThrewException, e.GetType());
+					}
 					if (!RecoverableException(e))
 					{
 						throw new StorageException(e.Message, e);
 					}
 
-					Logger.LogInformation(Messages.RecoverableExceptionCompletesScope);
+					if (Logger.IsEnabled(LogLevel.Information))
+					{
+						Logger.LogInformation(Messages.RecoverableExceptionCompletesScope);
+					}
 
 					scope?.Complete();
 

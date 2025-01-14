@@ -1,4 +1,5 @@
 ﻿using System.Data;
+using System.Data.Common;
 using System.Transactions;
 using FluentAssertions;
 #if NET462
@@ -210,8 +211,8 @@ namespace NEventStore.Persistence.AcceptanceTests
 
 		public override IDbStatement BuildStatement(
 			TransactionScope scope,
-			IDbConnection connection,
-			IDbTransaction transaction)
+			DbConnection connection,
+			DbTransaction transaction)
 		{
 			return new TransactionLevelRecordingStatement(base.BuildStatement(scope, connection, transaction), _recorder);
 		}

@@ -1,5 +1,3 @@
-using System;
-using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
 
@@ -23,7 +21,7 @@ namespace NEventStore.Persistence.Sql.Tests
             _dbProviderFactory = dbProviderFactory;
         }
 
-        public IDbConnection Open()
+        public DbConnection Open()
         {
             return new ConnectionScope("master", OpenInternal);
         }
@@ -33,9 +31,9 @@ namespace NEventStore.Persistence.Sql.Tests
             return _dbProviderFactory.GetType();
         }
 
-        private IDbConnection OpenInternal()
+        private DbConnection OpenInternal()
         {
-            string connectionString = Environment.GetEnvironmentVariable(_envVarKey, EnvironmentVariableTarget.Process);
+            var connectionString = Environment.GetEnvironmentVariable(_envVarKey, EnvironmentVariableTarget.Process);
             if (connectionString == null)
             {
                 string message =
@@ -47,9 +45,9 @@ namespace NEventStore.Persistence.Sql.Tests
                 throw new InvalidOperationException(message);
             }
             connectionString = connectionString.TrimStart('"').TrimEnd('"');
-            DbConnection connection = _dbProviderFactory.CreateConnection();
-            Debug.Assert(connection != null, "connection != null");
-            connection.ConnectionString = connectionString;
+            var connection = _dbProviderFactory.CreateConnection();
+            Debug.Assert(connection != null, "connection == null");
+            connection!.ConnectionString = connectionString;
             try
             {
                 connection.Open();

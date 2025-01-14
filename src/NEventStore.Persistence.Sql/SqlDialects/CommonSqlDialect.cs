@@ -196,7 +196,7 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 		/// <inheritdoc/>
 		public abstract bool IsDuplicate(Exception exception);
 		/// <inheritdoc/>
-		public virtual void AddPayloadParameter(IConnectionFactory connectionFactory, IDbConnection connection, IDbStatement cmd, byte[] payload)
+		public virtual void AddPayloadParameter(IConnectionFactory connectionFactory, DbConnection connection, IDbStatement cmd, byte[] payload)
 		{
 			cmd.AddParameter(Payload, payload);
 		}
@@ -213,7 +213,7 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 		}
 
 		/// <inheritdoc/>
-		public virtual IDbTransaction? OpenTransaction(IDbConnection connection)
+		public virtual DbTransaction? OpenTransaction(DbConnection connection)
 		{
 			return null;
 		}

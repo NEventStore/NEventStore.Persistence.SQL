@@ -1,11 +1,10 @@
 using System.Data;
 using System.Transactions;
+using System.Data.Common;
 using IsolationLevel = System.Data.IsolationLevel;
 
 namespace NEventStore.Persistence.Sql.SqlDialects
 {
-	using System;
-
 	/// <summary>
 	/// Represents a SQL dialect for Microsoft SQL Server.
 	/// </summary>
@@ -95,6 +94,7 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 				.Replace("\n LIMIT @Limit OFFSET @Skip;", ";")
 				.Replace("\n LIMIT @Limit;", ";");
 		}
+
 		/// <inheritdoc/>
 		public override bool IsDuplicate(Exception exception)
 		{
@@ -103,7 +103,7 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 		}
 
 		/// <inheritdoc/>
-		public override IDbTransaction? OpenTransaction(IDbConnection connection)
+		public override DbTransaction? OpenTransaction(DbConnection connection)
 		{
 			if (Transaction.Current == null)
 				return connection.BeginTransaction(IsolationLevel.ReadCommitted);

@@ -166,7 +166,7 @@ namespace NEventStore.Persistence.Sql
 		/// <summary>
 		/// Opens a Transaction.
 		/// </summary>
-		IDbTransaction? OpenTransaction(IDbConnection connection);
+		DbTransaction? OpenTransaction(DbConnection connection);
 
 		/// <summary>
 		/// Builds a statement.
@@ -179,7 +179,7 @@ namespace NEventStore.Persistence.Sql
 		/// <summary>
 		/// Adds a payload parameter.
 		/// </summary>
-		void AddPayloadParameter(IConnectionFactory connectionFactory, IDbConnection connection, IDbStatement cmd, byte[] payload);
+		void AddPayloadParameter(IConnectionFactory connectionFactory, DbConnection connection, IDbStatement cmd, byte[] payload);
 		/// <summary>
 		/// Converts a value to a DateTime.
 		/// </summary>

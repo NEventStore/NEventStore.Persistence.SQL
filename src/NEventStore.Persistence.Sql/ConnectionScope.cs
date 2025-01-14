@@ -1,69 +1,28 @@
+using System.Data.Common;
+
 namespace NEventStore.Persistence.Sql
 {
-	using System;
-	using System.Data;
-
 	/// <summary>
 	/// Represents a connection scope.
+	/// Wraps a DbConnection so that we create no more than one connection for each thread.
+	/// It's a Disposable class, so all the opened connection are closed when the scope is disposed.
 	/// </summary>
-	public class ConnectionScope : ThreadScope<IDbConnection>, IDbConnection
+	public class ConnectionScope : ThreadScope<DbConnection>
 	{
 		/// <summary>
 		/// Initializes a new instance of the <see cref="ConnectionScope"/> class.
 		/// </summary>
-		public ConnectionScope(string connectionName, Func<IDbConnection> factory)
+		public ConnectionScope(string connectionName, Func<DbConnection> factory)
 			: base(connectionName, factory)
 		{ }
 
-		IDbTransaction IDbConnection.BeginTransaction()
+		/// <summary>
+		/// Implicitly converts a connection scope to a connection.
+		/// Unwraps the connection from the scope.
+		/// </summary>
+		public static implicit operator DbConnection(ConnectionScope scope)
 		{
-			return Current.BeginTransaction();
-		}
-
-		IDbTransaction IDbConnection.BeginTransaction(IsolationLevel il)
-		{
-			return Current.BeginTransaction(il);
-		}
-
-		void IDbConnection.Close()
-		{
-			// no-op--let Dispose do the real work.
-		}
-
-		void IDbConnection.ChangeDatabase(string databaseName)
-		{
-			Current.ChangeDatabase(databaseName);
-		}
-
-		IDbCommand IDbConnection.CreateCommand()
-		{
-			return Current.CreateCommand();
-		}
-
-		void IDbConnection.Open()
-		{
-			Current.Open();
-		}
-
-		string IDbConnection.ConnectionString
-		{
-			get { return Current.ConnectionString; }
-			set { Current.ConnectionString = value; }
-		}
-
-		int IDbConnection.ConnectionTimeout
-		{
-			get { return Current.ConnectionTimeout; }
-		}
-
-		string IDbConnection.Database
-		{
-			get { return Current.Database; }
-		}
-
-		ConnectionState IDbConnection.State
-		{
-			get { return Current.State; }
+			return scope.Current;
 		}
 	}
 }

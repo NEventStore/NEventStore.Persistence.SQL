@@ -1,18 +1,15 @@
+using System.Web;
+using Microsoft.Extensions.Logging;
+using NEventStore.Logging;
+
 namespace NEventStore.Persistence.Sql
 {
-	using System;
-	using System.Threading;
-	using System.Web;
-	using Microsoft.Extensions.Logging;
-	using NEventStore.Logging;
-
 	// HttpContext.Current is not a good idea, it's not supported in netstandard, possible alternatives (that requires some setup):
 	// https://www.strathweb.com/2016/12/accessing-httpcontext-outside-of-framework-components-in-asp-net-core/
 
 	/// <summary>
 	/// Represents a thread scope.
 	/// </summary>
-	/// <typeparam name="T"></typeparam>
 	public class ThreadScope<T> : IDisposable where T : class
 	{
 #if NET462
@@ -34,7 +31,10 @@ namespace NEventStore.Persistence.Sql
 
 			T? parent = Load();
 			_rootScope = parent == null;
-			_logger.LogDebug(Messages.OpeningThreadScope, _threadKey, _rootScope);
+			if (_logger.IsEnabled(LogLevel.Debug))
+			{
+				_logger.LogDebug(Messages.OpeningThreadScope, _threadKey, _rootScope);
+			}
 
 			Current = parent ?? factory();
 
@@ -68,14 +68,20 @@ namespace NEventStore.Persistence.Sql
 				return;
 			}
 
-			_logger.LogDebug(Messages.DisposingThreadScope, _rootScope);
+			if (_logger.IsEnabled(LogLevel.Debug))
+			{
+				_logger.LogDebug(Messages.DisposingThreadScope, _rootScope);
+			}
 			_disposed = true;
 			if (!_rootScope)
 			{
 				return;
 			}
 
-			_logger.LogTrace(Messages.CleaningRootThreadScope);
+			if (_logger.IsEnabled(LogLevel.Trace))
+			{
+				_logger.LogTrace(Messages.CleaningRootThreadScope);
+			}
 			Store(null);
 
 			if (Current is not IDisposable resource)
@@ -83,7 +89,10 @@ namespace NEventStore.Persistence.Sql
 				return;
 			}
 
-			_logger.LogTrace(Messages.DisposingRootThreadScopeResources);
+			if (_logger.IsEnabled(LogLevel.Trace))
+			{
+				_logger.LogTrace(Messages.DisposingRootThreadScopeResources);
+			}
 			resource.Dispose();
 		}
 
