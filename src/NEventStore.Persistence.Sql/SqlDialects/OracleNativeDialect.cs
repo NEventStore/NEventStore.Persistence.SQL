@@ -10,7 +10,7 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 	/// </summary>
 	public class OracleNativeDialect : CommonSqlDialect
 	{
-		private Action<IConnectionFactory, IDbConnection, IDbStatement, byte[]>? _addPayloadParameter;
+		private Action<IConnectionFactory, DbConnection, IDbStatement, byte[]>? _addPayloadParameter;
 		/// <inheritdoc/>
 		public override string AppendSnapshotToCommit
 		{
@@ -206,7 +206,7 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 			get { return (_, _) => { }; }
 		}
 		/// <inheritdoc/>
-		public override void AddPayloadParameter(IConnectionFactory connectionFactory, IDbConnection connection, IDbStatement cmd, byte[] payload)
+		public override void AddPayloadParameter(IConnectionFactory connectionFactory, DbConnection connection, IDbStatement cmd, byte[] payload)
 		{
 			if (_addPayloadParameter == null)
 			{

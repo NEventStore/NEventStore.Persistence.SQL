@@ -1,10 +1,8 @@
+using System.Data;
+using NEventStore.Persistence.Sql.SqlDialects;
+
 namespace NEventStore.Persistence.Sql
 {
-	using System;
-	using System.Collections.Generic;
-	using System.Data;
-	using NEventStore.Persistence.Sql.SqlDialects;
-
 	/// <summary>
 	/// A Database statement.
 	/// </summary>
@@ -23,8 +21,6 @@ namespace NEventStore.Persistence.Sql
 		/// <summary>
 		/// Execute a non-query command.
 		/// </summary>
-		/// <param name="commandText"></param>
-		/// <returns></returns>
 		int ExecuteNonQuery(string commandText);
 
 		/// <summary>
@@ -40,8 +36,6 @@ namespace NEventStore.Persistence.Sql
 		/// <summary>
 		/// Execute a query command.
 		/// </summary>
-		/// <param name="queryText"></param>
-		/// <returns></returns>
 		IEnumerable<IDataRecord> ExecuteWithQuery(string queryText);
 
 		/// <summary>

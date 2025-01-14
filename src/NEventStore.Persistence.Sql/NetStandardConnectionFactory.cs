@@ -1,7 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
 using NEventStore.Logging;
-using System;
-using System.Data;
 using System.Data.Common;
 
 namespace NEventStore.Persistence.Sql
@@ -30,15 +28,18 @@ namespace NEventStore.Persistence.Sql
 			return _providerFactory.GetType();
 		}
 		/// <inheritdoc/>
-		public IDbConnection Open()
+		public DbConnection Open()
 		{
-			Logger.LogTrace(Messages.OpeningMasterConnection, _connectionString);
+			if (Logger.IsEnabled(LogLevel.Trace))
+			{
+				Logger.LogTrace(Messages.OpeningMasterConnection, _connectionString);
+			}
 			return Open(_connectionString);
 		}
 		/// <summary>
 		/// Opens a new connection.
 		/// </summary>
-		protected virtual IDbConnection Open(string connectionString)
+		protected virtual DbConnection Open(string connectionString)
 		{
 			return new ConnectionScope(connectionString, () => OpenConnection(connectionString));
 		}
@@ -47,7 +48,7 @@ namespace NEventStore.Persistence.Sql
 		/// </summary>
 		/// <exception cref="ConfigurationErrorsException"></exception>
 		/// <exception cref="StorageUnavailableException"></exception>
-		protected virtual IDbConnection OpenConnection(string connectionString)
+		protected virtual DbConnection OpenConnection(string connectionString)
 		{
 			DbProviderFactory factory = _providerFactory;
 			DbConnection connection = factory.CreateConnection()
@@ -57,12 +58,18 @@ namespace NEventStore.Persistence.Sql
 
 			try
 			{
-				Logger.LogTrace(Messages.OpeningConnection, connectionString);
+				if (Logger.IsEnabled(LogLevel.Trace))
+				{
+					Logger.LogTrace(Messages.OpeningConnection, connectionString);
+				}
 				connection.Open();
 			}
 			catch (Exception e)
 			{
-				Logger.LogWarning(Messages.OpenFailed, connectionString);
+				if (Logger.IsEnabled(LogLevel.Warning))
+				{
+					Logger.LogWarning(Messages.OpenFailed, connectionString);
+				}
 				throw new StorageUnavailableException(e.Message, e);
 			}
 
