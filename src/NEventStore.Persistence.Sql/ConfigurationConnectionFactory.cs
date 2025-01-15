@@ -70,6 +70,16 @@ namespace NEventStore.Persistence.Sql
 		}
 
 		/// <inheritdoc/>
+		public virtual Task<ConnectionScope> OpenAsync(CancellationToken cancellationToken)
+		{
+			if (Logger.IsEnabled(LogLevel.Trace))
+			{
+				Logger.LogTrace(Messages.OpeningMasterConnection, _connectionName);
+			}
+			return OpenAsync(_connectionName, cancellationToken);
+		}
+
+		/// <inheritdoc/>
 		public Type GetDbProviderFactoryType()
 		{
 			DbProviderFactory factory = GetFactory(Settings);
@@ -84,6 +94,18 @@ namespace NEventStore.Persistence.Sql
 			ConnectionStringSettings setting = GetSetting(connectionName);
 			string connectionString = setting.ConnectionString;
 			return new ConnectionScope(connectionString, () => Open(connectionString, setting));
+		}
+
+		/// <summary>
+		/// Opens a connection using the specified connection name.
+		/// </summary>
+		protected virtual async Task<ConnectionScope> OpenAsync(string connectionName, CancellationToken cancellationToken)
+		{
+			ConnectionStringSettings setting = GetSetting(connectionName);
+			string connectionString = setting.ConnectionString;
+			var connectionScope = new ConnectionScope(connectionString, (CancellationToken) => OpenAsync(connectionString, setting, cancellationToken));
+			await connectionScope.InitAsync(cancellationToken).ConfigureAwait(false);
+			return connectionScope;
 		}
 
 		/// <summary>
@@ -106,6 +128,39 @@ namespace NEventStore.Persistence.Sql
 					Logger.LogTrace(Messages.OpeningConnection, setting.Name);
 				}
 				connection.Open();
+			}
+			catch (Exception e)
+			{
+				if (Logger.IsEnabled(LogLevel.Warning))
+				{
+					Logger.LogWarning(Messages.OpenFailed, setting.Name);
+				}
+				throw new StorageUnavailableException(e.Message, e);
+			}
+
+			return connection;
+		}
+
+		/// <summary>
+		/// Opens a connection using the specified connection string and settings.
+		/// </summary>
+		/// <exception cref="ConfigurationErrorsException"></exception>
+		/// <exception cref="StorageUnavailableException"></exception>
+		protected virtual async Task<DbConnection> OpenAsync(string connectionString, ConnectionStringSettings setting, CancellationToken cancellationToken)
+		{
+			DbProviderFactory factory = GetFactory(setting);
+			DbConnection connection = factory.CreateConnection()
+				?? throw new ConfigurationErrorsException(Messages.BadConnectionName);
+
+			connection.ConnectionString = connectionString;
+
+			try
+			{
+				if (Logger.IsEnabled(LogLevel.Trace))
+				{
+					Logger.LogTrace(Messages.OpeningConnection, setting.Name);
+				}
+				await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
 			}
 			catch (Exception e)
 			{

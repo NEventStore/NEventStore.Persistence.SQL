@@ -10,7 +10,7 @@ namespace NEventStore.Persistence.Sql
 	/// <summary>
 	/// Represents a persistence engine that stores and retrieves events from a SQL database.
 	/// </summary>
-	public class SqlPersistenceEngine : IPersistStreams
+	public partial class SqlPersistenceEngine : IPersistStreams
 	{
 		private static readonly ILogger Logger = LogFactory.BuildLogger(typeof(SqlPersistenceEngine));
 		private static readonly DateTime EpochTime = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
@@ -197,7 +197,6 @@ namespace NEventStore.Persistence.Sql
 			return commit;
 		}
 
-		/// <inheritdoc/>
 		public virtual IEnumerable<IStreamHead> GetStreamsToSnapshot(string bucketId, int maxThreshold)
 		{
 			if (Logger.IsEnabled(LogLevel.Debug))
@@ -512,7 +511,11 @@ namespace NEventStore.Persistence.Sql
 				);
 		}
 
-		private void ThrowWhenDisposed()
+		/// <summary>
+		/// Throws an <see cref="ObjectDisposedException"/> if the instance has been disposed.
+		/// </summary>
+		/// <exception cref="ObjectDisposedException"></exception>
+		protected void ThrowWhenDisposed()
 		{
 			if (!_disposed)
 			{
@@ -526,7 +529,10 @@ namespace NEventStore.Persistence.Sql
 			throw new ObjectDisposedException(Messages.AlreadyDisposed);
 		}
 
-		private T ExecuteCommand<T>(Func<IDbStatement, T> command)
+		/// <summary>
+		/// Executes a command against the database.
+		/// </summary>
+		protected T ExecuteCommand<T>(Func<IDbStatement, T> command)
 		{
 			return ExecuteCommand((_, statement) => command(statement));
 		}
@@ -618,66 +624,6 @@ namespace NEventStore.Persistence.Sql
 		private static bool RecoverableException(Exception e)
 		{
 			return e is UniqueKeyViolationException || e is StorageUnavailableException;
-		}
-
-		public Task GetFromAsync(long checkpointToken, IAsyncObserver<ICommit> asyncObserver, CancellationToken cancellationToken)
-		{
-			throw new NotImplementedException();
-		}
-
-		public Task GetFromToAsync(long fromCheckpointToken, long toCheckpointToken, IAsyncObserver<ICommit> asyncObserver, CancellationToken cancellationToken)
-		{
-			throw new NotImplementedException();
-		}
-
-		public Task GetFromAsync(string bucketId, long checkpointToken, IAsyncObserver<ICommit> asyncObserver, CancellationToken cancellationToken)
-		{
-			throw new NotImplementedException();
-		}
-
-		public Task GetFromToAsync(string bucketId, long fromCheckpointToken, long toCheckpointToken, IAsyncObserver<ICommit> asyncObserver, CancellationToken cancellationToken)
-		{
-			throw new NotImplementedException();
-		}
-
-		public Task PurgeAsync(CancellationToken cancellationToken)
-		{
-			throw new NotImplementedException();
-		}
-
-		public Task PurgeAsync(string bucketId, CancellationToken cancellationToken)
-		{
-			throw new NotImplementedException();
-		}
-
-		public Task DeleteStreamAsync(string bucketId, string streamId, CancellationToken cancellationToken)
-		{
-			throw new NotImplementedException();
-		}
-
-		public Task GetFromAsync(string bucketId, string streamId, int minRevision, int maxRevision, IAsyncObserver<ICommit> observer, CancellationToken cancellationToken)
-		{
-			throw new NotImplementedException();
-		}
-
-		public Task<ICommit?> CommitAsync(CommitAttempt attempt, CancellationToken cancellationToken)
-		{
-			throw new NotImplementedException();
-		}
-
-		public Task<ISnapshot?> GetSnapshotAsync(string bucketId, string streamId, int maxRevision, CancellationToken cancellationToken)
-		{
-			throw new NotImplementedException();
-		}
-
-		public Task<bool> AddSnapshotAsync(ISnapshot snapshot, CancellationToken cancellationToken)
-		{
-			throw new NotImplementedException();
-		}
-
-		public Task GetStreamsToSnapshotAsync(string bucketId, int maxThreshold, IAsyncObserver<IStreamHead> asyncObserver, CancellationToken cancellationToken)
-		{
-			throw new NotImplementedException();
 		}
 
 		private class StreamIdHasherValidator : IStreamIdHasher

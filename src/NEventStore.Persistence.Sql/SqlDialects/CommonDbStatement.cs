@@ -82,13 +82,51 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 		}
 
 		/// <inheritdoc/>
+		public virtual async Task<int> ExecuteWithoutExceptionsAsync(string commandText, CancellationToken cancellationToken)
+		{
+			try
+			{
+				return await ExecuteNonQueryAsync(commandText, cancellationToken).ConfigureAwait(false);
+			}
+			catch (Exception)
+			{
+				if (Logger.IsEnabled(LogLevel.Debug))
+				{
+					Logger.LogDebug(Messages.ExceptionSuppressed);
+				}
+				return 0;
+			}
+		}
+
+		/// <inheritdoc/>
 		public virtual int ExecuteNonQuery(string commandText)
 		{
 			try
 			{
-				using (IDbCommand command = BuildCommand(commandText))
+				using (var command = BuildCommand(commandText))
 				{
 					return command.ExecuteNonQuery();
+				}
+			}
+			catch (Exception e)
+			{
+				if (Dialect.IsDuplicate(e))
+				{
+					throw new UniqueKeyViolationException(e.Message, e);
+				}
+
+				throw;
+			}
+		}
+
+		/// <inheritdoc/>
+		public virtual async Task<int> ExecuteNonQueryAsync(string commandText, CancellationToken cancellationToken)
+		{
+			try
+			{
+				using (var command = BuildCommand(commandText))
+				{
+					return await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
 				}
 			}
 			catch (Exception e)
@@ -107,9 +145,29 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 		{
 			try
 			{
-				using (IDbCommand command = BuildCommand(commandText))
+				using (var command = BuildCommand(commandText))
 				{
 					return command.ExecuteScalar();
+				}
+			}
+			catch (Exception e)
+			{
+				if (Dialect.IsDuplicate(e))
+				{
+					throw new UniqueKeyViolationException(e.Message, e);
+				}
+				throw;
+			}
+		}
+
+		/// <inheritdoc/>
+		public virtual async Task<object> ExecuteScalarAsync(string commandText, CancellationToken cancellationToken)
+		{
+			try
+			{
+				using (var command = BuildCommand(commandText))
+				{
+					return await command.ExecuteScalarAsync(cancellationToken).ConfigureAwait(false);
 				}
 			}
 			catch (Exception e)

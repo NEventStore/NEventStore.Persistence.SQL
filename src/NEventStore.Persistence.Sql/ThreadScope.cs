@@ -17,8 +17,9 @@ namespace NEventStore.Persistence.Sql
 #endif
 
 		private readonly ILogger _logger = LogFactory.BuildLogger(typeof(ThreadScope<T>));
-		private readonly bool _rootScope;
+		private bool _rootScope;
 		private readonly string _threadKey;
+		private readonly Func<CancellationToken, Task<T>>? _factoryAsync;
 		private bool _disposed;
 
 		/// <summary>
@@ -50,9 +51,44 @@ namespace NEventStore.Persistence.Sql
 		}
 
 		/// <summary>
+		/// Initializes a new instance of the <see cref="ThreadScope{T}"/> class.
+		/// </summary>
+		public ThreadScope(string key, Func<CancellationToken, Task<T>> factory)
+		{
+			_threadKey = typeof(ThreadScope<T>).Name + ":[{0}]".FormatWith(key ?? string.Empty);
+			_factoryAsync = factory;
+		}
+
+		/// <summary>
+		/// Initializes the thread scope.
+		/// </summary>
+		/// <exception cref="ArgumentException"></exception>
+		public async Task InitAsync(CancellationToken cancellationToken)
+		{
+			T? parent = Load();
+			_rootScope = parent == null;
+			if (_logger.IsEnabled(LogLevel.Debug))
+			{
+				_logger.LogDebug(Messages.OpeningThreadScope, _threadKey, _rootScope);
+			}
+
+			Current = parent ?? await _factoryAsync!(cancellationToken).ConfigureAwait(false);
+
+			if (Current == null)
+			{
+				throw new ArgumentException(Messages.BadFactoryResult, nameof(_factoryAsync));
+			}
+
+			if (_rootScope)
+			{
+				Store(Current);
+			}
+		}
+
+		/// <summary>
 		/// Gets the current value of the thread scope.
 		/// </summary>
-		public T Current { get; }
+		public T Current { get; private set; }
 
 		/// <inheritdoc/>
 		public void Dispose()

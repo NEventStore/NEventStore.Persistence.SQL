@@ -28,6 +28,18 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 			return SplitCommandText(commandText).Sum(x => base.ExecuteNonQuery(x));
 		}
 
+		/// <inheritdoc/>
+		public override async Task<int> ExecuteNonQueryAsync(string commandText, CancellationToken cancellationToken)
+		{
+			var commands = SplitCommandText(commandText);
+			int sum = 0;
+			foreach (var command in commands)
+			{
+				sum += await base.ExecuteNonQueryAsync(command, cancellationToken).ConfigureAwait(false);
+			}
+			return sum;
+		}
+
 		private static IEnumerable<string> SplitCommandText(string delimited)
 		{
 			if (string.IsNullOrEmpty(delimited))
