@@ -264,16 +264,34 @@ where session_id = @@SPID",
 				return _innerStatement.ExecuteNonQuery(commandText);
 			}
 
+			public Task<int> ExecuteNonQueryAsync(string commandText, CancellationToken cancellationToken)
+			{
+				_recorder.RecordIsolationLevel(commandText, GetCurrentIsolationLevel());
+				return _innerStatement.ExecuteNonQueryAsync(commandText, cancellationToken);
+			}
+
 			public int ExecuteWithoutExceptions(string commandText)
 			{
 				_recorder.RecordIsolationLevel(commandText, GetCurrentIsolationLevel());
 				return _innerStatement.ExecuteWithoutExceptions(commandText);
 			}
 
+			public Task<int> ExecuteWithoutExceptionsAsync(string commandText, CancellationToken cancellationToken)
+			{
+				_recorder.RecordIsolationLevel(commandText, GetCurrentIsolationLevel());
+				return _innerStatement.ExecuteWithoutExceptionsAsync(commandText, cancellationToken);
+			}
+
 			public object ExecuteScalar(string commandText)
 			{
 				_recorder.RecordIsolationLevel(commandText, GetCurrentIsolationLevel());
 				return _innerStatement.ExecuteScalar(commandText);
+			}
+
+			public Task<object> ExecuteScalarAsync(string commandText, CancellationToken cancellationToken)
+			{
+				_recorder.RecordIsolationLevel(commandText, GetCurrentIsolationLevel());
+				return _innerStatement.ExecuteScalarAsync(commandText, cancellationToken);
 			}
 
 			public IEnumerable<IDataRecord> ExecuteWithQuery(string queryText)

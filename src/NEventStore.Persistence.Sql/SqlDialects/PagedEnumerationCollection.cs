@@ -1,14 +1,11 @@
+using System.Collections;
+using System.Data;
+using System.Transactions;
+using Microsoft.Extensions.Logging;
+using NEventStore.Logging;
+
 namespace NEventStore.Persistence.Sql.SqlDialects
 {
-	using System;
-	using System.Collections;
-	using System.Collections.Generic;
-	using System.Data;
-	using System.Transactions;
-	using Microsoft.Extensions.Logging;
-	using NEventStore.Logging;
-	using NEventStore.Persistence.Sql;
-
 	/// <summary>
 	/// Page Enumeration Collection
 	/// </summary>
@@ -81,7 +78,10 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 				return true;
 			}
 
-			Logger.LogTrace(Messages.QueryCompleted);
+			if (Logger.IsEnabled(LogLevel.Trace))
+			{
+				Logger.LogTrace(Messages.QueryCompleted);
+			}
 			return false;
 		}
 
@@ -174,7 +174,10 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 				return false;
 			}
 
-			Logger.LogTrace(Messages.EnumeratedRowCount, _position);
+			if (Logger.IsEnabled(LogLevel.Trace))
+			{
+				Logger.LogTrace(Messages.EnumeratedRowCount, _position);
+			}
 			_reader.Dispose();
 			_reader = OpenNextPage();
 
@@ -210,7 +213,10 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 			}
 			catch (Exception e)
 			{
-				Logger.LogDebug(Messages.EnumerationThrewException, e.GetType());
+				if (Logger.IsEnabled(LogLevel.Warning))
+				{
+					Logger.LogWarning(Messages.EnumerationThrewException, e.GetType());
+				}
 				throw new StorageUnavailableException(e.Message, e);
 			}
 		}
