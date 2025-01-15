@@ -32,7 +32,7 @@ namespace NEventStore.Persistence.AcceptanceTests
 		protected override void Because()
 		{
 			using (var conn = ConnectionFactory.Open())
-			using (conn.BeginTransaction(IsolationLevel.RepeatableRead))
+			using (conn.Current.BeginTransaction(IsolationLevel.RepeatableRead))
 			{
 			}
 
@@ -46,7 +46,7 @@ namespace NEventStore.Persistence.AcceptanceTests
 		public void Should_run_command_in_non_default_isolation_level()
 		{
 			Recorder.StatementsWithIsolationLevels.Select(i => i.IsolationLevel)
-				.Should().BeEquivalentTo(new[] { IsolationLevel.ReadCommitted });
+				.Should().BeEquivalentTo([IsolationLevel.ReadCommitted]);
 		}
 	}
 
@@ -77,6 +77,7 @@ namespace NEventStore.Persistence.AcceptanceTests
 		public void Dispose()
 		{
 			_fixture?.Dispose();
+			GC.SuppressFinalize(this);
 		}
 
 		/// <summary>
@@ -91,7 +92,7 @@ namespace NEventStore.Persistence.AcceptanceTests
 		/// We need a way to also have some configuration before the PersistenceEngineFixture is created.
 		/// </para>
 		/// <para>
-		/// We'de decided to use the test constructor to do the job, it's your responsibility to guarantee
+		/// We've decided to use the test constructor to do the job, it's your responsibility to guarantee
 		/// One time initialization (for anything that need it, if you have multiple tests on a fixture)
 		/// depending on the framework you are using.
 		/// </para>
@@ -111,22 +112,20 @@ namespace NEventStore.Persistence.AcceptanceTests
 
 	public class IsolationLevelPersistenceEngineFixture
 	{
-		private readonly IsolationLevelRecorder _recorder;
-		private readonly IConnectionFactory _connectionFactory;
 		private readonly Func<IPersistStreams> _createPersistence;
-		private IPersistStreams _persistence;
+		private IPersistStreams? _persistence;
 
 		public IsolationLevelPersistenceEngineFixture()
 		{
-			_recorder = new IsolationLevelRecorder();
-			_connectionFactory = new EnviromentConnectionFactory("MsSql", Microsoft.Data.SqlClient.SqlClientFactory.Instance);
+			Recorder = new IsolationLevelRecorder();
+			ConnectionFactory = new EnvironmentConnectionFactory("MsSql", Microsoft.Data.SqlClient.SqlClientFactory.Instance);
 			_createPersistence = () =>
 			{
 				var serializer = new BinarySerializer();
-				return new SqlPersistenceFactory(_connectionFactory,
+				return new SqlPersistenceFactory(ConnectionFactory,
 					serializer,
 					new DefaultEventSerializer(serializer),
-					new IsolationLevelRecordingSqlDialect(_recorder)).Build();
+					new IsolationLevelRecordingSqlDialect(Recorder)).Build();
 			};
 		}
 
@@ -147,18 +146,12 @@ namespace NEventStore.Persistence.AcceptanceTests
 
 		public IPersistStreams Persistence
 		{
-			get { return _persistence; }
+			get { return _persistence!; }
 		}
 
-		public IsolationLevelRecorder Recorder
-		{
-			get { return _recorder; }
-		}
+		public IsolationLevelRecorder Recorder { get; }
 
-		public IConnectionFactory ConnectionFactory
-		{
-			get { return _connectionFactory; }
-		}
+		public IConnectionFactory ConnectionFactory { get; }
 
 		public void Dispose()
 		{
@@ -172,8 +165,8 @@ namespace NEventStore.Persistence.AcceptanceTests
 
 	public class StatementAndIsolationLevel
 	{
-		public string Statement { get; private set; }
-		public IsolationLevel IsolationLevel { get; private set; }
+		public string Statement { get; }
+		public IsolationLevel IsolationLevel { get; }
 
 		public StatementAndIsolationLevel(string statement, IsolationLevel isolationLevel)
 		{
@@ -186,11 +179,11 @@ namespace NEventStore.Persistence.AcceptanceTests
 	{
 		public bool IsRecording { get; set; }
 
-		public List<StatementAndIsolationLevel> StatementsWithIsolationLevels { get; private set; }
+		public List<StatementAndIsolationLevel> StatementsWithIsolationLevels { get; }
 
 		public IsolationLevelRecorder()
 		{
-			StatementsWithIsolationLevels = new List<StatementAndIsolationLevel>();
+			StatementsWithIsolationLevels = [];
 		}
 
 		public void RecordIsolationLevel(string statement, IsolationLevel isolationLevel)
@@ -210,9 +203,9 @@ namespace NEventStore.Persistence.AcceptanceTests
 		}
 
 		public override IDbStatement BuildStatement(
-			TransactionScope scope,
-			DbConnection connection,
-			DbTransaction transaction)
+			TransactionScope? scope,
+			ConnectionScope connection,
+			DbTransaction? transaction)
 		{
 			return new TransactionLevelRecordingStatement(base.BuildStatement(scope, connection, transaction), _recorder);
 		}
@@ -222,11 +215,11 @@ namespace NEventStore.Persistence.AcceptanceTests
 			private readonly IDbStatement _innerStatement;
 			private readonly IsolationLevelRecorder _recorder;
 
-			public List<StatementAndIsolationLevel> StatementsWithIsolationLevels { get; private set; }
+			public List<StatementAndIsolationLevel> StatementsWithIsolationLevels { get; }
 
 			public TransactionLevelRecordingStatement(IDbStatement innerStatement, IsolationLevelRecorder recorder)
 			{
-				StatementsWithIsolationLevels = new List<StatementAndIsolationLevel>();
+				StatementsWithIsolationLevels = [];
 				_innerStatement = innerStatement;
 				_recorder = recorder;
 			}
@@ -289,10 +282,10 @@ where session_id = @@SPID",
 				return _innerStatement.ExecuteWithQuery(queryText);
 			}
 
-			public IEnumerable<IDataRecord> ExecutePagedQuery(string queryText, NextPageDelegate nextpage)
+			public IEnumerable<IDataRecord> ExecutePagedQuery(string queryText, NextPageDelegate nextPage)
 			{
 				_recorder.RecordIsolationLevel(queryText, GetCurrentIsolationLevel());
-				return _innerStatement.ExecutePagedQuery(queryText, nextpage);
+				return _innerStatement.ExecutePagedQuery(queryText, nextPage);
 			}
 
 			public int PageSize

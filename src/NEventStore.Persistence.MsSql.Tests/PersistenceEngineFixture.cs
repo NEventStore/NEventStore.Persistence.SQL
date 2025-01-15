@@ -1,14 +1,12 @@
 ﻿using Microsoft.Data.SqlClient;
 using NEventStore.Persistence.Sql.Tests;
+using NEventStore.Persistence.Sql;
+using NEventStore.Persistence.Sql.SqlDialects;
+using NEventStore.Serialization.Binary;
+using System.Transactions;
 
 namespace NEventStore.Persistence.AcceptanceTests
 {
-	using NEventStore.Persistence.Sql;
-	using NEventStore.Persistence.Sql.SqlDialects;
-	using NEventStore.Serialization;
-	using NEventStore.Serialization.Binary;
-	using System.Transactions;
-
 	public partial class PersistenceEngineFixture
 	{
 		/// <summary>
@@ -20,17 +18,19 @@ namespace NEventStore.Persistence.AcceptanceTests
 
 		public PersistenceEngineFixture()
 		{
+#if NET8_0_OR_GREATER
+			AppContext.SetSwitch("System.Runtime.Serialization.EnableUnsafeBinaryFormatterSerialization", true);
+#endif
 			_createPersistence = pageSize =>
 			{
 				var serializer = new BinarySerializer();
 				return new SqlPersistenceFactory(
-					new EnviromentConnectionFactory("MsSql", SqlClientFactory.Instance),
+					new EnvironmentConnectionFactory("MsSql", SqlClientFactory.Instance),
 					serializer,
 					new DefaultEventSerializer(serializer),
 					new MsSqlDialect(),
-					pageSize: pageSize,
-					scopeOption: ScopeOption
-				).Build();
+					scopeOption: ScopeOption,
+					pageSize: pageSize).Build();
 			};
 		}
 	}

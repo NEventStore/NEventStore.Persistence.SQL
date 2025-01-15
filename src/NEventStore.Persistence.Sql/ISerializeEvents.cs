@@ -10,7 +10,7 @@
 		/// </summary>
 		/// <param name="eventMessages">The messages to serialize.</param>
 		/// <returns>A byte array representing the serialized messages.</returns>
-		byte[] SerializeEventMessages(IReadOnlyList<EventMessage> eventMessages);
+		byte[] SerializeEventMessages(IEnumerable<EventMessage> eventMessages);
 
 		/// <summary>
 		///     Deserializes the bytes provided and reconstructs the corresponding object graph.

@@ -3,7 +3,6 @@ using NEventStore.Serialization.Binary;
 using global::MySql.Data.MySqlClient;
 using NEventStore.Persistence.Sql;
 using NEventStore.Persistence.Sql.SqlDialects;
-using NEventStore.Serialization;
 
 namespace NEventStore.Persistence.AcceptanceTests
 {
@@ -11,6 +10,9 @@ namespace NEventStore.Persistence.AcceptanceTests
     {
         public PersistenceEngineFixture()
         {
+#if NET8_0_OR_GREATER
+            AppContext.SetSwitch("System.Runtime.Serialization.EnableUnsafeBinaryFormatterSerialization", true);
+#endif
 #if NET462
             _createPersistence = pageSize =>
             {
@@ -29,7 +31,7 @@ namespace NEventStore.Persistence.AcceptanceTests
             {
                 var serializer = new BinarySerializer();
                 return new SqlPersistenceFactory(
-                    new EnviromentConnectionFactory("MySql", MySqlClientFactory.Instance),
+                    new EnvironmentConnectionFactory("MySql", MySqlClientFactory.Instance),
                     serializer,
                     new DefaultEventSerializer(serializer),
                     new MySqlDialect(),

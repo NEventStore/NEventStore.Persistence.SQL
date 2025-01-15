@@ -17,7 +17,7 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 		public DelimitedDbStatement(
 			ISqlDialect dialect,
 			TransactionScope scope,
-			DbConnection connection,
+			ConnectionScope connection,
 			DbTransaction transaction)
 			: base(dialect, scope, connection, transaction)
 		{ }

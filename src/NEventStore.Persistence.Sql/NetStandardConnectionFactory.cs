@@ -28,7 +28,7 @@ namespace NEventStore.Persistence.Sql
 			return _providerFactory.GetType();
 		}
 		/// <inheritdoc/>
-		public DbConnection Open()
+		public ConnectionScope Open()
 		{
 			if (Logger.IsEnabled(LogLevel.Trace))
 			{
@@ -39,7 +39,7 @@ namespace NEventStore.Persistence.Sql
 		/// <summary>
 		/// Opens a new connection.
 		/// </summary>
-		protected virtual DbConnection Open(string connectionString)
+		protected virtual ConnectionScope Open(string connectionString)
 		{
 			return new ConnectionScope(connectionString, () => OpenConnection(connectionString));
 		}

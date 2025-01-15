@@ -60,7 +60,7 @@ namespace NEventStore.Persistence.Sql
 		}
 
 		/// <inheritdoc/>
-		public virtual DbConnection Open()
+		public virtual ConnectionScope Open()
 		{
 			if (Logger.IsEnabled(LogLevel.Trace))
 			{
@@ -79,7 +79,7 @@ namespace NEventStore.Persistence.Sql
 		/// <summary>
 		/// Opens a connection using the specified connection name.
 		/// </summary>
-		protected virtual DbConnection Open(string connectionName)
+		protected virtual ConnectionScope Open(string connectionName)
 		{
 			ConnectionStringSettings setting = GetSetting(connectionName);
 			string connectionString = setting.ConnectionString;

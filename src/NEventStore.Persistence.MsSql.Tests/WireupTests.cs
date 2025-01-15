@@ -22,13 +22,13 @@ namespace NEventStore.Persistence.AcceptanceTests
 	public class When_specifying_a_hasher : SpecificationBase
 	{
 		private bool _hasherInvoked;
-		private IStoreEvents _eventStore;
+		private IStoreEvents? _eventStore;
 
 		protected override void Context()
 		{
 			_eventStore = Wireup
 				.Init()
-				.UsingSqlPersistence(new EnviromentConnectionFactory("MsSql", Microsoft.Data.SqlClient.SqlClientFactory.Instance))
+				.UsingSqlPersistence(new EnvironmentConnectionFactory("MsSql", Microsoft.Data.SqlClient.SqlClientFactory.Instance))
 				.WithDialect(new MsSqlDialect())
 				.WithStreamIdHasher(streamId =>
 				{
@@ -53,7 +53,7 @@ namespace NEventStore.Persistence.AcceptanceTests
 
 		protected override void Because()
 		{
-			using (var stream = _eventStore.OpenStream(Guid.NewGuid()))
+			using (var stream = _eventStore!.OpenStream(Guid.NewGuid()))
 			{
 				stream.Add(new EventMessage { Body = "Message" });
 				stream.CommitChanges(Guid.NewGuid());
