@@ -172,7 +172,7 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 			get { return MakeOracleParameter(base.MaxStreamRevision); }
 		}
 		/// <inheritdoc/>
-		public override IDbStatement BuildStatement(TransactionScope? scope, DbConnection connection, DbTransaction? transaction)
+		public override IDbStatement BuildStatement(TransactionScope? scope, ConnectionScope connection, DbTransaction? transaction)
 		{
 			return new OracleDbStatement(this, scope, connection, transaction);
 		}

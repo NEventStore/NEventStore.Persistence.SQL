@@ -13,7 +13,7 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 	{
 		private const int InfinitePageSize = 0;
 		private static readonly ILogger Logger = LogFactory.BuildLogger(typeof(CommonDbStatement));
-		private readonly DbConnection _connection;
+		private readonly ConnectionScope _connection;
 		private readonly TransactionScope? _scope;
 		private readonly DbTransaction? _transaction;
 
@@ -23,7 +23,7 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 		public CommonDbStatement(
 			ISqlDialect dialect,
 			TransactionScope? scope,
-			DbConnection connection,
+			ConnectionScope connection,
 			DbTransaction? transaction)
 		{
 			Parameters = new Dictionary<string, Tuple<object, DbType?>>();
@@ -170,7 +170,7 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 		protected virtual DbCommand BuildCommand(string statement)
 		{
 			Logger.LogTrace(Messages.CreatingCommand);
-			DbCommand command = _connection.CreateCommand();
+			DbCommand command = _connection.Current.CreateCommand();
 
 			if (Settings.CommandTimeout > 0)
 			{

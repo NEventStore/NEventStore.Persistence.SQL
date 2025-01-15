@@ -3,7 +3,7 @@ using System.Diagnostics;
 
 namespace NEventStore.Persistence.Sql.Tests
 {
-    public class EnviromentConnectionFactory : IConnectionFactory
+    public class EnvironmentConnectionFactory : IConnectionFactory
     {
         private readonly string _envVarKey;
         private readonly DbProviderFactory _dbProviderFactory;
@@ -15,13 +15,13 @@ namespace NEventStore.Persistence.Sql.Tests
             _dbProviderFactory = DbProviderFactories.GetFactory(providerInvariantName);
         }
 #endif
-        public EnviromentConnectionFactory(string envDatabaseName, DbProviderFactory dbProviderFactory)
+        public EnvironmentConnectionFactory(string envDatabaseName, DbProviderFactory dbProviderFactory)
         {
             _envVarKey = string.Format("NEventStore.{0}", envDatabaseName);
             _dbProviderFactory = dbProviderFactory;
         }
 
-        public DbConnection Open()
+        public ConnectionScope Open()
         {
             return new ConnectionScope("master", OpenInternal);
         }

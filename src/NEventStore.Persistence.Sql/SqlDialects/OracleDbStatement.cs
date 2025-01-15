@@ -14,7 +14,7 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 		/// <summary>
 		/// Initializes a new instance of the <see cref="OracleDbStatement"/> class.
 		/// </summary>
-		public OracleDbStatement(ISqlDialect dialect, TransactionScope? scope, DbConnection connection, DbTransaction? transaction)
+		public OracleDbStatement(ISqlDialect dialect, TransactionScope? scope, ConnectionScope connection, DbTransaction? transaction)
 			: base(dialect, scope, connection, transaction)
 		{
 			_dialect = dialect;

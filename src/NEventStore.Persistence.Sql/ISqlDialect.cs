@@ -171,7 +171,7 @@ namespace NEventStore.Persistence.Sql
 		/// <summary>
 		/// Builds a statement.
 		/// </summary>
-		IDbStatement BuildStatement(TransactionScope? scope, DbConnection connection, DbTransaction? transaction);
+		IDbStatement BuildStatement(TransactionScope? scope, ConnectionScope connection, DbTransaction? transaction);
 		/// <summary>
 		/// Check if the exception represents a unique index violation.
 		/// </summary>

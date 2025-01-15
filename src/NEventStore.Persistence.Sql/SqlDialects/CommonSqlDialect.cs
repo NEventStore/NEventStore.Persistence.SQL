@@ -219,7 +219,7 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 		}
 
 		/// <inheritdoc/>
-		public virtual IDbStatement BuildStatement(TransactionScope? scope, DbConnection connection, DbTransaction? transaction)
+		public virtual IDbStatement BuildStatement(TransactionScope? scope, ConnectionScope connection, DbTransaction? transaction)
 		{
 			return new CommonDbStatement(this, scope, connection, transaction);
 		}

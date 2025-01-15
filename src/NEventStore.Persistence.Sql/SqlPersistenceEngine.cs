@@ -422,7 +422,7 @@ namespace NEventStore.Persistence.Sql
 				cmd.AddParameter(_dialect.CommitSequence, attempt.CommitSequence);
 				cmd.AddParameter(_dialect.CommitStamp, attempt.CommitStamp, _dialect.GetDateTimeDbType());
 				cmd.AddParameter(_dialect.Headers, _serializer.Serialize(attempt.Headers));
-				_dialect.AddPayloadParameter(_connectionFactory, connection, cmd, _eventSerializer.SerializeEventMessages(attempt.Events.ToList()));
+				_dialect.AddPayloadParameter(_connectionFactory, connection, cmd, _eventSerializer.SerializeEventMessages(attempt.Events));
 				OnPersistCommit(cmd, attempt);
 				var checkpointNumber = cmd.ExecuteScalar(_dialect.PersistCommit).ToLong();
 				return new Commit(
@@ -461,14 +461,14 @@ namespace NEventStore.Persistence.Sql
 			ThrowWhenDisposed();
 
 			TransactionScope? scope = OpenQueryScope();
-			DbConnection? connection = null;
+			ConnectionScope? connection = null;
 			DbTransaction? transaction = null;
 			IDbStatement? statement = null;
 
 			try
 			{
 				connection = _connectionFactory.Open();
-				transaction = _dialect.OpenTransaction(connection);
+				transaction = _dialect.OpenTransaction(connection.Current);
 				statement = _dialect.BuildStatement(scope, connection, transaction);
 				statement.PageSize = _pageSize;
 
@@ -541,7 +541,7 @@ namespace NEventStore.Persistence.Sql
 
 			using (var scope = OpenCommandScope())
 			using (var connection = _connectionFactory.Open())
-			using (var transaction = _dialect.OpenTransaction(connection))
+			using (var transaction = _dialect.OpenTransaction(connection.Current))
 			using (IDbStatement statement = _dialect.BuildStatement(scope, connection, transaction))
 			{
 				try
@@ -550,7 +550,7 @@ namespace NEventStore.Persistence.Sql
 					{
 						Logger.LogTrace(Messages.ExecutingCommand);
 					}
-					T rowsAffected = command(connection, statement);
+					T rowsAffected = command(connection.Current, statement);
 					if (Logger.IsEnabled(LogLevel.Trace))
 					{
 						Logger.LogTrace(Messages.CommandExecuted, rowsAffected);

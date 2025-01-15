@@ -18,7 +18,7 @@ namespace NEventStore.Persistence.Sql
 		}
 
 		/// <inheritdoc/>
-		public byte[] SerializeEventMessages(IReadOnlyList<EventMessage> eventMessages)
+		public byte[] SerializeEventMessages(IEnumerable<EventMessage> eventMessages)
 		{
 			return _serializer.Serialize(eventMessages);
 		}

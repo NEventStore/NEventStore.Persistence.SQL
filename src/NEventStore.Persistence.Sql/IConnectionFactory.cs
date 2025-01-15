@@ -1,5 +1,3 @@
-using System.Data.Common;
-
 namespace NEventStore.Persistence.Sql
 {
 	/// <summary>
@@ -10,7 +8,7 @@ namespace NEventStore.Persistence.Sql
 		/// <summary>
 		/// Opens a new connection.
 		/// </summary>
-		DbConnection Open();
+		ConnectionScope Open();
 		/// <summary>
 		/// Gets the type of the database provider factory.
 		/// </summary>
