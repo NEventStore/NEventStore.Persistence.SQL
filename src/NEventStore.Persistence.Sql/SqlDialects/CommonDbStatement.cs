@@ -57,7 +57,10 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 		/// <inheritdoc/>
 		public virtual void AddParameter(string name, object value, DbType? parameterType = null)
 		{
-			Logger.LogDebug(Messages.AddingParameter, name);
+			if (Logger.IsEnabled(LogLevel.Debug))
+			{
+				Logger.LogDebug(Messages.AddingParameter, name);
+			}
 			Parameters[name] = Tuple.Create(Dialect.CoalesceParameterValue(value), parameterType);
 		}
 
@@ -70,7 +73,10 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 			}
 			catch (Exception)
 			{
-				Logger.LogDebug(Messages.ExceptionSuppressed);
+				if (Logger.IsEnabled(LogLevel.Debug))
+				{
+					Logger.LogDebug(Messages.ExceptionSuppressed);
+				}
 				return 0;
 			}
 		}
@@ -128,7 +134,10 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 			int pageSize = Dialect.CanPage ? PageSize : InfinitePageSize;
 			if (pageSize > 0)
 			{
-				Logger.LogTrace(Messages.MaxPageSize, pageSize);
+				if (Logger.IsEnabled(LogLevel.Trace))
+				{
+					Logger.LogTrace(Messages.MaxPageSize, pageSize);
+				}
 				Parameters.Add(Dialect.Limit, Tuple.Create((object)pageSize, (DbType?)null));
 			}
 
@@ -138,7 +147,10 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 		/// <inheritdoc/>
 		protected virtual void Dispose(bool disposing)
 		{
-			Logger.LogTrace(Messages.DisposingStatement);
+			if (Logger.IsEnabled(LogLevel.Trace))
+			{
+				Logger.LogTrace(Messages.DisposingStatement);
+			}
 
 			_transaction?.Dispose();
 
@@ -169,7 +181,10 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 		/// </summary>
 		protected virtual DbCommand BuildCommand(string statement)
 		{
-			Logger.LogTrace(Messages.CreatingCommand);
+			if (Logger.IsEnabled(LogLevel.Trace))
+			{
+				Logger.LogTrace(Messages.CreatingCommand);
+			}
 			DbCommand command = _connection.Current.CreateCommand();
 
 			if (Settings.CommandTimeout > 0)
@@ -180,8 +195,11 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 			command.Transaction = _transaction;
 			command.CommandText = statement;
 
-			Logger.LogTrace(Messages.ClientControlledTransaction, _transaction != null);
-			Logger.LogTrace(Messages.CommandTextToExecute, statement);
+			if (Logger.IsEnabled(LogLevel.Trace))
+			{
+				Logger.LogTrace(Messages.ClientControlledTransaction, _transaction != null);
+				Logger.LogTrace(Messages.CommandTextToExecute, statement);
+			}
 
 			BuildParameters(command);
 
@@ -208,7 +226,10 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 			parameter.ParameterName = name;
 			SetParameterValue(parameter, value, dbType);
 
-			Logger.LogTrace(Messages.BindingParameter, name, parameter.Value);
+			if (Logger.IsEnabled(LogLevel.Trace))
+			{
+				Logger.LogTrace(Messages.BindingParameter, name, parameter.Value);
+			}
 			command.Parameters.Add(parameter);
 		}
 

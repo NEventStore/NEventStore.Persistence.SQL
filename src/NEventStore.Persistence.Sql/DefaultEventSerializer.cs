@@ -28,7 +28,7 @@ namespace NEventStore.Persistence.Sql
 			int streamRevision, Guid commitId,
 			int commitSequence, DateTime commitStamp, long checkpoint, IReadOnlyDictionary<string, object>? headers)
 		{
-			return _serializer.Deserialize<List<EventMessage>>(input);
+			return _serializer.Deserialize<ICollection<EventMessage>>(input);
 		}
 	}
 }
