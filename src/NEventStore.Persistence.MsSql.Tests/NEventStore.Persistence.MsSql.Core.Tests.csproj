@@ -46,6 +46,7 @@
     <Compile Include="..\..\dependencies\NEventStore\src\NEventStore.Persistence.AcceptanceTests\PersistenceTests.cs" Link="PersistenceTests.cs" />
     <Compile Include="..\..\dependencies\NEventStore\src\NEventStore.Persistence.AcceptanceTests\PersistenceTests.Async.cs" Link="PersistenceTests.Async.cs" />
     <Compile Include="..\NEventStore.Persistence.Sql.Tests\PersistenceTests.Transactions.cs" Link="PersistenceTests.Transactions.cs" />
+    <Compile Include="..\NEventStore.Persistence.Sql.Tests\PersistenceTests.Transactions.Async.cs" Link="PersistenceTests.Transactions.Async.cs" />
   </ItemGroup>
 
   <ItemGroup>

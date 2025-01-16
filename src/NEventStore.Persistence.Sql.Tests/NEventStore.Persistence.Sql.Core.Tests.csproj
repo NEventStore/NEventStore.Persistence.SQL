@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="PersistenceTests.Transactions.Async.cs" />
     <Compile Remove="PersistenceTests.Transactions.cs" />
   </ItemGroup>
 
@@ -16,6 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="PersistenceTests.Transactions.Async.cs" />
     <None Include="PersistenceTests.Transactions.cs" />
   </ItemGroup>
 
