@@ -389,7 +389,7 @@ namespace NEventStore.Persistence.Sql
 		{
 			ThrowWhenDisposed();
 
-			using (var scope = OpenCommandScope())
+			using (var scope = OpenQueryScope())
 			using (var connection = await _connectionFactory.OpenAsync(cancellationToken).ConfigureAwait(false))
 			using (var transaction = _dialect.OpenTransaction(connection.Current))
 			using (IDbStatement statement = _dialect.BuildStatement(scope, connection, transaction))
@@ -403,6 +403,10 @@ namespace NEventStore.Persistence.Sql
 						Logger.LogTrace(Messages.ExecutingQuery);
 					}
 					await query(statement, asyncObserver, cancellationToken).ConfigureAwait(false);
+
+					transaction?.Commit();
+
+					scope?.Complete();
 				}
 				catch (Exception e)
 				{
