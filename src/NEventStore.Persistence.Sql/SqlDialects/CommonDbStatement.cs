@@ -11,7 +11,8 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 	/// </summary>
 	public class CommonDbStatement : IDbStatement
 	{
-		private const int InfinitePageSize = 0;
+		/// <inheritdoc/>
+		public virtual int InfinitePageSize { get; } = 0;
 		private static readonly ILogger Logger = LogFactory.BuildLogger(typeof(CommonDbStatement));
 		private readonly ConnectionScope _connection;
 		private readonly TransactionScope? _scope;
@@ -114,7 +115,6 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 				{
 					throw new UniqueKeyViolationException(e.Message, e);
 				}
-
 				throw;
 			}
 		}
@@ -135,7 +135,6 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 				{
 					throw new UniqueKeyViolationException(e.Message, e);
 				}
-
 				throw;
 			}
 		}
@@ -298,6 +297,88 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 		{
 			param.Value = value ?? DBNull.Value;
 			param.DbType = type ?? (value == null ? DbType.Binary : param.DbType);
+		}
+
+		/// <inheritdoc/>
+		public async Task ExecuteWithQueryAsync(string queryText, IAsyncObserver<IDataRecord> asyncObserver, CancellationToken cancellationToken)
+		{
+			Parameters.Add(Dialect.Skip, Tuple.Create((object)0, (DbType?)null));
+			using (var command = BuildCommand(queryText))
+			{
+				try
+				{
+					using (var reader = await command.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false))
+					{
+						while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
+						{
+							if (!await asyncObserver.OnNextAsync(reader, cancellationToken).ConfigureAwait(false))
+							{
+								break;
+							}
+						}
+					}
+					await asyncObserver.OnCompletedAsync(cancellationToken).ConfigureAwait(false);
+				}
+				catch (Exception ex)
+				{
+					await asyncObserver.OnErrorAsync(ex, cancellationToken).ConfigureAwait(false);
+					throw;
+				}
+			}
+		}
+
+		/// <inheritdoc/>
+		public async Task ExecutePagedQueryAsync(string queryText, NextPageDelegate nextPage, IAsyncObserver<IDataRecord> asyncObserver, CancellationToken cancellationToken)
+		{
+			int pageSize = Dialect.CanPage ? PageSize : InfinitePageSize;
+			if (pageSize > 0)
+			{
+				if (Logger.IsEnabled(LogLevel.Trace))
+				{
+					Logger.LogTrace(Messages.MaxPageSize, pageSize);
+				}
+				Parameters.Add(Dialect.Limit, Tuple.Create((object)pageSize, (DbType?)null));
+			}
+			Parameters.Add(Dialect.Skip, Tuple.Create((object)0, (DbType?)null));
+			using (var command = BuildCommand(queryText))
+			{
+				// keep reading in pages until we have no more records to read.
+				int position = 0;
+				int recordsRead = 0;
+				try
+				{
+					do
+					{
+						recordsRead = 0;
+						using (var reader = await command.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false))
+						{
+							while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
+							{
+								if (!await asyncObserver.OnNextAsync(reader, cancellationToken).ConfigureAwait(false))
+								{
+									await asyncObserver.OnCompletedAsync(cancellationToken).ConfigureAwait(false);
+									return;
+								}
+								position++;
+								recordsRead++;
+								if (pageSize > 0 && position >= pageSize)
+								{
+									command.SetParameter(Dialect.Skip, position);
+									nextPage(command, reader);
+								}
+							}
+						}
+					}
+					while (Dialect.CanPage && recordsRead == PageSize);
+
+					await asyncObserver.OnCompletedAsync(cancellationToken).ConfigureAwait(false);
+				}
+				catch (Exception ex)
+				{
+					await asyncObserver.OnErrorAsync(ex, cancellationToken).ConfigureAwait(false);
+					throw;
+				}
+			}
 		}
 	}
 }

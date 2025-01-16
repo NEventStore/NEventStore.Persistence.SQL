@@ -2,6 +2,7 @@
 using System.Data.Common;
 using System.Transactions;
 using FluentAssertions;
+
 #if NET462
 using NEventStore.Diagnostics;
 #endif
@@ -306,11 +307,25 @@ where session_id = @@SPID",
 				return _innerStatement.ExecutePagedQuery(queryText, nextPage);
 			}
 
+			public Task ExecuteWithQueryAsync(string queryText, IAsyncObserver<IDataRecord> asyncObserver, CancellationToken cancellationToken)
+			{
+				_recorder.RecordIsolationLevel(queryText, GetCurrentIsolationLevel());
+				return _innerStatement.ExecuteWithQueryAsync(queryText, asyncObserver, cancellationToken);
+			}
+
+			public Task ExecutePagedQueryAsync(string queryText, NextPageDelegate nextPage, IAsyncObserver<IDataRecord> asyncObserver, CancellationToken cancellationToken)
+			{
+				_recorder.RecordIsolationLevel(queryText, GetCurrentIsolationLevel());
+				return _innerStatement.ExecutePagedQueryAsync(queryText, nextPage, asyncObserver, cancellationToken);
+			}
+
 			public int PageSize
 			{
 				get { return _innerStatement.PageSize; }
 				set { _innerStatement.PageSize = value; }
 			}
+
+			public int InfinitePageSize => _innerStatement.InfinitePageSize;
 		}
 	}
 }
