@@ -9,6 +9,10 @@ namespace NEventStore.Persistence.Sql
 	public interface IDbStatement : IDisposable
 	{
 		/// <summary>
+		/// Infinite page size.
+		/// </summary>
+		int InfinitePageSize { get; }
+		/// <summary>
 		/// Page size.
 		/// </summary>
 		int PageSize { get; set; }
@@ -54,8 +58,18 @@ namespace NEventStore.Persistence.Sql
 		IEnumerable<IDataRecord> ExecuteWithQuery(string queryText);
 
 		/// <summary>
+		/// Execute a query command.
+		/// </summary>
+		Task ExecuteWithQueryAsync(string queryText, IAsyncObserver<IDataRecord> asyncObserver, CancellationToken cancellationToken);
+
+		/// <summary>
 		/// Execute a paged query command.
 		/// </summary>
 		IEnumerable<IDataRecord> ExecutePagedQuery(string queryText, NextPageDelegate nextPage);
+
+		/// <summary>
+		/// Execute a paged query command.
+		/// </summary>
+		Task ExecutePagedQueryAsync(string queryText, NextPageDelegate nextPage, IAsyncObserver<IDataRecord> asyncObserver, CancellationToken cancellationToken);
 	}
 }

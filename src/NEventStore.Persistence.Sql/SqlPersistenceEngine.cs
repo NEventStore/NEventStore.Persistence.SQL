@@ -197,6 +197,7 @@ namespace NEventStore.Persistence.Sql
 			return commit;
 		}
 
+		/// <inheritdoc/>
 		public virtual IEnumerable<IStreamHead> GetStreamsToSnapshot(string bucketId, int maxThreshold)
 		{
 			if (Logger.IsEnabled(LogLevel.Debug))
@@ -211,7 +212,7 @@ namespace NEventStore.Persistence.Sql
 					query.AddParameter(_dialect.Threshold, maxThreshold);
 					return
 						query.ExecutePagedQuery(statement,
-							(q, s) => q.SetParameter(_dialect.StreamId, _dialect.CoalesceParameterValue(s.StreamId()), DbType.AnsiString))
+							(q, s) => q.SetParameter(_dialect.StreamId, _dialect.CoalesceParameterValue(s.StreamId()), DbType.AnsiString)) // todo: I'm not sure this is used, the query does not have a "StreamId" parameter
 							.Select(x => x.GetStreamToSnapshot());
 				});
 		}
@@ -324,19 +325,19 @@ namespace NEventStore.Persistence.Sql
 		}
 
 		/// <inheritdoc/>
-		public IEnumerable<ICommit> GetFromTo(String bucketId, Int64 from, Int64 to)
+		public IEnumerable<ICommit> GetFromTo(String bucketId, Int64 fromCheckpointToken, Int64 toCheckpointToken)
 		{
 			if (Logger.IsEnabled(LogLevel.Debug))
 			{
-				Logger.LogDebug(Messages.GettingCommitsFromBucketAndFromToCheckpoint, bucketId, from, to);
+				Logger.LogDebug(Messages.GettingCommitsFromBucketAndFromToCheckpoint, bucketId, fromCheckpointToken, toCheckpointToken);
 			}
 
 			return ExecuteQuery(query =>
 			{
 				string statement = _dialect.GetCommitsFromToBucketAndCheckpoint;
 				query.AddParameter(_dialect.BucketId, bucketId, DbType.AnsiString);
-				query.AddParameter(_dialect.FromCheckpointNumber, from);
-				query.AddParameter(_dialect.ToCheckpointNumber, to);
+				query.AddParameter(_dialect.FromCheckpointNumber, fromCheckpointToken);
+				query.AddParameter(_dialect.ToCheckpointNumber, toCheckpointToken);
 				return query.ExecutePagedQuery(statement, (_, _) => { })
 					.Select(x => x.GetCommit(_serializer, _eventSerializer, _dialect));
 			});
@@ -360,18 +361,18 @@ namespace NEventStore.Persistence.Sql
 		}
 
 		/// <inheritdoc/>
-		public IEnumerable<ICommit> GetFromTo(Int64 from, Int64 to)
+		public IEnumerable<ICommit> GetFromTo(Int64 fromCheckpointToken, Int64 toCheckpointToken)
 		{
 			if (Logger.IsEnabled(LogLevel.Debug))
 			{
-				Logger.LogDebug(Messages.GettingCommitsFromToCheckpoint, from, to);
+				Logger.LogDebug(Messages.GettingCommitsFromToCheckpoint, fromCheckpointToken, toCheckpointToken);
 			}
 
 			return ExecuteQuery(query =>
 			{
 				string statement = _dialect.GetCommitsFromToCheckpoint;
-				query.AddParameter(_dialect.FromCheckpointNumber, from);
-				query.AddParameter(_dialect.ToCheckpointNumber, to);
+				query.AddParameter(_dialect.FromCheckpointNumber, fromCheckpointToken);
+				query.AddParameter(_dialect.ToCheckpointNumber, toCheckpointToken);
 				return query.ExecutePagedQuery(statement, (_, _) => { })
 					.Select(x => x.GetCommit(_serializer, _eventSerializer, _dialect));
 			});

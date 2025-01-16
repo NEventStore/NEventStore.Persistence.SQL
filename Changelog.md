@@ -2,7 +2,7 @@
 
 ## vNext
 
-- async methods
+- Async methods [#51](https://github.com/NEventStore/NEventStore.Persistence.SQL/issues/51)
 
 ### Breaking Changes
 

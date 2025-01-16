@@ -7,24 +7,84 @@ namespace NEventStore.Persistence.Sql
 {
 	public partial class SqlPersistenceEngine
 	{
+		/// <inheritdoc/>
 		public Task GetFromAsync(long checkpointToken, IAsyncObserver<ICommit> asyncObserver, CancellationToken cancellationToken)
 		{
-			throw new NotImplementedException();
+			if (Logger.IsEnabled(LogLevel.Debug))
+			{
+				Logger.LogDebug(Messages.GettingAllCommitsFromCheckpoint, checkpointToken);
+			}
+
+			LambdaAsyncObserver<IDataRecord> adapter = BuildICommitAsyncObserverAdapter(asyncObserver, cancellationToken);
+
+			return ExecuteQueryAsync((query, asyncObserver, cancellationToken) =>
+			{
+				string statement = _dialect.GetCommitsFromCheckpoint;
+				query.AddParameter(_dialect.CheckpointNumber, checkpointToken);
+				return query.ExecutePagedQueryAsync(statement, (_, _) => { }, asyncObserver, cancellationToken);
+			},
+			adapter, cancellationToken);
 		}
 
+		/// <inheritdoc/>
 		public Task GetFromToAsync(long fromCheckpointToken, long toCheckpointToken, IAsyncObserver<ICommit> asyncObserver, CancellationToken cancellationToken)
 		{
-			throw new NotImplementedException();
+			if (Logger.IsEnabled(LogLevel.Debug))
+			{
+				Logger.LogDebug(Messages.GettingCommitsFromToCheckpoint, fromCheckpointToken, toCheckpointToken);
+			}
+
+			LambdaAsyncObserver<IDataRecord> adapter = BuildICommitAsyncObserverAdapter(asyncObserver, cancellationToken);
+
+			return ExecuteQueryAsync((query, asyncObserver, cancellationToken) =>
+			{
+				string statement = _dialect.GetCommitsFromToCheckpoint;
+				query.AddParameter(_dialect.FromCheckpointNumber, fromCheckpointToken);
+				query.AddParameter(_dialect.ToCheckpointNumber, toCheckpointToken);
+				return query.ExecutePagedQueryAsync(statement, (_, _) => { }, asyncObserver, cancellationToken);
+			},
+			adapter, cancellationToken);
 		}
 
+		/// <inheritdoc/>
 		public Task GetFromAsync(string bucketId, long checkpointToken, IAsyncObserver<ICommit> asyncObserver, CancellationToken cancellationToken)
 		{
-			throw new NotImplementedException();
+			if (Logger.IsEnabled(LogLevel.Debug))
+			{
+				Logger.LogDebug(Messages.GettingAllCommitsFromBucketAndCheckpoint, bucketId, checkpointToken);
+			}
+
+			LambdaAsyncObserver<IDataRecord> adapter = BuildICommitAsyncObserverAdapter(asyncObserver, cancellationToken);
+
+			return ExecuteQueryAsync((query, asyncObserver, cancellationToken) =>
+			{
+				string statement = _dialect.GetCommitsFromBucketAndCheckpoint;
+				query.AddParameter(_dialect.BucketId, bucketId, DbType.AnsiString);
+				query.AddParameter(_dialect.CheckpointNumber, checkpointToken);
+				return query.ExecutePagedQueryAsync(statement, (_, _) => { }, asyncObserver, cancellationToken);
+			},
+			adapter, cancellationToken);
 		}
 
+		/// <inheritdoc/>
 		public Task GetFromToAsync(string bucketId, long fromCheckpointToken, long toCheckpointToken, IAsyncObserver<ICommit> asyncObserver, CancellationToken cancellationToken)
 		{
-			throw new NotImplementedException();
+			if (Logger.IsEnabled(LogLevel.Debug))
+			{
+				Logger.LogDebug(Messages.GettingCommitsFromBucketAndFromToCheckpoint, bucketId, fromCheckpointToken, toCheckpointToken);
+			}
+
+			LambdaAsyncObserver<IDataRecord> adapter = BuildICommitAsyncObserverAdapter(asyncObserver, cancellationToken);
+
+			return ExecuteQueryAsync((query, asyncObserver, cancellationToken) =>
+			{
+				string statement = _dialect.GetCommitsFromToBucketAndCheckpoint;
+				query.AddParameter(_dialect.BucketId, bucketId, DbType.AnsiString);
+				query.AddParameter(_dialect.FromCheckpointNumber, fromCheckpointToken);
+				query.AddParameter(_dialect.ToCheckpointNumber, toCheckpointToken);
+				return query.ExecutePagedQueryAsync(statement, (_, _) => { }, asyncObserver, cancellationToken);
+			},
+			adapter, cancellationToken);
 		}
 
 		/// <inheritdoc/>
@@ -68,9 +128,37 @@ namespace NEventStore.Persistence.Sql
 			}, cancellationToken);
 		}
 
+		/// <inheritdoc/>
 		public Task GetFromAsync(string bucketId, string streamId, int minRevision, int maxRevision, IAsyncObserver<ICommit> observer, CancellationToken cancellationToken)
 		{
-			throw new NotImplementedException();
+			if (Logger.IsEnabled(LogLevel.Debug))
+			{
+				Logger.LogDebug(Messages.GettingAllCommitsBetween, streamId, minRevision, maxRevision);
+			}
+
+			streamId = _streamIdHasher.GetHash(streamId);
+			LambdaAsyncObserver<IDataRecord> adapter = BuildICommitAsyncObserverAdapter(observer, cancellationToken);
+
+			return ExecuteQueryAsync((query, asyncObserver, cancellationToken) =>
+			{
+				string statement = _dialect.GetCommitsFromStartingRevision;
+				query.AddParameter(_dialect.BucketId, bucketId, DbType.AnsiString);
+				query.AddParameter(_dialect.StreamId, streamId, DbType.AnsiString);
+				query.AddParameter(_dialect.StreamRevision, minRevision);
+				query.AddParameter(_dialect.MaxStreamRevision, maxRevision);
+				query.AddParameter(_dialect.CommitSequence, 0);
+				return query.ExecutePagedQueryAsync(statement, _dialect.NextPageDelegate, asyncObserver, cancellationToken);
+			},
+			adapter, cancellationToken);
+		}
+
+		private LambdaAsyncObserver<IDataRecord> BuildICommitAsyncObserverAdapter(IAsyncObserver<ICommit> observer, CancellationToken cancellationToken)
+		{
+			return new LambdaAsyncObserver<IDataRecord>(
+				onNextAsync: (record, _) => observer.OnNextAsync(record.GetCommit(_serializer, _eventSerializer, _dialect), cancellationToken),
+				onErrorAsync: observer.OnErrorAsync,
+				onCompletedAsync: observer.OnCompletedAsync
+				);
 		}
 
 		/// <inheritdoc/>
@@ -106,9 +194,30 @@ namespace NEventStore.Persistence.Sql
 			return commit;
 		}
 
-		public Task<ISnapshot?> GetSnapshotAsync(string bucketId, string streamId, int maxRevision, CancellationToken cancellationToken)
+		/// <inheritdoc/>
+		public async Task<ISnapshot?> GetSnapshotAsync(string bucketId, string streamId, int maxRevision, CancellationToken cancellationToken)
 		{
-			throw new NotImplementedException();
+			if (Logger.IsEnabled(LogLevel.Debug))
+			{
+				Logger.LogDebug(Messages.GettingRevision, streamId, maxRevision);
+			}
+
+			var streamIdHash = _streamIdHasher.GetHash(streamId);
+
+			ISnapshot? snapshot = null;
+
+			var asyncObserver = new LambdaAsyncObserver<IDataRecord>((x, _) => { snapshot = x.GetSnapshot(_serializer, streamId); return Task.FromResult(true); });
+
+			await ExecuteQueryAsync((query, asyncObserver, cancellationToken) =>
+			{
+				string statement = _dialect.GetSnapshot;
+				query.AddParameter(_dialect.BucketId, bucketId, DbType.AnsiString);
+				query.AddParameter(_dialect.StreamId, streamIdHash, DbType.AnsiString);
+				query.AddParameter(_dialect.StreamRevision, maxRevision);
+				return query.ExecuteWithQueryAsync(statement, asyncObserver, cancellationToken);
+			}, asyncObserver, cancellationToken).ConfigureAwait(false);
+
+			return snapshot;
 		}
 
 		/// <inheritdoc/>
@@ -132,9 +241,29 @@ namespace NEventStore.Persistence.Sql
 			return result > 0;
 		}
 
+		/// <inheritdoc/>
 		public Task GetStreamsToSnapshotAsync(string bucketId, int maxThreshold, IAsyncObserver<IStreamHead> asyncObserver, CancellationToken cancellationToken)
 		{
-			throw new NotImplementedException();
+			if (Logger.IsEnabled(LogLevel.Debug))
+			{
+				Logger.LogDebug(Messages.GettingStreamsToSnapshot);
+			}
+
+			var adapter = new LambdaAsyncObserver<IDataRecord>(
+				onNextAsync: (record, _) => asyncObserver.OnNextAsync(record.GetStreamToSnapshot(), cancellationToken),
+				onErrorAsync: asyncObserver.OnErrorAsync,
+				onCompletedAsync: asyncObserver.OnCompletedAsync
+				);
+			return ExecuteQueryAsync((query, asyncObserver, cancellationToken) =>
+			{
+				string statement = _dialect.GetStreamsRequiringSnapshots;
+				query.AddParameter(_dialect.BucketId, bucketId, DbType.AnsiString);
+				query.AddParameter(_dialect.Threshold, maxThreshold);
+				return query.ExecutePagedQueryAsync(
+					statement, (q, s) => q.SetParameter(_dialect.StreamId, _dialect.CoalesceParameterValue(s.StreamId()), DbType.AnsiString), // todo: I'm not sure this is used, the query does not have a "StreamId" parameter
+					asyncObserver, cancellationToken);
+			},
+			adapter, cancellationToken);
 		}
 
 		/// <summary>
@@ -247,6 +376,48 @@ namespace NEventStore.Persistence.Sql
 				object value = await cmd.ExecuteScalarAsync(_dialect.DuplicateCommit, cancellationToken).ConfigureAwait(false);
 				return (value is long val ? val : (int)value) > 0;
 			}, cancellationToken);
+		}
+
+		/// <summary>
+		/// Executes a query against the database.
+		/// </summary>
+		/// <exception cref="StorageException"></exception>
+		protected virtual async Task ExecuteQueryAsync(
+			Func<IDbStatement, IAsyncObserver<IDataRecord>, CancellationToken, Task> query,
+			IAsyncObserver<IDataRecord> asyncObserver,
+			CancellationToken cancellationToken)
+		{
+			ThrowWhenDisposed();
+
+			using (var scope = OpenCommandScope())
+			using (var connection = await _connectionFactory.OpenAsync(cancellationToken).ConfigureAwait(false))
+			using (var transaction = _dialect.OpenTransaction(connection.Current))
+			using (IDbStatement statement = _dialect.BuildStatement(scope, connection, transaction))
+			{
+				try
+				{
+					statement.PageSize = _pageSize;
+
+					if (Logger.IsEnabled(LogLevel.Trace))
+					{
+						Logger.LogTrace(Messages.ExecutingQuery);
+					}
+					await query(statement, asyncObserver, cancellationToken).ConfigureAwait(false);
+				}
+				catch (Exception e)
+				{
+					if (Logger.IsEnabled(LogLevel.Debug))
+					{
+						Logger.LogDebug(Messages.StorageThrewException, e.GetType());
+					}
+					if (e is StorageUnavailableException)
+					{
+						throw;
+					}
+
+					throw new StorageException(e.Message, e);
+				}
+			}
 		}
 	}
 }
