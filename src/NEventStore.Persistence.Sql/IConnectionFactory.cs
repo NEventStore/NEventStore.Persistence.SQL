@@ -13,7 +13,7 @@ namespace NEventStore.Persistence.Sql
 		/// <summary>
 		/// Opens a new connection asynchronously.
 		/// </summary>
-		Task<ConnectionScope> OpenAsync(CancellationToken cancellationToken);
+		Task<ConnectionScope> OpenAsync(CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Gets the type of the database provider factory.

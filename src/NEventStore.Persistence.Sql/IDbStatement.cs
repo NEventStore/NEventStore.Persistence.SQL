@@ -30,7 +30,7 @@ namespace NEventStore.Persistence.Sql
 		/// <summary>
 		/// Execute a non-query command.
 		/// </summary>
-		Task<int> ExecuteNonQueryAsync(string commandText, CancellationToken cancellationToken);
+		Task<int> ExecuteNonQueryAsync(string commandText, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Execute a non-query command without exceptions.
@@ -40,7 +40,7 @@ namespace NEventStore.Persistence.Sql
 		/// <summary>
 		/// Execute a non-query command without exceptions.
 		/// </summary>
-		Task<int> ExecuteWithoutExceptionsAsync(string commandText, CancellationToken cancellationToken);
+		Task<int> ExecuteWithoutExceptionsAsync(string commandText, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Execute a scalar command.
@@ -50,7 +50,7 @@ namespace NEventStore.Persistence.Sql
 		/// <summary>
 		/// Execute a scalar command.
 		/// </summary>
-		Task<object> ExecuteScalarAsync(string commandText, CancellationToken cancellationToken);
+		Task<object> ExecuteScalarAsync(string commandText, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Execute a query command.
@@ -60,7 +60,7 @@ namespace NEventStore.Persistence.Sql
 		/// <summary>
 		/// Execute a query command.
 		/// </summary>
-		Task ExecuteWithQueryAsync(string queryText, IAsyncObserver<IDataRecord> asyncObserver, CancellationToken cancellationToken);
+		Task ExecuteWithQueryAsync(string queryText, IAsyncObserver<IDataRecord> asyncObserver, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Execute a paged query command.
@@ -70,6 +70,6 @@ namespace NEventStore.Persistence.Sql
 		/// <summary>
 		/// Execute a paged query command.
 		/// </summary>
-		Task ExecutePagedQueryAsync(string queryText, NextPageDelegate nextPage, IAsyncObserver<IDataRecord> asyncObserver, CancellationToken cancellationToken);
+		Task ExecutePagedQueryAsync(string queryText, NextPageDelegate nextPage, IAsyncObserver<IDataRecord> asyncObserver, CancellationToken cancellationToken = default);
 	}
 }
