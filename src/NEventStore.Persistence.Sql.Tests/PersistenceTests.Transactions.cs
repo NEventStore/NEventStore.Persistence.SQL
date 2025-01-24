@@ -79,7 +79,7 @@ namespace NEventStore.Persistence.AcceptanceTests
             _thrown = Catch.Exception(() =>
             {
                 // multiple connections on a single thread
-                var eventStore = new OptimisticEventStore(Persistence, null);
+                var eventStore = new OptimisticEventStore(Persistence, null, null);
 
                 // Single transaction scope
                 using (var scope = new TransactionScope(TransactionScopeOption.Required,
@@ -238,7 +238,7 @@ namespace NEventStore.Persistence.AcceptanceTests
             Parallel.For(0, Loop, i =>
             {
                 // multiple parallel connections (open stream is called inside the for loop)
-                var eventStore = new OptimisticEventStore(Persistence, null);
+                var eventStore = new OptimisticEventStore(Persistence, null, null);
 
                 // multiple transaction scopes: 1 for each connection
                 using (var scope = new TransactionScope(TransactionScopeOption.Required,
@@ -434,7 +434,7 @@ namespace NEventStore.Persistence.AcceptanceTests
             _thrown = Catch.Exception(() =>
             {
                 // multiple parallel connections (OpenStream is called inside the parallel for)
-                var eventStore = new OptimisticEventStore(Persistence, null);
+                var eventStore = new OptimisticEventStore(Persistence, null, null);
 
                 // Single transaction scope
                 using (var scope = new TransactionScope(TransactionScopeOption.Required,

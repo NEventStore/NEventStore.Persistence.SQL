@@ -3,6 +3,7 @@
 ## vNext
 
 - Async methods [#51](https://github.com/NEventStore/NEventStore.Persistence.SQL/issues/51)
+- Updated NEventStore to 10.0.0
 
 ### Breaking Changes
 
