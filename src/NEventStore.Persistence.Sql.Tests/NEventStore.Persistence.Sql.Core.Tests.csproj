@@ -1,13 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net7.0;net462</TargetFrameworks>
+    <TargetFrameworks>net8.0;net472</TargetFrameworks>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <AssemblyName>NEventStore.Persistence.Sql.Tests</AssemblyName>
     <RootNamespace>NEventStore.Persistence.Sql.Tests</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="PersistenceTests.Transactions.Async.cs" />
     <Compile Remove="PersistenceTests.Transactions.cs" />
   </ItemGroup>
 
@@ -16,6 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="PersistenceTests.Transactions.Async.cs" />
     <None Include="PersistenceTests.Transactions.cs" />
   </ItemGroup>
 

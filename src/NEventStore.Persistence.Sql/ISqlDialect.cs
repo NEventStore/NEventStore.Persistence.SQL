@@ -1,10 +1,10 @@
+using System.Data;
+using System.Data.Common;
+using System.Transactions;
+using NEventStore.Persistence.Sql.SqlDialects;
+
 namespace NEventStore.Persistence.Sql
 {
-	using System;
-	using System.Data;
-	using System.Transactions;
-	using NEventStore.Persistence.Sql.SqlDialects;
-
 	/// <summary>
 	/// Represents a SQL dialect.
 	/// </summary>
@@ -166,12 +166,12 @@ namespace NEventStore.Persistence.Sql
 		/// <summary>
 		/// Opens a Transaction.
 		/// </summary>
-		IDbTransaction? OpenTransaction(IDbConnection connection);
+		DbTransaction? OpenTransaction(DbConnection connection);
 
 		/// <summary>
 		/// Builds a statement.
 		/// </summary>
-		IDbStatement BuildStatement(TransactionScope? scope, IDbConnection connection, IDbTransaction? transaction);
+		IDbStatement BuildStatement(TransactionScope? scope, ConnectionScope connection, DbTransaction? transaction);
 		/// <summary>
 		/// Check if the exception represents a unique index violation.
 		/// </summary>
@@ -179,7 +179,7 @@ namespace NEventStore.Persistence.Sql
 		/// <summary>
 		/// Adds a payload parameter.
 		/// </summary>
-		void AddPayloadParameter(IConnectionFactory connectionFactory, IDbConnection connection, IDbStatement cmd, byte[] payload);
+		void AddPayloadParameter(IConnectionFactory connectionFactory, DbConnection connection, IDbStatement cmd, byte[] payload);
 		/// <summary>
 		/// Converts a value to a DateTime.
 		/// </summary>

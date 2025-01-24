@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace NEventStore.Persistence.Sql
+﻿namespace NEventStore.Persistence.Sql
 {
 	/// <summary>
 	///    Represents a mechanism for serializing and deserializing event messages.
@@ -13,7 +10,7 @@ namespace NEventStore.Persistence.Sql
 		/// </summary>
 		/// <param name="eventMessages">The messages to serialize.</param>
 		/// <returns>A byte array representing the serialized messages.</returns>
-		byte[] SerializeEventMessages(IReadOnlyList<EventMessage> eventMessages);
+		byte[] SerializeEventMessages(IEnumerable<EventMessage> eventMessages);
 
 		/// <summary>
 		///     Deserializes the bytes provided and reconstructs the corresponding object graph.
@@ -28,7 +25,7 @@ namespace NEventStore.Persistence.Sql
 		/// <param name="checkpoint">The <see cref="ICommit.CheckpointToken" />.</param>
 		/// <param name="headers">The <see cref="ICommit.Headers" />.</param>
 		/// <returns>The reconstructed event messages.</returns>
-		ICollection<EventMessage> DeserializeEventMessages(byte[] input, string bucketId, string streamId,
+		ICollection<EventMessage>? DeserializeEventMessages(byte[] input, string bucketId, string streamId,
 			int streamRevision, Guid commitId,
 			int commitSequence, DateTime commitStamp, long checkpoint, IReadOnlyDictionary<string, object>? headers);
 	}

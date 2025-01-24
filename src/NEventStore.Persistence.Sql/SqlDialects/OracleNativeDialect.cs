@@ -1,17 +1,16 @@
+using System.Data;
+using System.Data.Common;
+using System.Reflection;
+using System.Transactions;
+
 namespace NEventStore.Persistence.Sql.SqlDialects
 {
-	using System;
-	using System.Data;
-	using System.Reflection;
-	using System.Transactions;
-	using NEventStore.Persistence.Sql;
-
 	/// <summary>
 	/// Represents a SQL dialect for Oracle.
 	/// </summary>
 	public class OracleNativeDialect : CommonSqlDialect
 	{
-		private Action<IConnectionFactory, IDbConnection, IDbStatement, byte[]>? _addPayloadParameter;
+		private Action<IConnectionFactory, DbConnection, IDbStatement, byte[]>? _addPayloadParameter;
 		/// <inheritdoc/>
 		public override string AppendSnapshotToCommit
 		{
@@ -173,7 +172,7 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 			get { return MakeOracleParameter(base.MaxStreamRevision); }
 		}
 		/// <inheritdoc/>
-		public override IDbStatement BuildStatement(TransactionScope? scope, IDbConnection connection, IDbTransaction? transaction)
+		public override IDbStatement BuildStatement(TransactionScope? scope, ConnectionScope connection, DbTransaction? transaction)
 		{
 			return new OracleDbStatement(this, scope, connection, transaction);
 		}
@@ -207,7 +206,7 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 			get { return (_, _) => { }; }
 		}
 		/// <inheritdoc/>
-		public override void AddPayloadParameter(IConnectionFactory connectionFactory, IDbConnection connection, IDbStatement cmd, byte[] payload)
+		public override void AddPayloadParameter(IConnectionFactory connectionFactory, DbConnection connection, IDbStatement cmd, byte[] payload)
 		{
 			if (_addPayloadParameter == null)
 			{

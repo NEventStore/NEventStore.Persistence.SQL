@@ -3,11 +3,11 @@ using NEventStore.Persistence.Sql;
 using NEventStore.Persistence.Sql.SqlDialects;
 using NEventStore.Serialization.Binary;
 
-namespace NEventStore.Persistence.AcceptanceTests
+namespace NEventStore.Persistence.AcceptanceTests.Async
 {
-	public partial class PersistenceEngineFixture
+	public partial class PersistenceEngineFixtureAsync
 	{
-		public PersistenceEngineFixture()
+		public PersistenceEngineFixtureAsync()
 		{
 #if NET8_0_OR_GREATER
 			AppContext.SetSwitch("System.Runtime.Serialization.EnableUnsafeBinaryFormatterSerialization", true);

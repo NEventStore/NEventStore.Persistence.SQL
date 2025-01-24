@@ -2,7 +2,6 @@
 using System.Data.Common;
 using System.Transactions;
 using FluentAssertions;
-
 #if NET462
 using NEventStore.Diagnostics;
 #endif
@@ -22,7 +21,7 @@ using Xunit;
 using Xunit.Should;
 #endif
 
-namespace NEventStore.Persistence.AcceptanceTests
+namespace NEventStore.Persistence.AcceptanceTests.Async
 {
 #if MSTEST
 	[TestClass]
@@ -30,16 +29,16 @@ namespace NEventStore.Persistence.AcceptanceTests
 	public class When_reusing_a_connection_from_the_connection_pool_without_a_transaction_scope :
 		IsolationLevelConcern
 	{
-		protected override void Because()
+		protected override async Task BecauseAsync()
 		{
-			using (var conn = ConnectionFactory.Open())
+			using (var conn = await ConnectionFactory.OpenAsync().ConfigureAwait(false))
 			using (conn.Current.BeginTransaction(IsolationLevel.RepeatableRead))
 			{
 			}
 
 			Recorder.IsRecording = true;
 			// Enumerate fully to make sure the underlying DB stuff (command/reader etc.) is disposed
-			Persistence.GetFrom(0).ToArray();
+			await Persistence.GetFromAsync(0, new CommitStreamObserver()).ConfigureAwait(false);
 			Recorder.IsRecording = false;
 		}
 

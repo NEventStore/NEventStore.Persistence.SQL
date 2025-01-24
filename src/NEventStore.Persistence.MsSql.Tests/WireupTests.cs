@@ -1,37 +1,34 @@
 ﻿using NEventStore.Persistence.Sql.Tests;
+using NEventStore.Persistence.AcceptanceTests.BDD;
+using NEventStore.Persistence.Sql;
+using NEventStore.Persistence.Sql.SqlDialects;
+using NEventStore.Serialization.Binary;
+using FluentAssertions;
+#if MSTEST
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+#endif
+#if NUNIT
+#endif
+#if XUNIT
+using Xunit;
+using Xunit.Should;
+#endif
 
 namespace NEventStore.Persistence.AcceptanceTests
 {
-	using System;
-	using NEventStore.Persistence.AcceptanceTests.BDD;
-	using NEventStore.Persistence.Sql;
-	using NEventStore.Persistence.Sql.SqlDialects;
-	using FluentAssertions;
 #if MSTEST
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
-#endif
-#if NUNIT
-	using NUnit.Framework;
-
-#endif
-#if XUNIT
-    using Xunit;
-    using Xunit.Should;
-#endif
-
-#if MSTEST
-    [TestClass]
+	[TestClass]
 #endif
 	public class When_specifying_a_hasher : SpecificationBase
 	{
 		private bool _hasherInvoked;
-		private IStoreEvents _eventStore;
+		private IStoreEvents? _eventStore;
 
 		protected override void Context()
 		{
 			_eventStore = Wireup
 				.Init()
-				.UsingSqlPersistence(new EnviromentConnectionFactory("MsSql", Microsoft.Data.SqlClient.SqlClientFactory.Instance))
+				.UsingSqlPersistence(new EnvironmentConnectionFactory("MsSql", Microsoft.Data.SqlClient.SqlClientFactory.Instance))
 				.WithDialect(new MsSqlDialect())
 				.WithStreamIdHasher(streamId =>
 				{
@@ -56,7 +53,7 @@ namespace NEventStore.Persistence.AcceptanceTests
 
 		protected override void Because()
 		{
-			using (var stream = _eventStore.OpenStream(Guid.NewGuid()))
+			using (var stream = _eventStore!.OpenStream(Guid.NewGuid()))
 			{
 				stream.Add(new EventMessage { Body = "Message" });
 				stream.CommitChanges(Guid.NewGuid());

@@ -30,7 +30,7 @@ namespace NEventStore
 			Logger.LogDebug(Messages.ConnectionFactorySpecified, connectionFactory);
 
 			Logger.LogTrace(Messages.AutoDetectDialect);
-			Container.Register<ISqlDialect?>(_ => null); // auto-detect
+			Container.Register<ISqlDialect>(_ => null); // auto-detect
 			Container.Register<IStreamIdHasher>(_ => new Sha1StreamIdHasher());
 			Container.Register<ISerializeEvents>(c => new DefaultEventSerializer(c.Resolve<ISerialize>()));
 

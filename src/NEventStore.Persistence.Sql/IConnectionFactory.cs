@@ -1,8 +1,5 @@
 namespace NEventStore.Persistence.Sql
 {
-	using System;
-	using System.Data;
-
 	/// <summary>
 	/// Represents a connection factory.
 	/// </summary>
@@ -11,7 +8,13 @@ namespace NEventStore.Persistence.Sql
 		/// <summary>
 		/// Opens a new connection.
 		/// </summary>
-		IDbConnection Open();
+		ConnectionScope Open();
+
+		/// <summary>
+		/// Opens a new connection asynchronously.
+		/// </summary>
+		Task<ConnectionScope> OpenAsync(CancellationToken cancellationToken = default);
+
 		/// <summary>
 		/// Gets the type of the database provider factory.
 		/// </summary>

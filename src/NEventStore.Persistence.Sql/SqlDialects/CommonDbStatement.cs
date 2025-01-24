@@ -1,23 +1,22 @@
+using System.Data;
+using System.Data.Common;
+using System.Transactions;
+using Microsoft.Extensions.Logging;
+using NEventStore.Logging;
+
 namespace NEventStore.Persistence.Sql.SqlDialects
 {
-	using System;
-	using System.Collections.Generic;
-	using System.Data;
-	using System.Transactions;
-	using Microsoft.Extensions.Logging;
-	using NEventStore.Logging;
-	using NEventStore.Persistence.Sql;
-
 	/// <summary>
 	/// Common implementation of <see cref="IDbStatement"/> that provides basic functionality for executing SQL commands.
 	/// </summary>
 	public class CommonDbStatement : IDbStatement
 	{
-		private const int InfinitePageSize = 0;
+		/// <inheritdoc/>
+		public virtual int InfinitePageSize { get; } = 0;
 		private static readonly ILogger Logger = LogFactory.BuildLogger(typeof(CommonDbStatement));
-		private readonly IDbConnection _connection;
+		private readonly ConnectionScope _connection;
 		private readonly TransactionScope? _scope;
-		private readonly IDbTransaction? _transaction;
+		private readonly DbTransaction? _transaction;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="CommonDbStatement"/> class.
@@ -25,8 +24,8 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 		public CommonDbStatement(
 			ISqlDialect dialect,
 			TransactionScope? scope,
-			IDbConnection connection,
-			IDbTransaction? transaction)
+			ConnectionScope connection,
+			DbTransaction? transaction)
 		{
 			Parameters = new Dictionary<string, Tuple<object, DbType?>>();
 
@@ -59,7 +58,10 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 		/// <inheritdoc/>
 		public virtual void AddParameter(string name, object value, DbType? parameterType = null)
 		{
-			Logger.LogDebug(Messages.AddingParameter, name);
+			if (Logger.IsEnabled(LogLevel.Debug))
+			{
+				Logger.LogDebug(Messages.AddingParameter, name);
+			}
 			Parameters[name] = Tuple.Create(Dialect.CoalesceParameterValue(value), parameterType);
 		}
 
@@ -72,7 +74,27 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 			}
 			catch (Exception)
 			{
-				Logger.LogDebug(Messages.ExceptionSuppressed);
+				if (Logger.IsEnabled(LogLevel.Debug))
+				{
+					Logger.LogDebug(Messages.ExceptionSuppressed);
+				}
+				return 0;
+			}
+		}
+
+		/// <inheritdoc/>
+		public virtual async Task<int> ExecuteWithoutExceptionsAsync(string commandText, CancellationToken cancellationToken)
+		{
+			try
+			{
+				return await ExecuteNonQueryAsync(commandText, cancellationToken).ConfigureAwait(false);
+			}
+			catch (Exception)
+			{
+				if (Logger.IsEnabled(LogLevel.Debug))
+				{
+					Logger.LogDebug(Messages.ExceptionSuppressed);
+				}
 				return 0;
 			}
 		}
@@ -82,7 +104,7 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 		{
 			try
 			{
-				using (IDbCommand command = BuildCommand(commandText))
+				using (var command = BuildCommand(commandText))
 				{
 					return command.ExecuteNonQuery();
 				}
@@ -93,7 +115,26 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 				{
 					throw new UniqueKeyViolationException(e.Message, e);
 				}
+				throw;
+			}
+		}
 
+		/// <inheritdoc/>
+		public virtual async Task<int> ExecuteNonQueryAsync(string commandText, CancellationToken cancellationToken)
+		{
+			try
+			{
+				using (var command = BuildCommand(commandText))
+				{
+					return await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
+				}
+			}
+			catch (Exception e)
+			{
+				if (Dialect.IsDuplicate(e))
+				{
+					throw new UniqueKeyViolationException(e.Message, e);
+				}
 				throw;
 			}
 		}
@@ -103,9 +144,29 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 		{
 			try
 			{
-				using (IDbCommand command = BuildCommand(commandText))
+				using (var command = BuildCommand(commandText))
 				{
 					return command.ExecuteScalar();
+				}
+			}
+			catch (Exception e)
+			{
+				if (Dialect.IsDuplicate(e))
+				{
+					throw new UniqueKeyViolationException(e.Message, e);
+				}
+				throw;
+			}
+		}
+
+		/// <inheritdoc/>
+		public virtual async Task<object> ExecuteScalarAsync(string commandText, CancellationToken cancellationToken)
+		{
+			try
+			{
+				using (var command = BuildCommand(commandText))
+				{
+					return await command.ExecuteScalarAsync(cancellationToken).ConfigureAwait(false);
 				}
 			}
 			catch (Exception e)
@@ -130,7 +191,10 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 			int pageSize = Dialect.CanPage ? PageSize : InfinitePageSize;
 			if (pageSize > 0)
 			{
-				Logger.LogTrace(Messages.MaxPageSize, pageSize);
+				if (Logger.IsEnabled(LogLevel.Trace))
+				{
+					Logger.LogTrace(Messages.MaxPageSize, pageSize);
+				}
 				Parameters.Add(Dialect.Limit, Tuple.Create((object)pageSize, (DbType?)null));
 			}
 
@@ -140,7 +204,10 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 		/// <inheritdoc/>
 		protected virtual void Dispose(bool disposing)
 		{
-			Logger.LogTrace(Messages.DisposingStatement);
+			if (Logger.IsEnabled(LogLevel.Trace))
+			{
+				Logger.LogTrace(Messages.DisposingStatement);
+			}
 
 			_transaction?.Dispose();
 
@@ -169,10 +236,13 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 		/// <summary>
 		/// Builds a command to be executed.
 		/// </summary>
-		protected virtual IDbCommand BuildCommand(string statement)
+		protected virtual DbCommand BuildCommand(string statement)
 		{
-			Logger.LogTrace(Messages.CreatingCommand);
-			IDbCommand command = _connection.CreateCommand();
+			if (Logger.IsEnabled(LogLevel.Trace))
+			{
+				Logger.LogTrace(Messages.CreatingCommand);
+			}
+			DbCommand command = _connection.Current.CreateCommand();
 
 			if (Settings.CommandTimeout > 0)
 			{
@@ -182,8 +252,11 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 			command.Transaction = _transaction;
 			command.CommandText = statement;
 
-			Logger.LogTrace(Messages.ClientControlledTransaction, _transaction != null);
-			Logger.LogTrace(Messages.CommandTextToExecute, statement);
+			if (Logger.IsEnabled(LogLevel.Trace))
+			{
+				Logger.LogTrace(Messages.ClientControlledTransaction, _transaction != null);
+				Logger.LogTrace(Messages.CommandTextToExecute, statement);
+			}
 
 			BuildParameters(command);
 
@@ -210,7 +283,10 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 			parameter.ParameterName = name;
 			SetParameterValue(parameter, value, dbType);
 
-			Logger.LogTrace(Messages.BindingParameter, name, parameter.Value);
+			if (Logger.IsEnabled(LogLevel.Trace))
+			{
+				Logger.LogTrace(Messages.BindingParameter, name, parameter.Value);
+			}
 			command.Parameters.Add(parameter);
 		}
 
@@ -221,6 +297,88 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 		{
 			param.Value = value ?? DBNull.Value;
 			param.DbType = type ?? (value == null ? DbType.Binary : param.DbType);
+		}
+
+		/// <inheritdoc/>
+		public async Task ExecuteWithQueryAsync(string queryText, IAsyncObserver<IDataRecord> asyncObserver, CancellationToken cancellationToken)
+		{
+			Parameters.Add(Dialect.Skip, Tuple.Create((object)0, (DbType?)null));
+			using (var command = BuildCommand(queryText))
+			{
+				try
+				{
+					using (var reader = await command.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false))
+					{
+						while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
+						{
+							if (!await asyncObserver.OnNextAsync(reader, cancellationToken).ConfigureAwait(false))
+							{
+								break;
+							}
+						}
+					}
+					await asyncObserver.OnCompletedAsync(cancellationToken).ConfigureAwait(false);
+				}
+				catch (Exception ex)
+				{
+					await asyncObserver.OnErrorAsync(ex, cancellationToken).ConfigureAwait(false);
+					throw;
+				}
+			}
+		}
+
+		/// <inheritdoc/>
+		public async Task ExecutePagedQueryAsync(string queryText, NextPageDelegate nextPage, IAsyncObserver<IDataRecord> asyncObserver, CancellationToken cancellationToken)
+		{
+			int pageSize = Dialect.CanPage ? PageSize : InfinitePageSize;
+			if (pageSize > 0)
+			{
+				if (Logger.IsEnabled(LogLevel.Trace))
+				{
+					Logger.LogTrace(Messages.MaxPageSize, pageSize);
+				}
+				Parameters.Add(Dialect.Limit, Tuple.Create((object)pageSize, (DbType?)null));
+			}
+			Parameters.Add(Dialect.Skip, Tuple.Create((object)0, (DbType?)null));
+			using (var command = BuildCommand(queryText))
+			{
+				// keep reading in pages until we have no more records to read.
+				int position = 0;
+				int recordsRead = 0;
+				try
+				{
+					do
+					{
+						recordsRead = 0;
+						using (var reader = await command.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false))
+						{
+							while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
+							{
+								if (!await asyncObserver.OnNextAsync(reader, cancellationToken).ConfigureAwait(false))
+								{
+									await asyncObserver.OnCompletedAsync(cancellationToken).ConfigureAwait(false);
+									return;
+								}
+								position++;
+								recordsRead++;
+								if (pageSize > 0 && position >= pageSize)
+								{
+									command.SetParameter(Dialect.Skip, position);
+									nextPage(command, reader);
+								}
+							}
+						}
+					}
+					while (Dialect.CanPage && recordsRead == PageSize);
+
+					await asyncObserver.OnCompletedAsync(cancellationToken).ConfigureAwait(false);
+				}
+				catch (Exception ex)
+				{
+					await asyncObserver.OnErrorAsync(ex, cancellationToken).ConfigureAwait(false);
+					throw;
+				}
+			}
 		}
 	}
 }

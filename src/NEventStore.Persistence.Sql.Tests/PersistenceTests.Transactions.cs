@@ -2,29 +2,23 @@
 #pragma warning disable IDE1006 // Naming Styles
 #pragma warning disable S101 // Types should be named in PascalCase
 
-namespace NEventStore.Persistence.AcceptanceTests
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using NEventStore.Persistence.AcceptanceTests.BDD;
-    using FluentAssertions;
+using NEventStore.Persistence.AcceptanceTests.BDD;
+using FluentAssertions;
 #if MSTEST
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 #endif
 #if NUNIT
-    using NUnit.Framework;
-    using System.Threading.Tasks;
-    using System.Transactions;
-    using System.Threading;
-    using System.Globalization;
-    using System.Diagnostics;
+using NUnit.Framework;
+using System.Transactions;
+using System.Diagnostics;
 #endif
 #if XUNIT
-    using Xunit;
-    using Xunit.Should;
+using Xunit;
+using Xunit.Should;
 #endif
 
+namespace NEventStore.Persistence.AcceptanceTests
+{
     public enum TransactionScopeConcern
     {
         NoTransaction = 0,
@@ -36,45 +30,45 @@ namespace NEventStore.Persistence.AcceptanceTests
     // https://github.com/NEventStore/NEventStore/issues/465
 
     /// <summary>
-    /// This testing concern simulated the TrsanctionSuppression and/or re-enlisting in Ambient transaction behavior
+    /// This testing concern simulated the TransactionSuppression and/or re-enlisting in Ambient transaction behavior
     /// </summary>
     public abstract class TransactionConcern : PersistenceEngineConcern
     {
-        protected void Reinitialize(TransactionScopeConcern enlistInAmbientTransation)
+        protected void Reinitialize(TransactionScopeConcern enlistInAmbientTransaction)
         {
-            switch (enlistInAmbientTransation)
+            switch (enlistInAmbientTransaction)
             {
                 case TransactionScopeConcern.NoTransaction:
-                    Fixture.ScopeOption = null;
+                    Fixture!.ScopeOption = null;
                     break;
                 case TransactionScopeConcern.SuppressAmbientTransaction:
-                    Fixture.ScopeOption = TransactionScopeOption.Suppress;
+                    Fixture!.ScopeOption = TransactionScopeOption.Suppress;
                     break;
                 case TransactionScopeConcern.EnlistInAmbientTransaction:
-                    Fixture.ScopeOption = TransactionScopeOption.Required;
+                    Fixture!.ScopeOption = TransactionScopeOption.Required;
                     break;
             }
-            Fixture.Initialize(ConfiguredPageSizeForTesting);
+            Fixture!.Initialize(ConfiguredPageSizeForTesting);
         }
     }
 
     public abstract class MultipleSequentialConnectionsWithSingleTransactionScope : TransactionConcern
     {
-        protected ICommit[] _commits;
+        protected ICommit[]? _commits;
         protected const int Loop = 2;
         protected const int StreamsPerTransaction = 20;
-        protected readonly IsolationLevel _transationIsolationLevel;
+        protected readonly IsolationLevel _transactionIsolationLevel;
         protected readonly TransactionScopeConcern _enlistInAmbientTransaction;
-        protected Exception _thrown;
+        protected Exception? _thrown;
         protected readonly bool _completeTransaction;
 
         protected MultipleSequentialConnectionsWithSingleTransactionScope(
             TransactionScopeConcern enlistInAmbientTransaction,
-            IsolationLevel transationIsolationLevel,
+            IsolationLevel transactionIsolationLevel,
             bool completeTransaction
             )
         {
-            _transationIsolationLevel = transationIsolationLevel;
+            _transactionIsolationLevel = transactionIsolationLevel;
             _enlistInAmbientTransaction = enlistInAmbientTransaction;
             _completeTransaction = completeTransaction;
             Reinitialize(enlistInAmbientTransaction);
@@ -85,11 +79,11 @@ namespace NEventStore.Persistence.AcceptanceTests
             _thrown = Catch.Exception(() =>
             {
                 // multiple connections on a single thread
-                var eventStore = new OptimisticEventStore(Persistence, null);
+                var eventStore = new OptimisticEventStore(Persistence, null, null);
 
                 // Single transaction scope
                 using (var scope = new TransactionScope(TransactionScopeOption.Required,
-                        new TransactionOptions { IsolationLevel = _transationIsolationLevel }
+                        new TransactionOptions { IsolationLevel = _transactionIsolationLevel }
                     , TransactionScopeAsyncFlowOption.Enabled
                 ))
                 {
@@ -136,8 +130,8 @@ namespace NEventStore.Persistence.AcceptanceTests
     {
         public SingleThread_Single_Completing_TransactionScope_When_EnlistInAmbientTransaction_is_and_IsolationLevel_is(
             TransactionScopeConcern enlistInAmbientTransaction,
-            IsolationLevel transationIsolationLevel
-            ) : base(enlistInAmbientTransaction, transationIsolationLevel, completeTransaction: true)
+            IsolationLevel transactionIsolationLevel
+            ) : base(enlistInAmbientTransaction, transactionIsolationLevel, completeTransaction: true)
         { }
 
         [Fact]
@@ -218,21 +212,21 @@ namespace NEventStore.Persistence.AcceptanceTests
 
     public abstract class MultipleParallelConnectionsWithMultipleTransactionScopes : TransactionConcern
     {
-        protected ICommit[] _commits;
+        protected ICommit[]? _commits;
         protected const int Loop = 2;
         protected const int StreamsPerTransaction = 20;
-        protected readonly IsolationLevel _transationIsolationLevel;
+        protected readonly IsolationLevel _transcationIsolationLevel;
         protected readonly TransactionScopeConcern _enlistInAmbientTransaction;
-        protected Exception _thrown;
+        protected Exception? _thrown;
         protected readonly bool _completeTransaction;
 
         protected MultipleParallelConnectionsWithMultipleTransactionScopes(
             TransactionScopeConcern enlistInAmbientTransaction,
-            IsolationLevel transationIsolationLevel,
+            IsolationLevel transactionIsolationLevel,
             bool completeTransaction
             )
         {
-            _transationIsolationLevel = transationIsolationLevel;
+            _transcationIsolationLevel = transactionIsolationLevel;
             _enlistInAmbientTransaction = enlistInAmbientTransaction;
             _completeTransaction = completeTransaction;
             Reinitialize(enlistInAmbientTransaction);
@@ -244,11 +238,11 @@ namespace NEventStore.Persistence.AcceptanceTests
             Parallel.For(0, Loop, i =>
             {
                 // multiple parallel connections (open stream is called inside the for loop)
-                var eventStore = new OptimisticEventStore(Persistence, null);
+                var eventStore = new OptimisticEventStore(Persistence, null, null);
 
                 // multiple transaction scopes: 1 for each connection
                 using (var scope = new TransactionScope(TransactionScopeOption.Required,
-                    new TransactionOptions { IsolationLevel = _transationIsolationLevel }
+                    new TransactionOptions { IsolationLevel = _transcationIsolationLevel }
                 , TransactionScopeAsyncFlowOption.Enabled
                     ))
                 {
@@ -288,8 +282,8 @@ namespace NEventStore.Persistence.AcceptanceTests
     {
         public Multiple_Completing_TransactionScopes_When_EnlistInAmbientTransaction_is_and_IsolationLevel_is(
             TransactionScopeConcern enlistInAmbientTransaction,
-            IsolationLevel transationIsolationLevel
-            ) : base(enlistInAmbientTransaction, transationIsolationLevel, true)
+            IsolationLevel transactionIsolationLevel
+            ) : base(enlistInAmbientTransaction, transactionIsolationLevel, true)
         { }
 
         [Fact]
@@ -318,17 +312,17 @@ namespace NEventStore.Persistence.AcceptanceTests
     {
         public Unsupported_Multiple_Completing_TransactionScopes_When_EnlistInAmbientTransaction_is_and_IsolationLevel_is(
             TransactionScopeConcern enlistInAmbientTransaction,
-            IsolationLevel transationIsolationLevel
-            ) : base(enlistInAmbientTransaction, transationIsolationLevel, true)
+            IsolationLevel transactionIsolationLevel
+            ) : base(enlistInAmbientTransaction, transactionIsolationLevel, true)
         { }
 
         [Fact]
         public void should_throw_an_Exception_only_if_no_transaction_or_enlist_in_ambient_transaction_and_IsolationLevel_is_Serializable()
         {
             _thrown.Should().BeOfType<AggregateException>();
-            _thrown.InnerException.Should().BeOfType<StorageException>();
+            _thrown!.InnerException.Should().BeOfType<StorageException>();
             // two serializable transactions on the same connection can result in deadlocks.
-            _thrown.InnerException.Message.Should().Contain("deadlock");
+            _thrown.InnerException!.Message.Should().Contain("deadlock");
         }
 
         [Fact]
@@ -355,8 +349,8 @@ namespace NEventStore.Persistence.AcceptanceTests
     {
         public Multiple_Failing_TransactionScopes_When_EnlistInAmbientTransaction_is_and_IsolationLevel_is(
             TransactionScopeConcern enlistInAmbientTransaction,
-            IsolationLevel transationIsolationLevel
-            ) : base(enlistInAmbientTransaction, transationIsolationLevel, completeTransaction: false)
+            IsolationLevel transactionIsolationLevel
+            ) : base(enlistInAmbientTransaction, transactionIsolationLevel, completeTransaction: false)
         { }
 
         [Fact]
@@ -392,17 +386,17 @@ namespace NEventStore.Persistence.AcceptanceTests
     {
         public Unsupported_Multiple_Failing_TransactionScopes_When_EnlistInAmbientTransaction_is_and_IsolationLevel_is(
             TransactionScopeConcern enlistInAmbientTransaction,
-            IsolationLevel transationIsolationLevel
-            ) : base(enlistInAmbientTransaction, transationIsolationLevel, completeTransaction: false)
+            IsolationLevel transactionIsolationLevel
+            ) : base(enlistInAmbientTransaction, transactionIsolationLevel, completeTransaction: false)
         { }
 
         [Fact]
         public void should_throw_an_Exception()
         {
             _thrown.Should().BeOfType<AggregateException>();
-            _thrown.InnerException.Should().BeOfType<StorageException>();
+            _thrown!.InnerException.Should().BeOfType<StorageException>();
             // two serializable transactions on the same connection can result in deadlocks.
-            _thrown.InnerException.Message.Should().Contain("deadlock");
+            _thrown.InnerException!.Message.Should().Contain("deadlock");
         }
 
         [Fact]
@@ -415,21 +409,21 @@ namespace NEventStore.Persistence.AcceptanceTests
 
     public abstract class MultipleParallelConnectionsWithSingleTransactionScope : TransactionConcern
     {
-        protected ICommit[] _commits;
+        protected ICommit[]? _commits;
         protected const int Loop = 2;
         protected const int StreamsPerTransaction = 20;
-        protected readonly IsolationLevel _transationIsolationLevel;
+        protected readonly IsolationLevel _transactionIsolationLevel;
         protected readonly TransactionScopeConcern _enlistInAmbientTransaction;
-        protected Exception _thrown;
+        protected Exception? _thrown;
         protected readonly bool _completeTransaction;
 
         protected MultipleParallelConnectionsWithSingleTransactionScope(
             TransactionScopeConcern enlistInAmbientTransaction,
-            IsolationLevel transationIsolationLevel,
+            IsolationLevel transactionIsolationLevel,
             bool completeTransaction
             )
         {
-            _transationIsolationLevel = transationIsolationLevel;
+            _transactionIsolationLevel = transactionIsolationLevel;
             _enlistInAmbientTransaction = enlistInAmbientTransaction;
             _completeTransaction = completeTransaction;
             Reinitialize(enlistInAmbientTransaction);
@@ -440,11 +434,11 @@ namespace NEventStore.Persistence.AcceptanceTests
             _thrown = Catch.Exception(() =>
             {
                 // multiple parallel connections (OpenStream is called inside the parallel for)
-                var eventStore = new OptimisticEventStore(Persistence, null);
+                var eventStore = new OptimisticEventStore(Persistence, null, null);
 
                 // Single transaction scope
                 using (var scope = new TransactionScope(TransactionScopeOption.Required,
-                        new TransactionOptions { IsolationLevel = _transationIsolationLevel }
+                        new TransactionOptions { IsolationLevel = _transactionIsolationLevel }
                     , TransactionScopeAsyncFlowOption.Enabled
                 ))
                 {
@@ -487,8 +481,8 @@ namespace NEventStore.Persistence.AcceptanceTests
     {
         public Single_Completing_TransactionScope_When_EnlistInAmbientTransaction_is_and_IsolationLevel_is(
             TransactionScopeConcern enlistInAmbientTransaction,
-            IsolationLevel transationIsolationLevel
-            ) : base(enlistInAmbientTransaction, transationIsolationLevel, completeTransaction: true)
+            IsolationLevel transactionIsolationLevel
+            ) : base(enlistInAmbientTransaction, transactionIsolationLevel, completeTransaction: true)
         { }
 
         [Fact]
@@ -517,8 +511,8 @@ namespace NEventStore.Persistence.AcceptanceTests
     {
         public Single_Failing_TransactionScope_When_EnlistInAmbientTransaction_is_and_IsolationLevel_is(
             TransactionScopeConcern enlistInAmbientTransaction,
-            IsolationLevel transationIsolationLevel
-            ) : base(enlistInAmbientTransaction, transationIsolationLevel, completeTransaction: false)
+            IsolationLevel transactionIsolationLevel
+            ) : base(enlistInAmbientTransaction, transactionIsolationLevel, completeTransaction: false)
         { }
 
         [Fact]
@@ -553,19 +547,20 @@ namespace NEventStore.Persistence.AcceptanceTests
     {
         public Unsupported_Single_Completing_TransactionScope_When_EnlistInAmbientTransaction_is_and_IsolationLevel_is(
             TransactionScopeConcern enlistInAmbientTransaction,
-            IsolationLevel transationIsolationLevel
-            ) : base(enlistInAmbientTransaction, transationIsolationLevel, completeTransaction: true)
+            IsolationLevel transactionIsolationLevel
+            ) : base(enlistInAmbientTransaction, transactionIsolationLevel, completeTransaction: true)
         { }
 
-#if NET462
+#if NET462_OR_GREATER
         // some of these tests fails with a local instance of sql sever
         [Fact]
         public void should_throw_an_StorageUnavailableException()
         {
-            Console.WriteLine($"net462 {_enlistInAmbientTransaction} {_transationIsolationLevel}");
+            Console.WriteLine($"net462 {_enlistInAmbientTransaction} {_transactionIsolationLevel}");
             _thrown.Should().BeOfType<AggregateException>();
-            AggregateException aex = _thrown as AggregateException;
-            aex.InnerExceptions
+            var aex = _thrown as AggregateException;
+            aex.Should().NotBeNull();
+            aex!.InnerExceptions
                 .Any(e => e.GetType().IsAssignableFrom(typeof(StorageUnavailableException)))
                 .Should().BeTrue();
 
@@ -625,8 +620,9 @@ namespace NEventStore.Persistence.AcceptanceTests
         {
             Console.WriteLine("netstandard2.0 {_enlistInAmbientTransaction} {_transationIsolationLevel}");
             _thrown.Should().BeOfType<AggregateException>();
-            AggregateException aex = _thrown as AggregateException;
-            aex.InnerExceptions
+            var aex = _thrown as AggregateException;
+            aex.Should().NotBeNull();
+            aex!.InnerExceptions
                 .Any(e => e.GetType().IsAssignableFrom(typeof(StorageUnavailableException)))
                 .Should().BeTrue();
 

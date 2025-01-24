@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using NEventStore.Serialization;
+﻿using NEventStore.Serialization;
 
 namespace NEventStore.Persistence.Sql
 {
@@ -20,17 +18,17 @@ namespace NEventStore.Persistence.Sql
 		}
 
 		/// <inheritdoc/>
-		public byte[] SerializeEventMessages(IReadOnlyList<EventMessage> eventMessages)
+		public byte[] SerializeEventMessages(IEnumerable<EventMessage> eventMessages)
 		{
 			return _serializer.Serialize(eventMessages);
 		}
 
 		/// <inheritdoc/>
-		public ICollection<EventMessage> DeserializeEventMessages(byte[] input, string bucketId, string streamId,
+		public ICollection<EventMessage>? DeserializeEventMessages(byte[] input, string bucketId, string streamId,
 			int streamRevision, Guid commitId,
 			int commitSequence, DateTime commitStamp, long checkpoint, IReadOnlyDictionary<string, object>? headers)
 		{
-			return _serializer.Deserialize<List<EventMessage>>(input);
+			return _serializer.Deserialize<ICollection<EventMessage>>(input);
 		}
 	}
 }

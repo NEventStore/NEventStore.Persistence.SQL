@@ -5,9 +5,9 @@ using NEventStore.Persistence.Sql.SqlDialects;
 using NEventStore.Serialization.Binary;
 using System.Transactions;
 
-namespace NEventStore.Persistence.AcceptanceTests
+namespace NEventStore.Persistence.AcceptanceTests.Async
 {
-	public partial class PersistenceEngineFixture
+	public partial class PersistenceEngineFixtureAsync
 	{
 		/// <summary>
 		/// this mimic the current NEventStore default values which is run outside any transaction (creates a scope that
@@ -16,7 +16,7 @@ namespace NEventStore.Persistence.AcceptanceTests
 		public TransactionScopeOption? ScopeOption { get; set; } =
 			null; // the old default: TransactionScopeOption.Suppress;
 
-		public PersistenceEngineFixture()
+		public PersistenceEngineFixtureAsync()
 		{
 #if NET8_0_OR_GREATER
 			AppContext.SetSwitch("System.Runtime.Serialization.EnableUnsafeBinaryFormatterSerialization", true);

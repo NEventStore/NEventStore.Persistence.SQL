@@ -1,12 +1,9 @@
+using System.Data;
+using System.Data.Common;
+using System.Transactions;
+
 namespace NEventStore.Persistence.Sql.SqlDialects
 {
-	using System;
-	using System.Collections.Generic;
-	using System.Data;
-	using System.Linq;
-	using System.Transactions;
-	using NEventStore.Persistence.Sql;
-
 	/// <summary>
 	/// Represents a <see cref="IDbStatement"/> that splits the command text by a delimiter and executes each command separately.
 	/// </summary>
@@ -20,8 +17,8 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 		public DelimitedDbStatement(
 			ISqlDialect dialect,
 			TransactionScope scope,
-			IDbConnection connection,
-			IDbTransaction transaction)
+			ConnectionScope connection,
+			DbTransaction transaction)
 			: base(dialect, scope, connection, transaction)
 		{ }
 
@@ -29,6 +26,18 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 		public override int ExecuteNonQuery(string commandText)
 		{
 			return SplitCommandText(commandText).Sum(x => base.ExecuteNonQuery(x));
+		}
+
+		/// <inheritdoc/>
+		public override async Task<int> ExecuteNonQueryAsync(string commandText, CancellationToken cancellationToken)
+		{
+			var commands = SplitCommandText(commandText);
+			int sum = 0;
+			foreach (var command in commands)
+			{
+				sum += await base.ExecuteNonQueryAsync(command, cancellationToken).ConfigureAwait(false);
+			}
+			return sum;
 		}
 
 		private static IEnumerable<string> SplitCommandText(string delimited)

@@ -1,16 +1,17 @@
 // netstandard does not have support for DbFactoryProviders, we need a totally different way to initialize the driver
 #if NET462
+
+using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Data;
+using System.Data.Common;
+using System.Linq;
+using Microsoft.Extensions.Logging;
+using NEventStore.Logging;
+
 namespace NEventStore.Persistence.Sql
 {
-	using System;
-	using System.Collections.Generic;
-	using System.Configuration;
-	using System.Data;
-	using System.Data.Common;
-	using System.Linq;
-	using Microsoft.Extensions.Logging;
-	using NEventStore.Logging;
-
 	/// <summary>
 	/// Connection factory that uses configuration settings to create connections.
 	/// </summary>
@@ -35,7 +36,10 @@ namespace NEventStore.Persistence.Sql
 		public ConfigurationConnectionFactory(string connectionName)
 		{
 			_connectionName = connectionName ?? DefaultConnectionName;
-			Logger.LogDebug(Messages.ConfiguringConnections, _connectionName);
+			if (Logger.IsEnabled(LogLevel.Debug))
+			{
+				Logger.LogDebug(Messages.ConfiguringConnections, _connectionName);
+			}
 		}
 
 		/// <summary>
@@ -56,10 +60,23 @@ namespace NEventStore.Persistence.Sql
 		}
 
 		/// <inheritdoc/>
-		public virtual IDbConnection Open()
+		public virtual ConnectionScope Open()
 		{
-			Logger.LogTrace(Messages.OpeningMasterConnection, _connectionName);
+			if (Logger.IsEnabled(LogLevel.Trace))
+			{
+				Logger.LogTrace(Messages.OpeningMasterConnection, _connectionName);
+			}
 			return Open(_connectionName);
+		}
+
+		/// <inheritdoc/>
+		public virtual Task<ConnectionScope> OpenAsync(CancellationToken cancellationToken)
+		{
+			if (Logger.IsEnabled(LogLevel.Trace))
+			{
+				Logger.LogTrace(Messages.OpeningMasterConnection, _connectionName);
+			}
+			return OpenAsync(_connectionName, cancellationToken);
 		}
 
 		/// <inheritdoc/>
@@ -72,7 +89,7 @@ namespace NEventStore.Persistence.Sql
 		/// <summary>
 		/// Opens a connection using the specified connection name.
 		/// </summary>
-		protected virtual IDbConnection Open(string connectionName)
+		protected virtual ConnectionScope Open(string connectionName)
 		{
 			ConnectionStringSettings setting = GetSetting(connectionName);
 			string connectionString = setting.ConnectionString;
@@ -80,11 +97,23 @@ namespace NEventStore.Persistence.Sql
 		}
 
 		/// <summary>
+		/// Opens a connection using the specified connection name.
+		/// </summary>
+		protected virtual async Task<ConnectionScope> OpenAsync(string connectionName, CancellationToken cancellationToken)
+		{
+			ConnectionStringSettings setting = GetSetting(connectionName);
+			string connectionString = setting.ConnectionString;
+			var connectionScope = new ConnectionScope(connectionString, (CancellationToken) => OpenAsync(connectionString, setting, cancellationToken));
+			await connectionScope.InitAsync(cancellationToken).ConfigureAwait(false);
+			return connectionScope;
+		}
+
+		/// <summary>
 		/// Opens a connection using the specified connection string and settings.
 		/// </summary>
 		/// <exception cref="ConfigurationErrorsException"></exception>
 		/// <exception cref="StorageUnavailableException"></exception>
-		protected virtual IDbConnection Open(string connectionString, ConnectionStringSettings setting)
+		protected virtual DbConnection Open(string connectionString, ConnectionStringSettings setting)
 		{
 			DbProviderFactory factory = GetFactory(setting);
 			DbConnection connection = factory.CreateConnection()
@@ -94,12 +123,51 @@ namespace NEventStore.Persistence.Sql
 
 			try
 			{
-				Logger.LogTrace(Messages.OpeningConnection, setting.Name);
+				if (Logger.IsEnabled(LogLevel.Trace))
+				{
+					Logger.LogTrace(Messages.OpeningConnection, setting.Name);
+				}
 				connection.Open();
 			}
 			catch (Exception e)
 			{
-				Logger.LogWarning(Messages.OpenFailed, setting.Name);
+				if (Logger.IsEnabled(LogLevel.Warning))
+				{
+					Logger.LogWarning(Messages.OpenFailed, setting.Name);
+				}
+				throw new StorageUnavailableException(e.Message, e);
+			}
+
+			return connection;
+		}
+
+		/// <summary>
+		/// Opens a connection using the specified connection string and settings.
+		/// </summary>
+		/// <exception cref="ConfigurationErrorsException"></exception>
+		/// <exception cref="StorageUnavailableException"></exception>
+		protected virtual async Task<DbConnection> OpenAsync(string connectionString, ConnectionStringSettings setting, CancellationToken cancellationToken)
+		{
+			DbProviderFactory factory = GetFactory(setting);
+			DbConnection connection = factory.CreateConnection()
+				?? throw new ConfigurationErrorsException(Messages.BadConnectionName);
+
+			connection.ConnectionString = connectionString;
+
+			try
+			{
+				if (Logger.IsEnabled(LogLevel.Trace))
+				{
+					Logger.LogTrace(Messages.OpeningConnection, setting.Name);
+				}
+				await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
+			}
+			catch (Exception e)
+			{
+				if (Logger.IsEnabled(LogLevel.Warning))
+				{
+					Logger.LogWarning(Messages.OpenFailed, setting.Name);
+				}
 				throw new StorageUnavailableException(e.Message, e);
 			}
 
@@ -135,7 +203,10 @@ namespace NEventStore.Persistence.Sql
 					return factory;
 				}
 				factory = DbProviderFactories.GetFactory(setting.ProviderName);
-				Logger.LogDebug(Messages.DiscoveredConnectionProvider, setting.Name, factory.GetType());
+				if (Logger.IsEnabled(LogLevel.Debug))
+				{
+					Logger.LogDebug(Messages.DiscoveredConnectionProvider, setting.Name, factory.GetType());
+				}
 				return CachedFactories[setting.Name] = factory;
 			}
 		}
@@ -146,7 +217,10 @@ namespace NEventStore.Persistence.Sql
 		/// <exception cref="ConfigurationErrorsException"></exception>
 		protected virtual ConnectionStringSettings GetConnectionStringSettings(string connectionName)
 		{
-			Logger.LogDebug(Messages.DiscoveringConnectionSettings, connectionName);
+			if (Logger.IsEnabled(LogLevel.Debug))
+			{
+				Logger.LogDebug(Messages.DiscoveringConnectionSettings, connectionName);
+			}
 
 			ConnectionStringSettings settings = (_connectionStringSettings
 				?? ConfigurationManager.ConnectionStrings.Cast<ConnectionStringSettings>().FirstOrDefault(x => x.Name == connectionName))
