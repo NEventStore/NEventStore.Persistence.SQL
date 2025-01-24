@@ -80,7 +80,7 @@ namespace NEventStore.Persistence.AcceptanceTests.Async
 			_thrown = await Catch.ExceptionAsync(async () =>
 			{
 				// multiple connections on a single thread
-				var eventStore = new OptimisticEventStore(Persistence, null);
+				var eventStore = new OptimisticEventStore(Persistence, null, null);
 
 				// Single transaction scope
 				using (var scope = new TransactionScope(TransactionScopeOption.Required,
@@ -246,7 +246,7 @@ namespace NEventStore.Persistence.AcceptanceTests.Async
 				Parallel.For(0, Loop, i =>
 				{
 					// multiple parallel connections (open stream is called inside the for loop)
-					var eventStore = new OptimisticEventStore(Persistence, null);
+					var eventStore = new OptimisticEventStore(Persistence, null, null);
 
 					// multiple transaction scopes: 1 for each connection
 					using (var scope = new TransactionScope(TransactionScopeOption.Required,
@@ -281,7 +281,7 @@ namespace NEventStore.Persistence.AcceptanceTests.Async
 				Parallel.ForAsync(0, Loop, CancellationToken.None, async (i, cancellationToken) =>
 				{
 					// multiple parallel connections (open stream is called inside the for loop)
-					var eventStore = new OptimisticEventStore(Persistence, null);
+					var eventStore = new OptimisticEventStore(Persistence, null, null);
 
 					// multiple transaction scopes: 1 for each connection
 					using (var scope = new TransactionScope(TransactionScopeOption.Required,
@@ -501,7 +501,7 @@ namespace NEventStore.Persistence.AcceptanceTests.Async
 			_thrown = Catch.Exception(() =>
 			{
 				// multiple parallel connections (OpenStream is called inside the parallel for)
-				var eventStore = new OptimisticEventStore(Persistence, null);
+				var eventStore = new OptimisticEventStore(Persistence, null, null);
 
 				// Single transaction scope
 				using (var scope = new TransactionScope(TransactionScopeOption.Required,
@@ -540,7 +540,7 @@ namespace NEventStore.Persistence.AcceptanceTests.Async
 			_thrown = await Catch.ExceptionAsync(async () =>
 			{
 				// multiple parallel connections (OpenStream is called inside the parallel for)
-				var eventStore = new OptimisticEventStore(Persistence, null);
+				var eventStore = new OptimisticEventStore(Persistence, null, null);
 
 				// Single transaction scope
 				using (var scope = new TransactionScope(TransactionScopeOption.Required,
