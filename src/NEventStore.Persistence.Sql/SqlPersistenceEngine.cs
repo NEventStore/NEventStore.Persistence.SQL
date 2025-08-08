@@ -212,7 +212,7 @@ namespace NEventStore.Persistence.Sql
 					query.AddParameter(_dialect.Threshold, maxThreshold);
 					return
 						query.ExecutePagedQuery(statement,
-							(q, s) => q.SetParameter(_dialect.StreamId, _dialect.CoalesceParameterValue(s.StreamId()), DbType.AnsiString)) // todo: I'm not sure this is used, the query does not have a "StreamId" parameter
+							(q, s) => { } // There is no need for next page delegate in the Snapshot stream
 							.Select(x => x.GetStreamToSnapshot());
 				});
 		}
