@@ -212,7 +212,7 @@ namespace NEventStore.Persistence.Sql
 					query.AddParameter(_dialect.Threshold, maxThreshold);
 					return
 						query.ExecutePagedQuery(statement,
-							(q, s) => { } // There is no need for next page delegate in the Snapshot stream
+							(q, s) => { }) // There is no need for next page delegate in the Snapshot stream
 							.Select(x => x.GetStreamToSnapshot());
 				});
 		}
