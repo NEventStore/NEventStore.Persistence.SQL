@@ -212,7 +212,7 @@ namespace NEventStore.Persistence.Sql
 					query.AddParameter(_dialect.Threshold, maxThreshold);
 					return
 						query.ExecutePagedQuery(statement,
-							(q, s) => { }) // No next page delegate needed - @Limit parameter is handled automatically by PagedEnumerationCollection
+							(q, s) => { }) // No next page delegate needed - @Skip parameter is handled automatically by PagedEnumerationCollection
 							.Select(x => x.GetStreamToSnapshot());
 				});
 		}
