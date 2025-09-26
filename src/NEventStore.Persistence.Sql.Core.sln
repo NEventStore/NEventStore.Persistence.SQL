@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.1.31911.260
+# Visual Studio Version 18
+VisualStudioVersion = 18.0.11018.127 d18.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NEventStore.Core", "..\dependencies\NEventStore\src\NEventStore\NEventStore.Core.csproj", "{6F7B51D5-C6F0-4D10-BCCD-E813F005BF21}"
 EndProject
@@ -48,6 +48,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docker", "docker", "{C68C81
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NEventStore.Serialization.Binary.Core", "..\dependencies\NEventStore\src\NEventStore.Serialization.Binary\NEventStore.Serialization.Binary.Core.csproj", "{F61C5A0D-19AA-A699-E2E6-6707B9455C12}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "AdditionalTests", "AdditionalTests", "{366DF2AF-DFC5-44B9-9687-8958B5B30C1F}"
+	ProjectSection(SolutionItems) = preProject
+		AdditionalTests\AdditionalPersistenceTests.Async.cs = AdditionalTests\AdditionalPersistenceTests.Async.cs
+		AdditionalTests\AdditionalPersistenceTests.cs = AdditionalTests\AdditionalPersistenceTests.cs
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
