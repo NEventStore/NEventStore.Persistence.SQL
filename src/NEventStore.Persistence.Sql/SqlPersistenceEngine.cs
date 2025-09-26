@@ -210,9 +210,10 @@ namespace NEventStore.Persistence.Sql
 					string statement = _dialect.GetStreamsRequiringSnapshots;
 					query.AddParameter(_dialect.BucketId, bucketId, DbType.AnsiString);
 					query.AddParameter(_dialect.Threshold, maxThreshold);
+					query.AddParameter(_dialect.StreamId, String.Empty, DbType.AnsiString); // (NEventStore.Persistence.Sql #54) to define the parameter for paging
 					return
 						query.ExecutePagedQuery(statement,
-							(q, s) => { }) // No next page delegate needed - @Skip parameter is handled automatically by PagedEnumerationCollection
+							(q, s) => q.SetParameter(_dialect.StreamId, _dialect.CoalesceParameterValue(s.StreamId()), DbType.AnsiString))
 							.Select(x => x.GetStreamToSnapshot());
 				});
 		}

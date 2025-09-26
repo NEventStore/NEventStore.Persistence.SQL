@@ -211,6 +211,7 @@ FROM (
     ON C.BucketId = :BucketId AND C.StreamId = S.StreamId AND C.StreamRevision &gt;= S.StreamRevision
   GROUP BY C.StreamId, C.BucketId, C.StreamIdOriginal
   HAVING MAX(C.StreamRevision) &gt;= MAX(COALESCE(S.StreamRevision, 0)) + :Threshold
+   AND C.StreamId &gt; :StreamId
   ORDER BY C.StreamId
 )
 WHERE ROWNUM &lt;= :Limit;</value>

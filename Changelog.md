@@ -7,6 +7,10 @@
   - Per-stream operations and delete: (BucketId, StreamId)
   - Snapshot join/aggregation: (StreamId, StreamRevision)
 
+### BugFix
+
+- Fixed GetStreamsToSnapshot pagination [#54](https://github.com/NEventStore/NEventStore.Persistence.SQL/issues/54)
+
 ### Breaking Changes
 
 The following indexes were added to the default schema (upon database initialization), add it manually to an existing database:
