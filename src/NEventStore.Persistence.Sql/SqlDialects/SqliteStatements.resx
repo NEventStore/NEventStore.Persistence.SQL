@@ -136,6 +136,9 @@ CREATE UNIQUE INDEX IF NOT EXISTS IX_Commits_CommitSequence ON Commits (BucketId
 CREATE UNIQUE INDEX IF NOT EXISTS IX_Commits_CommitId ON Commits (BucketId, StreamId, CommitId);
 CREATE UNIQUE INDEX IF NOT EXISTS IX_Commits_Revisions ON Commits (BucketId, StreamId, StreamRevision, Items);
 CREATE INDEX IF NOT EXISTS IX_Commits_Stamp ON Commits (CommitStamp);
+CREATE INDEX IF NOT EXISTS IX_Commits_Bucket_Checkpoint ON Commits (BucketId, CheckpointNumber);
+CREATE INDEX IF NOT EXISTS IX_Commits_Bucket_Stream ON Commits (BucketId, StreamId);
+CREATE INDEX IF NOT EXISTS IX_Commits_Bucket_Stamp ON Commits (BucketId, CommitStamp);
 
 CREATE TABLE IF NOT EXISTS Snapshots
 (
@@ -144,7 +147,8 @@ CREATE TABLE IF NOT EXISTS Snapshots
        StreamRevision int NOT NULL CHECK (StreamRevision &gt; 0),
        Payload blob NOT NULL,
        CONSTRAINT PK_Snapshots PRIMARY KEY (BucketId, StreamId, StreamRevision)
-);</value>
+);
+CREATE INDEX IF NOT EXISTS IX_Snapshots_Stream_Revision ON Snapshots (StreamId, StreamRevision);</value>
   </data>
   <data name="PersistCommit" xml:space="preserve">
     <value>INSERT INTO Commits (

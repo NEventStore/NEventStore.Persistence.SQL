@@ -126,17 +126,17 @@ INSERT INTO Snapshots
   (BucketId, StreamId, StreamRevision, Payload)  
 SELECT :BucketId, :StreamId, :StreamRevision, :Payload FROM SYS.DUAL 
 WHERE	EXISTS
-	(
+  (
     SELECT * FROM COMMITS 
     WHERE	BucketId = :BucketId AND StreamId = :StreamId
       AND	(StreamRevision - Items) &lt;= :StreamRevision
-	)
+  )
  AND NOT EXISTS
-	(
+  (
     SELECT * FROM SNAPSHOTS 
     WHERE	BucketId = :BucketId AND StreamId = :StreamId
       And	Streamrevision = :Streamrevision
-	)</value>
+  )</value>
   </data>
   <data name="DeleteStream" xml:space="preserve">
     <value>BEGIN
@@ -240,6 +240,9 @@ IF table_count = 0 THEN DBMS_OUTPUT.PUT_LINE ('Creating the Commits table');
   EXECUTE IMMEDIATE ('CREATE UNIQUE INDEX IX_Commits ON Commits (BucketId, StreamId, CommitId)');
   EXECUTE IMMEDIATE ('CREATE UNIQUE INDEX IX_Commits_Revisions ON Commits (BucketId, StreamId, StreamRevision, Items)');
   EXECUTE IMMEDIATE ('CREATE INDEX IX_Commits_Stamp ON Commits (CommitStamp)');
+  EXECUTE IMMEDIATE ('CREATE INDEX IX_Commits_Bucket_Checkpoint ON Commits (BucketId, CheckpointNumber)');
+  EXECUTE IMMEDIATE ('CREATE INDEX IX_Commits_Bucket_Stream ON Commits (BucketId, StreamId)');
+  EXECUTE IMMEDIATE ('CREATE INDEX IX_Commits_Bucket_Stamp ON Commits (BucketId, CommitStamp)');
   EXECUTE IMMEDIATE ('CREATE SEQUENCE Commit_CheckpointNumber');
   EXECUTE IMMEDIATE ('
     CREATE OR REPLACE TRIGGER Commit_CheckpointNumber_Trig 
@@ -263,6 +266,7 @@ SELECT COUNT (OBJECT_ID) INTO table_count FROM USER_OBJECTS WHERE EXISTS (
         StreamRevision NUMBER(8) CHECK (StreamRevision &gt; 0) NOT NULL, 
         Payload BLOB CHECK (LENGTH(Payload) &gt; 0) NOT NULL, 
         CONSTRAINT PK_Snapshots PRIMARY KEY (BucketId, StreamId, StreamRevision))');
+    EXECUTE IMMEDIATE ('CREATE INDEX IX_Snapshots_Stream_Revision ON Snapshots (StreamId, StreamRevision)');
   ELSE
     DBMS_OUTPUT.PUT_LINE ('The Snapshots table already exist in the database.');
   RETURN;
