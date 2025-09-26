@@ -7,7 +7,7 @@ services:
   sqlexpress:
     container_name: nesci-sqlexpress-1
     platform: linux
-    image: mcr.microsoft.com/mssql/server #@sha256:0753f9e9c614c469e1e6b98ea60b21e20abd249323c9f6a9eab476c87a8cf826
+    image: mcr.microsoft.com/mssql/server:2022-RTM-GDR1-ubuntu-20.04
     mem_limit: 2000m
     environment:
       - SA_PASSWORD=Password1

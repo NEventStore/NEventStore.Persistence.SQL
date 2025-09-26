@@ -1,5 +1,66 @@
 # NEventStore.Persistence.Sql
 
+## 10.1.0
+
+- Updated Microsoft.Data.SqlClient to version 6.1.1
+- Added indexes to optimize query performance [#38](https://github.com/NEventStore/NEventStore.Persistence.SQL/issues/38)
+  - Bucket-scoped checkpoint scans: (BucketId, CheckpointNumber)
+  - Per-stream operations and delete: (BucketId, StreamId)
+  - Snapshot join/aggregation: (StreamId, StreamRevision)
+
+### BugFix
+
+- Fixed GetStreamsToSnapshot pagination [#54](https://github.com/NEventStore/NEventStore.Persistence.SQL/issues/54)
+
+### Breaking Changes
+
+The following indexes were added to the default schema (upon database initialization), add it manually to an existing database:
+
+#### SqlServer
+
+```sql
+CREATE INDEX [IX_Commits_Bucket_Checkpoint] ON [dbo].[Commits] ([BucketId], [CheckpointNumber]);
+CREATE INDEX [IX_Commits_Bucket_Stream] ON [dbo].[Commits] ([BucketId], [StreamId]);
+CREATE INDEX [IX_Commits_Bucket_Stamp] ON dbo.Commits ([BucketId], [CommitStamp]);
+CREATE INDEX [IX_Snapshots_Stream_Revision] ON [dbo].[Snapshots] ([StreamId], [StreamRevision]);
+```
+
+#### MySql
+
+```sql
+CREATE INDEX IX_Commits_Bucket_Checkpoint ON Commits (BucketId, CheckpointNumber);
+CREATE INDEX IX_Commits_Bucket_Stream ON Commits (BucketId, StreamId);
+CREATE INDEX IX_Commits_Bucket_Stamp ON Commits (BucketId, CommitStamp);
+CREATE INDEX IX_Snapshots_Stream_Revision ON Snapshots (StreamId, StreamRevision);
+```
+
+#### Oracle
+
+```sql
+CREATE INDEX IX_Commits_Bucket_Checkpoint ON Commits (BucketId, CheckpointNumber);
+CREATE INDEX IX_Commits_Bucket_Stream ON Commits (BucketId, StreamId);
+CREATE INDEX IX_Commits_Bucket_Stamp ON Commits (BucketId, CommitStamp);
+CREATE INDEX IX_Snapshots_Stream_Revision ON Snapshots (StreamId, StreamRevision);
+```
+
+#### PostgreSql
+
+```sql
+CREATE INDEX IX_Commits_Bucket_Checkpoint ON Commits (BucketId, CheckpointNumber);
+CREATE INDEX IX_Commits_Bucket_Stream ON Commits (BucketId, StreamId);
+CREATE INDEX IX_Commits_Bucket_Stamp ON Commits (BucketId, CommitStamp);
+CREATE INDEX IX_Snapshots_Stream_Revision ON Snapshots (StreamId, StreamRevision);
+```
+
+#### SQLite
+
+```sql
+CREATE INDEX IF NOT EXISTS IX_Commits_Bucket_Checkpoint ON Commits (BucketId, CheckpointNumber);
+CREATE INDEX IF NOT EXISTS IX_Commits_Bucket_Stream ON Commits (BucketId, StreamId);
+CREATE INDEX IF NOT EXISTS IX_Commits_Bucket_Stamp ON Commits (BucketId, CommitStamp);
+CREATE INDEX IF NOT EXISTS IX_Snapshots_Stream_Revision ON Snapshots (StreamId, StreamRevision);
+```
+
 ## 10.0.0
 
 - Async methods [#51](https://github.com/NEventStore/NEventStore.Persistence.SQL/issues/51)

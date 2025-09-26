@@ -19,17 +19,17 @@
   </ItemGroup>
   -->
   <ItemGroup>
-    <PackageReference Include="System.Data.SQLite" Version="1.0.119" />
-    <PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.0" />
+    <PackageReference Include="System.Data.SQLite" Version="2.0.2" />
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.9" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net472'">
     <Reference Include="System.Transactions" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="7.0.0" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
-    <PackageReference Include="NUnit" Version="4.3.2" />
-    <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="NUnit" Version="4.4.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="5.1.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -50,6 +50,8 @@
   <ItemGroup>
     <Compile Include="..\..\dependencies\NEventStore\src\NEventStore.Persistence.AcceptanceTests\PersistenceTests.cs" Link="PersistenceTests.cs" />
     <Compile Include="..\..\dependencies\NEventStore\src\NEventStore.Persistence.AcceptanceTests\PersistenceTests.Async.cs" Link="PersistenceTests.Async.cs" />
+    <Compile Include="..\AdditionalTests\AdditionalPersistenceTests.Async.cs" Link="AdditionalPersistenceTests.Async.cs" />
+    <Compile Include="..\AdditionalTests\AdditionalPersistenceTests.cs" Link="AdditionalPersistenceTests.cs" />
   </ItemGroup>
 
   <ItemGroup>
