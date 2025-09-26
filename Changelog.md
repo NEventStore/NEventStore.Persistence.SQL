@@ -1,7 +1,8 @@
 # NEventStore.Persistence.Sql
 
-## vNext
+## 10.1.0
 
+- Updated Microsoft.Data.SqlClient to version 6.1.1
 - Added indexes to optimize query performance [#38](https://github.com/NEventStore/NEventStore.Persistence.SQL/issues/38)
   - Bucket-scoped checkpoint scans: (BucketId, CheckpointNumber)
   - Per-stream operations and delete: (BucketId, StreamId)

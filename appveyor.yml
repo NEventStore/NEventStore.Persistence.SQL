@@ -2,7 +2,7 @@ version: 1.0.{build}
 image: Visual Studio 2022
 configuration: Release
 init:
-  - ps: Start-Service MySQL80, postgresql-x64-15
+- ps: Start-Service MySQL80, postgresql-x64-15
 assembly_info:
   patch: true
   file: '**\AssemblyInfo.*'
@@ -23,11 +23,10 @@ environment:
   NEventStore.MySql: Server=localhost;Database=NEventStore;Uid=root;Pwd=Password12!;AutoEnlist=false;
   NEventStore.PostgreSql: Server=localhost;Database=NEventStore;Uid=postgres;Pwd=Password12!;Enlist=false;
   IGNORE_NORMALISATION_GIT_HEAD_MOVE: 1
-services:
-- mssql2017
+services: mssql2017
 install:
 - cmd: >-
-    choco install gitversion.portable -pre -y
+    choco install gitversion.portable -y
 
     git submodule update --init --recursive
 before_build:
@@ -87,7 +86,7 @@ test_script:
     iex "& $pgcmd"
 
 
-    nunit3-console "C:\projects\neventstore-persistence-sql\src\NEventStore.Persistence.MsSql.Tests\bin\Release\net462\NEventStore.Persistence.MsSql.Tests.dll" "C:\projects\neventstore-persistence-sql\src\NEventStore.Persistence.MySql.Tests\bin\Release\net462\NEventStore.Persistence.MySql.Tests.dll" "C:\projects\neventstore-persistence-sql\src\NEventStore.Persistence.PostgreSql.Tests\bin\Release\net462\NEventStore.Persistence.PostgreSql.Tests.dll" "C:\projects\neventstore-persistence-sql\src\NEventStore.Persistence.Sqlite.Tests\bin\Release\net462\NEventStore.Persistence.Sqlite.Tests.dll" --workers=0 --result=testsresults.xml;
+    nunit3-console "C:\projects\neventstore-persistence-sql\src\NEventStore.Persistence.MsSql.Tests\bin\Release\net472\NEventStore.Persistence.MsSql.Tests.dll" "C:\projects\neventstore-persistence-sql\src\NEventStore.Persistence.MySql.Tests\bin\Release\net472\NEventStore.Persistence.MySql.Tests.dll" "C:\projects\neventstore-persistence-sql\src\NEventStore.Persistence.PostgreSql.Tests\bin\Release\net472\NEventStore.Persistence.PostgreSql.Tests.dll" "C:\projects\neventstore-persistence-sql\src\NEventStore.Persistence.Sqlite.Tests\bin\Release\net472\NEventStore.Persistence.Sqlite.Tests.dll" --workers=0 --result=testsresults.xml;
 
 
     # upload results to AppVeyor
