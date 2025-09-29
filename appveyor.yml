@@ -41,7 +41,17 @@ before_build:
 
     gitversion /l console /output buildserver /updateassemblyinfo
 
-    gitversion ".\dependencies\NEventStore" /updateassemblyinfo /l console
+
+    # Cleanup of assemblyinfo modifications
+
+    git -C dependencies/NEventStore reset --hard
+
+
+    # todo: fix the tag!
+
+    # Attempt to stay on the current commit (it seem to increment on the current tag or select the higest tag with the same major version, have to find a way to avoid it and stick on the tag in the current commit)
+
+    gitversion ".\dependencies\NEventStore" /nofetch /nonormalize /nocache /updateassemblyinfo /l console /overrideconfig increment=None /overrideconfig commit-message-incrementing=Disabled
 build:
   project: src\NEventStore.Persistence.Sql.Core.sln
   verbosity: minimal
