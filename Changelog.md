@@ -5,6 +5,10 @@
 - Added explicit support for net8.0,net9.0,net10.0
 - Updated NEventStore 10.2.0
 - Updated Microsoft.Data.SqlClient 7.0.1
+- Updated Oracle.ManagedDataAccess 23.26.200
+- Fixed Oracle Database connector.
+  - added tests and CI support for Oracle Database (using Oracle XE in docker)
+- Research and enable Oracle integration test infrastructure [#58](https://github.com/NEventStore/NEventStore.Persistence.SQL/issues/58)
 
 ### Breaking Changes
 

@@ -13,8 +13,11 @@
     <DefineConstants Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">NUNIT</DefineConstants>
   </PropertyGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net472'">
     <PackageReference Include="Oracle.ManagedDataAccess" Version="23.26.200" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' != 'net472'">
+    <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="23.26.0" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net472'">
     <Reference Include="System.Data" />

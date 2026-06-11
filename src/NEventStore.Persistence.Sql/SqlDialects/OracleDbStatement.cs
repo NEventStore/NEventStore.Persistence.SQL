@@ -98,5 +98,15 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 			}
 			base.BuildParameter(command, name, value, dbType);
 		}
+
+		/// <inheritdoc/>
+		protected override void SetParameterValue(IDataParameter param, object value, DbType? type)
+		{
+			param.Value = value ?? DBNull.Value;
+			if (type.HasValue)
+			{
+				param.DbType = type.Value;
+			}
+		}
 	}
 }

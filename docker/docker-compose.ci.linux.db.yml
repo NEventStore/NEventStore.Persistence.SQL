@@ -53,6 +53,17 @@ services:
     ports:
       - "50004:5432"
 
+  oracle:
+    container_name: nesci-oracle-1
+    platform: linux
+    image: gvenzl/oracle-xe
+    restart: always
+    environment:
+      - ORACLE_ALLOW_REMOTE=true
+      - ORACLE_PASSWORD=Password1
+    ports:
+      - "50005:1521"
+
 #volumes:
 #  nes_sqldata_linux_ci:
 #  nes_mongodata_linux_ci:

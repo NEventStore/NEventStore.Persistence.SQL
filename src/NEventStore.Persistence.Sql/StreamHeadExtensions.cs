@@ -17,5 +17,10 @@ namespace NEventStore.Persistence.Sql
                 record[HeadRevisionIndex].ToInt(),
                 record[SnapshotRevisionIndex].ToInt());
         }
+
+        public static string StreamIdHash(this IDataRecord record)
+        {
+            return record[1].ToString();
+        }
     }
 }

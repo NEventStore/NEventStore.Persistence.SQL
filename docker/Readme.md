@@ -15,7 +15,4 @@ NEventStore.MsSql="Server=localhost,50001;Database=NEventStore;User Id=sa;Passwo
 NEventStore.MongoDB="mongodb://localhost:50002/NEventStore"
 NEventStore.MySql="Server=localhost;Port=50003;Database=NEventStore;Uid=sa;Pwd=Password1;AutoEnlist=false;"
 NEventStore.PostgreSql="Server=localhost;Port=50004;Database=NEventStore;Uid=sa;Pwd=Password1;Enlist=false;"
-
-## To be tested
-
-NEventStore.Oracle="Data Source=[host]:1521/XE;User Id=system;Password=NEventStore;Persist Security Info=True;"
+NEventStore.Oracle="Data Source=localhost:50005/XE;User Id=system;Password=Password1;Persist Security Info=True;"

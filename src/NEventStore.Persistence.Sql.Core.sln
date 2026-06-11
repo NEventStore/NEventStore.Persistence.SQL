@@ -49,6 +49,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docker", "docker", "{C68C81
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NEventStore.Serialization.Binary.Core", "..\dependencies\NEventStore\src\NEventStore.Serialization.Binary\NEventStore.Serialization.Binary.Core.csproj", "{F61C5A0D-19AA-A699-E2E6-6707B9455C12}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NEventStore.Persistence.Oracle.Core.Tests", "NEventStore.Persistence.Oracle.Tests\NEventStore.Persistence.Oracle.Core.Tests.csproj", "{E9B5C2A0-F241-C417-EFE2-69CC4C1CBB19}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -91,6 +93,10 @@ Global
 		{F61C5A0D-19AA-A699-E2E6-6707B9455C12}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F61C5A0D-19AA-A699-E2E6-6707B9455C12}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F61C5A0D-19AA-A699-E2E6-6707B9455C12}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E9B5C2A0-F241-C417-EFE2-69CC4C1CBB19}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E9B5C2A0-F241-C417-EFE2-69CC4C1CBB19}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E9B5C2A0-F241-C417-EFE2-69CC4C1CBB19}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E9B5C2A0-F241-C417-EFE2-69CC4C1CBB19}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -177,11 +177,20 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 			return new OracleDbStatement(this, scope, connection, transaction);
 		}
 		/// <inheritdoc/>
+		public override DbType GetDateTimeDbType()
+		{
+			return DbType.DateTime;
+		}
+		/// <inheritdoc/>
 		public override object CoalesceParameterValue(object value)
 		{
 			if (value is Guid guid)
 			{
 				value = guid.ToByteArray();
+			}
+			else if (value is string { Length: 0 })
+			{
+				value = " ";
 			}
 
 			return value;
@@ -246,8 +255,7 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 			{
 				object payloadParam = Activator.CreateInstance(oracleParameterType, [Payload, blobDbType]);
 				((OracleDbStatement)cmd2).AddParameter(Payload, payloadParam);
-				object oracleConnection = ((ConnectionScope)connection2).Current;
-				object oracleBlob = Activator.CreateInstance(oracleBlobType, [oracleConnection]);
+				object oracleBlob = Activator.CreateInstance(oracleBlobType, [connection2]);
 				oracleBlobWriteMethod.Invoke(oracleBlob, [payload2, 0, payload2.Length]);
 				oracleParameterValueProperty.SetValue(payloadParam, oracleBlob, null);
 			};

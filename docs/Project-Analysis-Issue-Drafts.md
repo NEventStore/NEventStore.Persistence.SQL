@@ -234,3 +234,26 @@ For implementation issues created from this document:
 3. Run `dotnet build ./src/NEventStore.Persistence.Sql.Core.sln -c Release --no-restore /p:ContinuousIntegrationBuild=true`.
 4. Run `dotnet test ./src/NEventStore.Persistence.Sql.Core.sln -c Release --no-build` when DB prerequisites are available.
 
+## Handoff Notes
+
+### Issue #58: Oracle Support And Tests
+
+Status: completed on 2026-06-11.
+
+Oracle support and tests are back. The Oracle Docker setup was validated with the `gvenzl/oracle-xe` container exposed on `localhost:50005`, using:
+
+```text
+NEventStore.Oracle="Data Source=localhost:50005/XE;User Id=system;Password=Password1;Persist Security Info=True;"
+```
+
+Implementation notes:
+
+- Modern .NET Oracle tests use `Oracle.ManagedDataAccess.Core`; `net472` keeps `Oracle.ManagedDataAccess`.
+- Oracle payload binding now uses the active `OracleConnection` directly.
+- Oracle parameter binding avoids unsupported provider `DbType` assignments and uses `DbType.DateTime` instead of `DbType.DateTime2`.
+- Oracle snapshot candidate paging was fixed so `GetStreamsToSnapshot` behaves like the other providers.
+
+Validation:
+
+- `dotnet test .\src\NEventStore.Persistence.Oracle.Tests\NEventStore.Persistence.Oracle.Core.Tests.csproj -c Release --no-build -f net8.0`
+- Result: 137 passed, 0 failed, 0 skipped.

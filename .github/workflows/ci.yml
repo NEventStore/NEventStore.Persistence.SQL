@@ -81,6 +81,7 @@ jobs:
           - postgresql
           - mysql
           - sqlite
+          - oracle
 
     services:
       postgresql:
@@ -109,11 +110,25 @@ jobs:
           --health-retries 5
         ports:
           - 3306:3306
+      
+      oracle:
+        image: gvenzl/oracle-xe:latest
+        env:
+          ORACLE_ALLOW_REMOTE: true
+          ORACLE_PASSWORD: Password12!
+        options: >-
+          --health-cmd "sqlplus -L -S / as sysdba @/dev/null"
+          --health-interval 15s
+          --health-timeout 10s
+          --health-retries 10
+        ports:
+          - 1521:1521
 
     env:
       NEventStore.PostgreSql: Server=localhost;Database=NEventStore;Uid=postgres;Pwd=Password12!;Enlist=false;
       NEventStore.MySql: Server=localhost;Database=NEventStore;Uid=root;Pwd=Password12!;AutoEnlist=false;
       NEventStore.Sqlite: Data Source=:memory:;Cache=Shared;
+      NEventStore.Oracle: Data Source=localhost:1521/XE;User Id=system;Password=Password12!;Persist Security Info=True;
 
     steps:
       - name: Checkout
