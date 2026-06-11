@@ -56,7 +56,7 @@ services:
   oracle:
     container_name: nesci-oracle-1
     platform: linux
-    image: gvenzl/oracle-xe:23
+    image: gvenzl/oracle-xe
     restart: always
     environment:
       - ORACLE_ALLOW_REMOTE=true
