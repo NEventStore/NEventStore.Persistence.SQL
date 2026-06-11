@@ -7,6 +7,9 @@ NEventStore.Persistence.Sql currently supports:
 
 - .net framework 4.6.2
 - .net standard 2.0
+- net8.0
+- net9.0
+- net10.0
 - MsSql
 - SqlLite
 - MySql

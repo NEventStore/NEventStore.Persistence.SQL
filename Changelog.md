@@ -3,7 +3,8 @@
 ## vNext
 
 - Added explicit support for net8.0,net9.0,net10.0
-- Updated NEventStore to 10.2.0
+- Updated NEventStore 10.2.0
+- Updated Microsoft.Data.SqlClient 7.0.1
 
 ### Breaking Changes
 
