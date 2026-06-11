@@ -208,7 +208,8 @@ SELECT BucketId, StreamId, StreamIdOriginal, StreamRevision, SnapshotRevision
 FROM (
   SELECT C.BucketId, C.StreamId, C.StreamIdOriginal, MAX(C.StreamRevision) AS StreamRevision, MAX(COALESCE(S.StreamRevision, 0)) AS SnapshotRevision
   FROM  Commits C LEFT OUTER JOIN Snapshots S
-    ON C.BucketId = :BucketId AND C.StreamId = S.StreamId AND C.StreamRevision &gt;= S.StreamRevision
+    ON S.BucketId = C.BucketId AND C.StreamId = S.StreamId AND C.StreamRevision &gt;= S.StreamRevision
+  WHERE C.BucketId = :BucketId
   GROUP BY C.StreamId, C.BucketId, C.StreamIdOriginal
   HAVING MAX(C.StreamRevision) &gt;= MAX(COALESCE(S.StreamRevision, 0)) + :Threshold
   ORDER BY C.StreamId

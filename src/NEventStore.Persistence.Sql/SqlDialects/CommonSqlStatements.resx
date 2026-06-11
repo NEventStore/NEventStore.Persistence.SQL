@@ -183,9 +183,10 @@ AND NOT EXISTS
     <value>SELECT C.BucketId, C.StreamId, C.StreamIdOriginal, MAX(C.StreamRevision) AS StreamRevision, MAX(COALESCE(S.StreamRevision, 0)) AS SnapshotRevision
   FROM Commits AS C
  LEFT OUTER JOIN Snapshots AS S
-    ON C.BucketId = @BucketId
+    ON S.BucketId = C.BucketId
    AND C.StreamId = S.StreamId
    AND C.StreamRevision &gt;= S.StreamRevision
+ WHERE C.BucketId = @BucketId
  GROUP BY C.StreamId, C.BucketId, C.StreamIdOriginal
 HAVING MAX(C.StreamRevision) &gt;= MAX(COALESCE(S.StreamRevision, 0)) + @Threshold
    AND C.StreamId &gt; @StreamId

@@ -10,6 +10,10 @@
   - added tests and CI support for Oracle Database (using Oracle XE in docker)
 - Research and enable Oracle integration test infrastructure [#58](https://github.com/NEventStore/NEventStore.Persistence.SQL/issues/58)
 
+### BugFix
+
+- Fix cross-bucket contamination in snapshot candidate query [#59](https://github.com/NEventStore/NEventStore.Persistence.SQL/issues/59)
+
 ### Breaking Changes
 
 - Minimum NEventStore version is now 10.2.0.

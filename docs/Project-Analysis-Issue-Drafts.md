@@ -257,3 +257,25 @@ Validation:
 
 - `dotnet test .\src\NEventStore.Persistence.Oracle.Tests\NEventStore.Persistence.Oracle.Core.Tests.csproj -c Release --no-build -f net8.0`
 - Result: 137 passed, 0 failed, 0 skipped.
+
+### Issue #59: Cross-Bucket Snapshot Candidate Query
+
+Status: completed on 2026-06-11.
+
+Snapshot candidate queries now stay bucket-scoped. `GetStreamsRequiringSnapshots` filters `Commits` by the requested bucket and joins `Snapshots` by both bucket and stream id, preventing a snapshot in bucket `b` from hiding or changing eligibility for the same stream id in bucket `a`.
+
+Implementation notes:
+
+- Added sync and async regression tests under `src/NEventStore.Persistence.Sql.Tests/` and linked them into all provider test projects.
+- The regression creates the same stream id in buckets `a` and `b`, adds a bucket `b` snapshot, and verifies bucket `a` still returns its snapshot candidate with `SnapshotRevision == 0`.
+- Applied the SQL fix to common provider SQL and Oracle SQL now that Oracle support is available.
+
+Validation:
+
+- Test-first check: SQLite focused regression failed before the SQL fix, then passed after it.
+- `dotnet test .\src\NEventStore.Persistence.Sqlite.Tests\NEventStore.Persistence.Sqlite.Core.Tests.csproj -c Release --no-build -f net8.0`
+- Result: 141 passed, 0 failed, 0 skipped.
+- `dotnet test .\src\NEventStore.Persistence.Oracle.Tests\NEventStore.Persistence.Oracle.Core.Tests.csproj -c Release -f net8.0 --no-build`
+- Result: 141 passed, 0 failed, 0 skipped.
+- `dotnet build .\src\NEventStore.Persistence.Sql.Core.sln -c Release --no-restore /p:ContinuousIntegrationBuild=true -m:1 -nr:false`
+- Result: passed.

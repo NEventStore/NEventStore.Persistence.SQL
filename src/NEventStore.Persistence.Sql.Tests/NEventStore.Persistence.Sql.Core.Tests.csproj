@@ -10,6 +10,8 @@
   <ItemGroup>
     <Compile Remove="PersistenceTests.Transactions.Async.cs" />
     <Compile Remove="PersistenceTests.Transactions.cs" />
+    <Compile Remove="PersistenceTests.Snapshots.Async.cs" />
+    <Compile Remove="PersistenceTests.Snapshots.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -19,6 +21,8 @@
   <ItemGroup>
     <None Include="PersistenceTests.Transactions.Async.cs" />
     <None Include="PersistenceTests.Transactions.cs" />
+    <None Include="PersistenceTests.Snapshots.Async.cs" />
+    <None Include="PersistenceTests.Snapshots.cs" />
   </ItemGroup>
 
   <ItemGroup>
