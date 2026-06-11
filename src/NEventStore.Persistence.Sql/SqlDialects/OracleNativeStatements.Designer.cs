@@ -159,6 +159,21 @@ namespace NEventStore.Persistence.Sql.SqlDialects {
                 return ResourceManager.GetString("GetCommitsFromInstant", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to /*GetCommitsFromToInstant*/
+        ///SELECT BucketId, StreamId, StreamIdOriginal, StreamRevision, CommitId, CommitSequence, CommitStamp, CheckpointNumber, Headers, Payload 
+        ///FROM Commits
+        ///WHERE BucketId = :BucketId
+        ///   AND CommitStamp &gt;= :CommitStampStart
+        ///   AND CommitStamp &lt; :CommitStampEnd
+        ///ORDER BY CheckpointNumber.
+        /// </summary>
+        internal static string GetCommitsFromToInstant {
+            get {
+                return ResourceManager.GetString("GetCommitsFromToInstant", resourceCulture);
+            }
+        }
         
         /// <summary>
         ///   Looks up a localized string similar to /*GetCommitsFromStartingRevision*/

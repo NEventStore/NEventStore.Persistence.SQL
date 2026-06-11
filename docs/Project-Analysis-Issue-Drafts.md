@@ -282,7 +282,7 @@ Validation:
 
 ### Issue #60: Async Infinite Page Size Empty Reads
 
-Status: completed locally on 2026-06-11. GitHub issue update is pending review.
+Status: completed on 2026-06-11.
 
 Async paged reads now complete when the configured page size is `0`. For pageable dialects, `ExecutePagedQueryAsync` still binds the SQL limit parameter with an effectively unbounded value, but keeps the local paging size at `0` so continuation does not request another page.
 
@@ -301,5 +301,31 @@ Validation:
 - Result: 143 passed, 0 failed, 0 skipped.
 - `dotnet test .\src\NEventStore.Persistence.Oracle.Tests\NEventStore.Persistence.Oracle.Core.Tests.csproj -c Release -f net8.0 --no-build --filter "FullyQualifiedName~when_reading_empty_async_pages_with_infinite_page_size"`
 - Result: 2 passed, 0 failed, 0 skipped.
+- `dotnet build .\src\NEventStore.Persistence.Sql.Core.sln -c Release --no-restore /p:ContinuousIntegrationBuild=true -m:1 -nr:false`
+- Result: passed.
+
+### Issue #61: Oracle CommitStampStart Recursion
+
+Status: completed on 2026-06-11. GitHub issue updated in comment `4681420070`.
+
+Oracle date-range reads no longer recurse while binding `CommitStampStart`. `OracleNativeDialect.CommitStampStart` now wraps `base.CommitStampStart`, matching the other Oracle parameter overrides. The Oracle dialect also now provides an Oracle-native `GetCommitsFromToInstant` statement, because the new integration coverage showed that after the recursion was fixed, Oracle was still falling back to the common `LIMIT/OFFSET` date-range SQL.
+
+Implementation notes:
+
+- Added Oracle regression coverage under `src/NEventStore.Persistence.Oracle.Tests/OracleCommitStampStartTests.cs`.
+- The direct dialect test verifies `new OracleNativeDialect().CommitStampStart` returns `:CommitStampStart`.
+- The Oracle integration test commits two events in one bucket and verifies `GetFromTo(bucketId, startDate, endDate)` returns only the commit inside the requested timestamp range.
+- The production fix is scoped to Oracle dialect parameter and date-range SQL behavior.
+
+Validation:
+
+- Test-first check: the new Oracle date-range regression crashed the test host before the fix with a stack overflow in `OracleNativeDialect.get_CommitStampStart`.
+- After the getter fix, the same regression exposed Oracle fallback to common `LIMIT/OFFSET` date-range SQL; adding the Oracle-native date-range statement fixed that provider issue.
+- `dotnet test .\src\NEventStore.Persistence.Oracle.Tests\NEventStore.Persistence.Oracle.Core.Tests.csproj -c Release -f net8.0 --no-build --filter "FullyQualifiedName~when_getting_the_oracle_commit_stamp_start_parameter"`
+- Result: 1 passed, 0 failed, 0 skipped.
+- `dotnet test .\src\NEventStore.Persistence.Oracle.Tests\NEventStore.Persistence.Oracle.Core.Tests.csproj -c Release -f net8.0 --no-restore --filter "FullyQualifiedName~CommitStampStart|FullyQualifiedName~when_reading_oracle_commits_between_commit_stamps"`
+- Result: 2 passed, 0 failed, 0 skipped.
+- `dotnet test .\src\NEventStore.Persistence.Oracle.Tests\NEventStore.Persistence.Oracle.Core.Tests.csproj -c Release -f net8.0 --no-build`
+- Result: 146 passed, 0 failed, 0 skipped.
 - `dotnet build .\src\NEventStore.Persistence.Sql.Core.sln -c Release --no-restore /p:ContinuousIntegrationBuild=true -m:1 -nr:false`
 - Result: passed.

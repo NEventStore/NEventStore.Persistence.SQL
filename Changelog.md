@@ -14,6 +14,7 @@
 
 - Fix cross-bucket contamination in snapshot candidate query [#59](https://github.com/NEventStore/NEventStore.Persistence.SQL/issues/59)
 - Fix async paged-query infinite loop when PageSize is zero [#60](https://github.com/NEventStore/NEventStore.Persistence.SQL/issues/60)
+- Fix Oracle CommitStampStart recursion [#61](https://github.com/NEventStore/NEventStore.Persistence.SQL/issues/61)
 
 ### Breaking Changes
 

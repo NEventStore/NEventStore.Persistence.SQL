@@ -54,7 +54,7 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 		/// <inheritdoc/>
 		public override string CommitStampStart
 		{
-			get { return MakeOracleParameter(CommitStampStart); }
+			get { return MakeOracleParameter(base.CommitStampStart); }
 		}
 		/// <inheritdoc/>
 		public override string DuplicateCommit
@@ -75,6 +75,11 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 		public override string GetCommitsFromInstant
 		{
 			get { return OraclePaging(OracleNativeStatements.GetCommitsFromInstant); }
+		}
+		/// <inheritdoc/>
+		public override string GetCommitsFromToInstant
+		{
+			get { return OraclePaging(OracleNativeStatements.GetCommitsFromToInstant); }
 		}
 		/// <inheritdoc/>
 		public override string GetCommitsFromCheckpoint

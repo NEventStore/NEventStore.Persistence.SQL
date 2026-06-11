@@ -167,6 +167,15 @@ FROM Commits
 WHERE BucketId = :BucketId AND CommitStamp &gt;= :CommitStamp
 ORDER BY CheckpointNumber</value>
   </data>
+  <data name="GetCommitsFromToInstant" xml:space="preserve">
+    <value>/*GetCommitsFromToInstant*/
+SELECT BucketId, StreamId, StreamIdOriginal, StreamRevision, CommitId, CommitSequence, CommitStamp, CheckpointNumber, Headers, Payload
+FROM Commits
+WHERE BucketId = :BucketId
+   AND CommitStamp &gt;= :CommitStampStart
+   AND CommitStamp &lt; :CommitStampEnd
+ORDER BY CheckpointNumber</value>
+  </data>
   <data name="GetCommitsFromStartingRevision" xml:space="preserve">
     <value>/*GetCommitsFromStartingRevision*/
 SELECT BucketId, StreamId, StreamIdOriginal, StreamRevision, CommitId, CommitSequence, CommitStamp, CheckpointNumber, Headers, Payload
