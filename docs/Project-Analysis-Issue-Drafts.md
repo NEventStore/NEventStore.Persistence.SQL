@@ -279,3 +279,27 @@ Validation:
 - Result: 141 passed, 0 failed, 0 skipped.
 - `dotnet build .\src\NEventStore.Persistence.Sql.Core.sln -c Release --no-restore /p:ContinuousIntegrationBuild=true -m:1 -nr:false`
 - Result: passed.
+
+### Issue #60: Async Infinite Page Size Empty Reads
+
+Status: completed locally on 2026-06-11. GitHub issue update is pending review.
+
+Async paged reads now complete when the configured page size is `0`. For pageable dialects, `ExecutePagedQueryAsync` still binds the SQL limit parameter with an effectively unbounded value, but keeps the local paging size at `0` so continuation does not request another page.
+
+Implementation notes:
+
+- Added async regression coverage under `src/NEventStore.Persistence.Sql.Tests/PersistenceTests.InfinitePageSize.Async.cs` and linked it into all provider test projects.
+- The regression initializes the provider fixture with page size `0` and verifies both `GetFromAsync(0, observer, token)` and `GetFromAsync(Bucket.Default, 0, observer, token)` complete over an empty store.
+- The production fix is scoped to async paged reads in `CommonDbStatement`; sync paging behavior was left unchanged.
+
+Validation:
+
+- Test-first check: SQLite focused regression failed before the fix with missing `@Limit` binding for page size `0`, then passed after the fix.
+- `dotnet test .\src\NEventStore.Persistence.Sqlite.Tests\NEventStore.Persistence.Sqlite.Core.Tests.csproj -c Release -f net8.0 --filter "FullyQualifiedName~when_reading_empty_async_pages_with_infinite_page_size"`
+- Result: 2 passed, 0 failed, 0 skipped.
+- `dotnet test .\src\NEventStore.Persistence.Sqlite.Tests\NEventStore.Persistence.Sqlite.Core.Tests.csproj -c Release --no-build -f net8.0`
+- Result: 143 passed, 0 failed, 0 skipped.
+- `dotnet test .\src\NEventStore.Persistence.Oracle.Tests\NEventStore.Persistence.Oracle.Core.Tests.csproj -c Release -f net8.0 --no-build --filter "FullyQualifiedName~when_reading_empty_async_pages_with_infinite_page_size"`
+- Result: 2 passed, 0 failed, 0 skipped.
+- `dotnet build .\src\NEventStore.Persistence.Sql.Core.sln -c Release --no-restore /p:ContinuousIntegrationBuild=true -m:1 -nr:false`
+- Result: passed.

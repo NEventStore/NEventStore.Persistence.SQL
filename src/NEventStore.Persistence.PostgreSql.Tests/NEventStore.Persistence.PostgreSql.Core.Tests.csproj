@@ -43,6 +43,7 @@
   <ItemGroup>
     <Compile Include="..\..\dependencies\NEventStore\src\NEventStore.Persistence.AcceptanceTests\PersistenceTests.cs" Link="PersistenceTests.cs" />
     <Compile Include="..\..\dependencies\NEventStore\src\NEventStore.Persistence.AcceptanceTests\PersistenceTests.Async.cs" Link="PersistenceTests.Async.cs" />
+    <Compile Include="..\NEventStore.Persistence.Sql.Tests\PersistenceTests.InfinitePageSize.Async.cs" Link="PersistenceTests.InfinitePageSize.Async.cs" />
     <Compile Include="..\NEventStore.Persistence.Sql.Tests\PersistenceTests.Snapshots.cs" Link="PersistenceTests.Snapshots.cs" />
     <Compile Include="..\NEventStore.Persistence.Sql.Tests\PersistenceTests.Snapshots.Async.cs" Link="PersistenceTests.Snapshots.Async.cs" />
   </ItemGroup>

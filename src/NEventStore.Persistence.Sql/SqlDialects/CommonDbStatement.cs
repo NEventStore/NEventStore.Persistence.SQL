@@ -331,13 +331,13 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 		public async Task ExecutePagedQueryAsync(string queryText, NextPageDelegate nextPage, IAsyncObserver<IDataRecord> asyncObserver, CancellationToken cancellationToken)
 		{
 			int pageSize = Dialect.CanPage ? PageSize : InfinitePageSize;
-			if (pageSize > 0)
+			if (Dialect.CanPage)
 			{
 				if (Logger.IsEnabled(LogLevel.Trace))
 				{
 					Logger.LogTrace(Messages.MaxPageSize, pageSize);
 				}
-				Parameters.Add(Dialect.Limit, Tuple.Create((object)pageSize, (DbType?)null));
+				Parameters.Add(Dialect.Limit, Tuple.Create((object)(pageSize > 0 ? pageSize : int.MaxValue), (DbType?)null));
 			}
 			Parameters.Add(Dialect.Skip, Tuple.Create((object)0, (DbType?)null));
 			using (var command = BuildCommand(queryText))
@@ -369,7 +369,7 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 							}
 						}
 					}
-					while (Dialect.CanPage && recordsRead == PageSize);
+					while (Dialect.CanPage && pageSize > 0 && recordsRead == pageSize);
 
 					await asyncObserver.OnCompletedAsync(cancellationToken).ConfigureAwait(false);
 				}
