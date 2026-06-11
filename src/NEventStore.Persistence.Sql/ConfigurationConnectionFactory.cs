@@ -1,5 +1,5 @@
 // netstandard does not have support for DbFactoryProviders, we need a totally different way to initialize the driver
-#if NET462
+#if NET462_OR_GREATER
 
 using System;
 using System.Collections.Generic;

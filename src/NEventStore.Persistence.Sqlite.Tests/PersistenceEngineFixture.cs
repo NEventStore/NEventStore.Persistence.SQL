@@ -11,7 +11,7 @@ namespace NEventStore.Persistence.AcceptanceTests
 #if NET8_0_OR_GREATER
 			AppContext.SetSwitch("System.Runtime.Serialization.EnableUnsafeBinaryFormatterSerialization", true);
 #endif
-#if NET462
+#if NET462_OR_GREATER
 			_createPersistence = pageSize =>
 			{
 				var serializer = new BinarySerializer();

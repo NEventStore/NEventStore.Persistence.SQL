@@ -13,12 +13,12 @@ namespace NEventStore.Persistence.AcceptanceTests.Async
 #if NET8_0_OR_GREATER
             AppContext.SetSwitch("System.Runtime.Serialization.EnableUnsafeBinaryFormatterSerialization", true);
 #endif
-#if NET462
-            _createPersistence = pageSize =>
+#if NET462_OR_GREATER
+			_createPersistence = pageSize =>
             {
                 var serializer = new BinarySerializer();
                 return new SqlPersistenceFactory(
-                    new EnviromentConnectionFactory("MySql", "MySql.Data.MySqlClient"),
+                    new EnvironmentConnectionFactory("MySql", "MySql.Data.MySqlClient"),
                     serializer,
                     new DefaultEventSerializer(serializer),
                     new MySqlDialect(),

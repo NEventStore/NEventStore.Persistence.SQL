@@ -14,7 +14,7 @@ namespace NEventStore.Persistence.Sql
 		private const int DefaultPageSize = 128;
 		private readonly TransactionScopeOption? _scopeOption;
 
-#if NET462
+#if NET462_OR_GREATER
 		/// <summary>
 		/// Initializes a new instance of the <see cref="SqlPersistenceFactory"/> class.
 		/// </summary>
@@ -101,7 +101,7 @@ namespace NEventStore.Persistence.Sql
 			return new SqlPersistenceEngine(ConnectionFactory, Dialect, Serializer, EventSerializer, PageSize, StreamIdHasher, _scopeOption);
 		}
 
-#if NET462
+#if NET462_OR_GREATER
 		/// <summary>
 		/// Resolves the SQL dialect based on the connection string settings.
 		/// </summary>

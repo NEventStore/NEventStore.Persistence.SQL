@@ -15,12 +15,12 @@ namespace NEventStore.Persistence.AcceptanceTests
 			// It will be done when creating the PostgreNpgsql6Dialect dialect
 			// AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
-#if NET462
+#if NET462_OR_GREATER
 			_createPersistence = pageSize =>
 			{
 				var serializer = new BinarySerializer();
 				return new SqlPersistenceFactory(
-					new EnviromentConnectionFactory("PostgreSql", "Npgsql"),
+					new EnvironmentConnectionFactory("PostgreSql", "Npgsql"),
 					serializer,
 					new DefaultEventSerializer(serializer),
 					new PostgreNpgsql6Dialect(npgsql6timestamp: true),

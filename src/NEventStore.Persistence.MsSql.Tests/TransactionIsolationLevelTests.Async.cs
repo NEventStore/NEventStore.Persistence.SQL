@@ -2,7 +2,7 @@
 using System.Data.Common;
 using System.Transactions;
 using FluentAssertions;
-#if NET462
+#if NET462_OR_GREATER
 using NEventStore.Diagnostics;
 #endif
 using NEventStore.Persistence.AcceptanceTests.BDD;
@@ -136,7 +136,7 @@ namespace NEventStore.Persistence.AcceptanceTests.Async
 				_persistence.Drop();
 				_persistence.Dispose();
 			}
-#if NET462
+#if NET462_OR_GREATER
 			_persistence = new PerformanceCounterPersistenceEngine(_createPersistence(), "tests");
 #else
 			_persistence = _createPersistence();

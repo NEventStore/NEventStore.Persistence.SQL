@@ -12,7 +12,7 @@ namespace NEventStore.Persistence.Sql
 	/// </summary>
 	public class ThreadScope<T> : IDisposable where T : class
 	{
-#if NET462
+#if NET462_OR_GREATER
 		private readonly HttpContext _context = HttpContext.Current;
 #endif
 
@@ -134,7 +134,7 @@ namespace NEventStore.Persistence.Sql
 
 		private T? Load()
 		{
-#if NET462
+#if NET462_OR_GREATER
 			if (_context != null)
 			{
 				return _context.Items[_threadKey] as T;
@@ -145,7 +145,7 @@ namespace NEventStore.Persistence.Sql
 
 		private void Store(T? value)
 		{
-#if NET462
+#if NET462_OR_GREATER
 			if (_context != null)
 			{
 				_context.Items[_threadKey] = value;
