@@ -18,8 +18,8 @@ Build Status
 
 Branches:
 
-- master [![Build status](https://ci.appveyor.com/api/projects/status/5difan7hap8vwhwe/branch/master?svg=true)](https://ci.appveyor.com/project/AGiorgetti/neventstore-persistence-sql/branch/master)
-- develop [![Build status](https://ci.appveyor.com/api/projects/status/5difan7hap8vwhwe/branch/develop?svg=true)](https://ci.appveyor.com/project/AGiorgetti/neventstore-persistence-sql/branch/develop)
+- master [![master](https://github.com/NEventStore/NEventStore.Persistence.SQL/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/NEventStore/NEventStore.Persistence.SQL/actions/workflows/ci.yml)
+- develop [![develop](https://github.com/NEventStore/NEventStore.Persistence.SQL/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/NEventStore/NEventStore.Persistence.SQL/actions/workflows/ci.yml)
 
 ## PostgreSQL Warning
 

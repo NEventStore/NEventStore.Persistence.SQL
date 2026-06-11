@@ -1,5 +1,14 @@
 # NEventStore.Persistence.Sql
 
+## vNext
+
+- Added explicit support for net8.0,net9.0,net10.0
+- Updated NEventStore to 10.2.0
+
+### Breaking Changes
+
+- Minimum NEventStore version is now 10.2.0.
+
 ## 10.1.0
 
 - Updated Microsoft.Data.SqlClient to version 6.1.1
