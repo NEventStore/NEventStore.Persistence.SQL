@@ -1,6 +1,6 @@
 # NEventStore.Persistence.Sql
 
-## vNext
+## 10.2.0
 
 - Added explicit support for net8.0,net9.0,net10.0
 - Updated NEventStore 10.2.0
