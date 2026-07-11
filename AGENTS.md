@@ -89,6 +89,15 @@ See [build.ps1](build.ps1), [appveyor.yml](appveyor.yml), and [README.md](README
 
 Use [docker/Readme.md](docker/Readme.md) and [README.md](README.md) as the source of truth for environment setup.
 
+## Isolated Database Environments
+
+- Work only inside the assigned Git worktree.
+- Use the repository `start-environment` and `stop-environment` scripts; use a dynamic environment by default.
+- Do not use the reserved `debug`, `test`, or `ci` environments unless the task explicitly requires one.
+- Never commit `.env.dynamic`, `.env.debug`, `.env.test`, or `.env.ci`.
+- Never use global Docker cleanup commands.
+- Do not stop, remove, inspect for mutation, or otherwise modify another worktree's Compose environment.
+
 ## Repository Map
 
 - Core persistence library: `src/NEventStore.Persistence.Sql/`
