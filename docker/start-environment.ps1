@@ -4,10 +4,7 @@ param(
 	[string] $EnvironmentName
 )
 
-if ($args.Count -gt 0) {
-	throw 'Only one environment name may be provided.'
-}
-
+if ($args.Count -gt 0) { throw 'Only one environment name may be provided.' }
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
@@ -18,113 +15,55 @@ $maximumEnvironmentNameLength = 48
 
 function Normalize-EnvironmentName {
 	param([Parameter(Mandatory)][string] $Value)
-
-	$normalized = $Value.ToLowerInvariant()
-	$normalized = [Regex]::Replace($normalized, '[^a-z0-9]+', '-')
-	$normalized = $normalized.Trim('-')
-
-	if ([string]::IsNullOrWhiteSpace($normalized)) {
-		throw "Environment name '$Value' does not contain any supported characters."
-	}
-
-	if ($normalized.Length -gt $maximumEnvironmentNameLength) {
-		$normalized = $normalized.Substring(0, $maximumEnvironmentNameLength).TrimEnd('-')
-	}
-
+	$normalized = [Regex]::Replace($Value.ToLowerInvariant(), '[^a-z0-9]+', '-').Trim('-')
+	if ([string]::IsNullOrWhiteSpace($normalized)) { throw "Environment name '$Value' does not contain any supported characters." }
+	if ($normalized.Length -gt $maximumEnvironmentNameLength) { $normalized = $normalized.Substring(0, $maximumEnvironmentNameLength).TrimEnd('-') }
 	return $normalized
 }
 
 function Invoke-DockerCompose {
-	param(
-		[Parameter(Mandatory)][string[]] $Arguments,
-		[switch] $CaptureOutput
-	)
-
+	param([Parameter(Mandatory)][string[]] $Arguments, [switch] $CaptureOutput)
 	$allArguments = $script:composeArguments + $Arguments
-	if ($CaptureOutput) {
-		$output = & docker @allArguments
-	} else {
-		& docker @allArguments
-	}
-
-	if ($LASTEXITCODE -ne 0) {
-		throw "Docker Compose failed with exit code $LASTEXITCODE."
-	}
-
-	if ($CaptureOutput) {
-		return $output
-	}
+	if ($CaptureOutput) { $output = & docker @allArguments } else { & docker @allArguments }
+	if ($LASTEXITCODE -ne 0) { throw "Docker Compose failed with exit code $LASTEXITCODE." }
+	if ($CaptureOutput) { return $output }
 }
 
 function Get-AssignedPort {
-	param(
-		[Parameter(Mandatory)][string] $Service,
-		[Parameter(Mandatory)][int] $ContainerPort
-	)
-
+	param([Parameter(Mandatory)][string] $Service, [Parameter(Mandatory)][int] $ContainerPort)
 	$endpoint = (Invoke-DockerCompose -Arguments @('port', $Service, $ContainerPort.ToString()) -CaptureOutput | Select-Object -Last 1).Trim()
 	$match = [Regex]::Match($endpoint, ':(\d+)$')
-
-	if (-not $match.Success) {
-		throw "Unable to determine the host port for ${Service}:${ContainerPort} from '$endpoint'."
-	}
-
+	if (-not $match.Success) { throw "Unable to determine the host port for ${Service}:${ContainerPort} from '$endpoint'." }
 	return $match.Groups[1].Value
 }
 
-if ([string]::IsNullOrWhiteSpace($EnvironmentName)) {
-	$EnvironmentName = Split-Path -Leaf $repositoryRoot
-}
-
+if ([string]::IsNullOrWhiteSpace($EnvironmentName)) { $EnvironmentName = Split-Path -Leaf $repositoryRoot }
 $normalizedEnvironmentName = Normalize-EnvironmentName $EnvironmentName
-$portMode = if ($normalizedEnvironmentName -in @('debug', 'test')) { $normalizedEnvironmentName } else { 'dynamic' }
+$portMode = if ($normalizedEnvironmentName -in @('debug', 'test', 'ci')) { $normalizedEnvironmentName } else { 'dynamic' }
 $projectName = "$projectPrefix-$normalizedEnvironmentName"
-$baseComposeFile = Join-Path $scriptDirectory 'docker-compose.yml'
-$overrideComposeFile = Join-Path $scriptDirectory "docker-compose.$portMode.yml"
 $envFile = Join-Path $repositoryRoot '.env'
-$script:composeArguments = @(
-	'compose',
-	'--project-name', $projectName,
-	'--file', $baseComposeFile,
-	'--file', $overrideComposeFile
-)
+$script:composeArguments = @('compose', '--project-name', $projectName, '--file', (Join-Path $scriptDirectory 'docker-compose.yml'), '--file', (Join-Path $scriptDirectory "docker-compose.$portMode.yml"))
 
 & docker compose version *> $null
-if ($LASTEXITCODE -ne 0) {
-	throw "Docker Compose v2 is required. Ensure 'docker compose' is available."
-}
+if ($LASTEXITCODE -ne 0) { throw "Docker Compose v2 is required. Ensure 'docker compose' is available." }
 
 Write-Host "Starting '$projectName' using $portMode ports..."
 Invoke-DockerCompose -Arguments @('up', '--detach', '--wait')
-
-Invoke-DockerCompose -Arguments @(
-	'exec', '-T', 'sqlexpress',
-	'/opt/mssql-tools/bin/sqlcmd',
-	'-S', 'localhost',
-	'-U', 'sa',
-	'-P', 'Password1',
-	'-Q', "IF DB_ID(N'NEventStore') IS NULL CREATE DATABASE [NEventStore];"
-)
+$databasePassword = (Invoke-DockerCompose -Arguments @('exec', '-T', 'sqlexpress', 'printenv', 'MSSQL_SA_PASSWORD') -CaptureOutput | Select-Object -Last 1).Trim()
+Invoke-DockerCompose -Arguments @('exec', '-T', 'sqlexpress', '/opt/mssql-tools/bin/sqlcmd', '-S', 'localhost', '-U', 'sa', '-P', $databasePassword, '-Q', "IF DB_ID(N'NEventStore') IS NULL CREATE DATABASE [NEventStore];")
 
 $sqlServerPort = Get-AssignedPort -Service 'sqlexpress' -ContainerPort 1433
 $mySqlPort = Get-AssignedPort -Service 'mysql' -ContainerPort 3306
 $postgreSqlPort = Get-AssignedPort -Service 'postgres' -ContainerPort 5432
 $oraclePort = Get-AssignedPort -Service 'oracle' -ContainerPort 1521
-
 $connectionStrings = @(
 	"# Generated by docker/start-environment.ps1 for environment '$normalizedEnvironmentName'.",
-	"NEventStore.MsSql=Server=127.0.0.1,$sqlServerPort;Database=NEventStore;User Id=sa;Password=Password1;TrustServerCertificate=True;",
-	"NEventStore.MySql=Server=127.0.0.1;Port=$mySqlPort;Database=NEventStore;Uid=sa;Pwd=Password1;AutoEnlist=false;",
-	"NEventStore.PostgreSql=Server=127.0.0.1;Port=$postgreSqlPort;Database=NEventStore;Uid=sa;Pwd=Password1;Enlist=false;",
-	"NEventStore.Oracle=Data Source=127.0.0.1:$oraclePort/XE;User Id=system;Password=Password1;Persist Security Info=True;"
+	"NEventStore.MsSql=Server=127.0.0.1,$sqlServerPort;Database=NEventStore;User Id=sa;Password=$databasePassword;TrustServerCertificate=True;",
+	"NEventStore.MySql=Server=127.0.0.1;Port=$mySqlPort;Database=NEventStore;Uid=sa;Pwd=$databasePassword;AutoEnlist=false;",
+	"NEventStore.PostgreSql=Server=127.0.0.1;Port=$postgreSqlPort;Database=NEventStore;Uid=sa;Pwd=$databasePassword;Enlist=false;",
+	"NEventStore.Oracle=Data Source=127.0.0.1:$oraclePort/XE;User Id=system;Password=$databasePassword;Persist Security Info=True;"
 )
-
-$utf8WithoutBom = [System.Text.UTF8Encoding]::new($false)
-[System.IO.File]::WriteAllText($envFile, ($connectionStrings -join [Environment]::NewLine) + [Environment]::NewLine, $utf8WithoutBom)
-
-Write-Host
+[System.IO.File]::WriteAllText($envFile, ($connectionStrings -join [Environment]::NewLine) + [Environment]::NewLine, [System.Text.UTF8Encoding]::new($false))
 Write-Host "Environment: $normalizedEnvironmentName"
 Write-Host "Compose project: $projectName"
 Write-Host "Connection strings written to: $envFile"
-Write-Host
-$connectionStrings | Select-Object -Skip 1 | ForEach-Object { Write-Host $_ }
