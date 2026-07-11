@@ -1,0 +1,13 @@
+services:
+  sqlexpress:
+    ports:
+      - "127.0.0.1:50001:1433"
+  mysql:
+    ports:
+      - "127.0.0.1:50003:3306"
+  postgres:
+    ports:
+      - "127.0.0.1:50004:5432"
+  oracle:
+    ports:
+      - "127.0.0.1:50005:1521"
