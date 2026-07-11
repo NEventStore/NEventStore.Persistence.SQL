@@ -5,18 +5,21 @@ namespace NEventStore.Persistence.Sql.Tests
 {
 	public class EnvironmentConnectionFactory : IConnectionFactory
 	{
+		private readonly string _envDatabaseName;
 		private readonly string _envVarKey;
 		private readonly DbProviderFactory _dbProviderFactory;
 
 #if NET462_OR_GREATER
 		public EnvironmentConnectionFactory(string envDatabaseName, string providerInvariantName)
 		{
+			_envDatabaseName = envDatabaseName;
 			_envVarKey = string.Format("NEventStore.{0}", envDatabaseName);
 			_dbProviderFactory = DbProviderFactories.GetFactory(providerInvariantName);
 		}
 #endif
 		public EnvironmentConnectionFactory(string envDatabaseName, DbProviderFactory dbProviderFactory)
 		{
+			_envDatabaseName = envDatabaseName;
 			_envVarKey = string.Format("NEventStore.{0}", envDatabaseName);
 			_dbProviderFactory = dbProviderFactory;
 		}
@@ -40,21 +43,7 @@ namespace NEventStore.Persistence.Sql.Tests
 
 		private DbConnection OpenInternal()
 		{
-			var connectionString = Environment.GetEnvironmentVariable(_envVarKey, EnvironmentVariableTarget.Process);
-			if (connectionString == null)
-			{
-				string message =
-					string.Format(
-								  "Failed to get '{0}' environment variable. Please ensure " +
-									  "you have correctly setup the connection string environment variables. Refer to the " +
-									  "NEventStore wiki for details.",
-						_envVarKey);
-				throw new InvalidOperationException(message);
-			}
-			connectionString = connectionString.TrimStart('"').TrimEnd('"');
-			var connection = _dbProviderFactory.CreateConnection();
-			Debug.Assert(connection != null, "connection == null");
-			connection!.ConnectionString = connectionString;
+			var connection = CreateConnection();
 			try
 			{
 				connection.Open();
@@ -68,21 +57,7 @@ namespace NEventStore.Persistence.Sql.Tests
 
 		private async Task<DbConnection> OpenInternalAsync(CancellationToken cancellationToken)
 		{
-			var connectionString = Environment.GetEnvironmentVariable(_envVarKey, EnvironmentVariableTarget.Process);
-			if (connectionString == null)
-			{
-				string message =
-					string.Format(
-								  "Failed to get '{0}' environment variable. Please ensure " +
-									  "you have correctly setup the connection string environment variables. Refer to the " +
-									  "NEventStore wiki for details.",
-						_envVarKey);
-				throw new InvalidOperationException(message);
-			}
-			connectionString = connectionString.TrimStart('"').TrimEnd('"');
-			var connection = _dbProviderFactory.CreateConnection();
-			Debug.Assert(connection != null, "connection == null");
-			connection!.ConnectionString = connectionString;
+			var connection = CreateConnection();
 			try
 			{
 				await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
@@ -91,6 +66,28 @@ namespace NEventStore.Persistence.Sql.Tests
 			{
 				throw new StorageUnavailableException(e.Message, e);
 			}
+			return connection;
+		}
+
+		private DbConnection CreateConnection()
+		{
+			var connectionString = Environment.GetEnvironmentVariable(_envVarKey, EnvironmentVariableTarget.Process);
+			if (string.IsNullOrWhiteSpace(connectionString))
+			{
+				connectionString = EnvironmentFileConnectionString.TryBuild(_envDatabaseName);
+			}
+
+			if (string.IsNullOrWhiteSpace(connectionString))
+			{
+				throw new InvalidOperationException(
+					string.Format(
+						"Failed to get '{0}' and the selected .env file was not found. Start the database environment or define the existing connection-string environment variable.",
+						_envVarKey));
+			}
+
+			var connection = _dbProviderFactory.CreateConnection();
+			Debug.Assert(connection != null, "connection == null");
+			connection!.ConnectionString = connectionString.TrimStart('"').TrimEnd('"');
 			return connection;
 		}
 	}
