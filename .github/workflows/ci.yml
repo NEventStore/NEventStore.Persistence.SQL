@@ -98,7 +98,7 @@ jobs:
 
       - name: Start CI database environment
         shell: bash
-        run: ./docker/start-environment.sh ci
+        run: bash ./docker/start-environment.sh ci
 
       - name: Run tests for ${{ matrix.tfm }}
         run: dotnet test ./src/NEventStore.Persistence.Sql.Core.sln -c Release -f ${{ matrix.tfm }} --logger "trx;LogFileName=test-results-${{ matrix.tfm }}.trx"
@@ -115,4 +115,4 @@ jobs:
       - name: Stop CI database environment
         if: always()
         shell: bash
-        run: ./docker/stop-environment.sh ci --remove-data
+        run: bash ./docker/stop-environment.sh ci --remove-data
