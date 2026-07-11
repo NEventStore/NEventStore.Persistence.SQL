@@ -10,19 +10,9 @@ $environmentName = $null
 
 function Normalize-EnvironmentName {
 	param([Parameter(Mandatory)][string] $Value)
-
-	$normalized = $Value.ToLowerInvariant()
-	$normalized = [Regex]::Replace($normalized, '[^a-z0-9]+', '-')
-	$normalized = $normalized.Trim('-')
-
-	if ([string]::IsNullOrWhiteSpace($normalized)) {
-		throw "Environment name '$Value' does not contain any supported characters."
-	}
-
-	if ($normalized.Length -gt $maximumEnvironmentNameLength) {
-		$normalized = $normalized.Substring(0, $maximumEnvironmentNameLength).TrimEnd('-')
-	}
-
+	$normalized = [Regex]::Replace($Value.ToLowerInvariant(), '[^a-z0-9]+', '-').Trim('-')
+	if ([string]::IsNullOrWhiteSpace($normalized)) { throw "Environment name '$Value' does not contain any supported characters." }
+	if ($normalized.Length -gt $maximumEnvironmentNameLength) { $normalized = $normalized.Substring(0, $maximumEnvironmentNameLength).TrimEnd('-') }
 	return $normalized
 }
 
@@ -38,25 +28,13 @@ foreach ($argument in $args) {
 	}
 }
 
-if ([string]::IsNullOrWhiteSpace($environmentName)) {
-	$environmentName = Split-Path -Leaf $repositoryRoot
-}
-
+if ([string]::IsNullOrWhiteSpace($environmentName)) { $environmentName = Split-Path -Leaf $repositoryRoot }
 $normalizedEnvironmentName = Normalize-EnvironmentName $environmentName
-$portMode = if ($normalizedEnvironmentName -in @('debug', 'test')) { $normalizedEnvironmentName } else { 'dynamic' }
+$portMode = if ($normalizedEnvironmentName -in @('debug', 'test', 'ci')) { $normalizedEnvironmentName } else { 'dynamic' }
 $projectName = "$projectPrefix-$normalizedEnvironmentName"
-$composeArguments = @(
-	'compose',
-	'--project-name', $projectName,
-	'--file', (Join-Path $scriptDirectory 'docker-compose.yml'),
-	'--file', (Join-Path $scriptDirectory "docker-compose.$portMode.yml"),
-	'down'
-)
-
+$composeArguments = @('compose', '--project-name', $projectName, '--file', (Join-Path $scriptDirectory 'docker-compose.yml'), '--file', (Join-Path $scriptDirectory "docker-compose.$portMode.yml"), 'down')
 if ($removeData) { $composeArguments += '--volumes' }
 
 Write-Host "Stopping '$projectName'..."
 & docker @composeArguments
-if ($LASTEXITCODE -ne 0) {
-	throw "Docker Compose failed with exit code $LASTEXITCODE."
-}
+if ($LASTEXITCODE -ne 0) { throw "Docker Compose failed with exit code $LASTEXITCODE." }
