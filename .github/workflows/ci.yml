@@ -68,9 +68,6 @@ jobs:
       - name: Build solution
         run: dotnet build ./src/NEventStore.Persistence.Sql.Core.sln -c Release --no-restore /p:ContinuousIntegrationBuild=True
 
-  # Tests run on Linux with database services (PostgreSQL, MySQL, SQLite).
-  # Each database provider runs independently to isolate failures and validate
-  # database-specific persistence logic.
   test-sql-databases:
     needs: build
     name: Test (Linux, ${{ matrix.tfm }})
@@ -78,77 +75,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Run each modern TFM independently so failures are isolated and easy to read.
         tfm:
           - net8.0
           - net9.0
           - net10.0
 
-    services:
-      sqlexpress:
-        image: mcr.microsoft.com/mssql/server:2022-RTM-GDR1-ubuntu-20.04
-        env:
-          SA_PASSWORD: Password12!
-          ACCEPT_EULA: Y
-          MSSQL_PID: Express
-        options: >-
-          --health-cmd "/opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P 'Password12!' -Q 'SELECT 1'"
-          --health-interval 20s
-          --health-timeout 10s
-          --health-retries 10
-          --health-start-period 30s
-        ports:
-          - 1433:1433
-
-      postgresql:
-        image: postgres:15-alpine
-        env:
-          POSTGRES_DB: NEventStore
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: Password12!
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 20s
-          --health-timeout 10s
-          --health-retries 10
-          --health-start-period 30s
-        ports:
-          - 5432:5432
-      
-      mysql:
-        image: mysql:8
-        env:
-          MYSQL_DATABASE: NEventStore
-          MYSQL_ROOT_PASSWORD: Password12!
-        options: >-
-          --health-cmd "mysqladmin ping -h localhost"
-          --health-interval 20s
-          --health-timeout 10s
-          --health-retries 10
-          --health-start-period 30s
-        ports:
-          - 3306:3306
-      
-      oracle:
-        image: gvenzl/oracle-xe
-        env:
-          ORACLE_ALLOW_REMOTE: true
-          ORACLE_PASSWORD: Password12!
-        options: >-
-          --health-cmd "sqlplus -L -S / as sysdba @/dev/null"
-          --health-interval 25s
-          --health-timeout 10s
-          --health-retries 10
-          --health-start-period 30s
-        ports:
-          - 1521:1521
-
     env:
-      NEventStore.MsSql: Server=localhost;Database=NEventStore;User Id=SA;Password=Password12!;TrustServerCertificate=True;
-      NEventStore.PostgreSql: Server=localhost;Database=NEventStore;Uid=postgres;Pwd=Password12!;Enlist=false;
-      NEventStore.MySql: Server=localhost;Database=NEventStore;Uid=root;Pwd=Password12!;AutoEnlist=false;
+      NEVENTSTORE_ENVIRONMENT: ci
       NEventStore.Sqlite: Data Source=:memory:;Cache=Shared;
-      NEventStore.Oracle: Data Source=localhost:1521/XE;User Id=system;Password=Password12!;Persist Security Info=True;
 
     steps:
       - name: Checkout
@@ -174,43 +108,20 @@ jobs:
           restore-keys: |
             nuget-${{ runner.os }}-
 
-      - name: Create NEventStore database once SQL Server is healthy
+      - name: Start isolated CI database environment
         shell: bash
-        run: |
-          set -euo pipefail
-
-          # Find the SQL Server service container by ancestor image (more reliable in GH Actions)
-          container_id="$(/usr/bin/docker ps --filter "ancestor=mcr.microsoft.com/mssql/server:2022-RTM-GDR1-ubuntu-20.04" --format "{{.ID}}" | head -n 1)"
-          if [ -z "$container_id" ]; then
-            echo "SQL Server service container not found."
-            /usr/bin/docker ps --format "{{.ID}} {{.Image}} {{.Names}}" || true
-            exit 1
-          fi
-
-          # Wait until container reports healthy
-          for i in $(seq 1 60); do
-            health_status="$(/usr/bin/docker inspect --format='{{.State.Health.Status}}' "$container_id" 2>/dev/null || echo starting)"
-            if [ "$health_status" = "healthy" ]; then
-              echo "SQL Server container healthy"
-              break
-            fi
-            echo "Waiting for SQL Server to be healthy: $health_status ($i/60)"
-            sleep 2
-          done
-
-          if [ "$health_status" != "healthy" ]; then
-            echo "SQL Server container is not healthy. Logs follow (last 200 lines):"
-            /usr/bin/docker logs "$container_id" --tail 200 || true
-            exit 1
-          fi
-
-          # Create database using sqlcmd inside the container
-          /usr/bin/docker exec "$container_id" /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P "Password12!" -Q "IF DB_ID(N'NEventStore') IS NULL CREATE DATABASE [NEventStore];"
+        run: bash ./start-environment.sh ci
 
       - name: Run tests for ${{ matrix.tfm }}
         run: dotnet test ./src/NEventStore.Persistence.Sql.Core.sln -c Release -f ${{ matrix.tfm }} --logger "trx;LogFileName=test-results-${{ matrix.tfm }}.trx"
 
+      - name: Stop CI database environment
+        if: always()
+        shell: bash
+        run: bash ./stop-environment.sh ci --remove-data
+
       - name: Upload test results
+        if: always()
         uses: actions/upload-artifact@v7
         with:
           name: test-results-${{ matrix.tfm }}
