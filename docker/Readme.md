@@ -19,7 +19,7 @@ Run the platform-specific script from any directory:
 ```
 
 ```bash
-./docker/start-environment.sh
+bash ./docker/start-environment.sh
 ```
 
 Without an argument, the environment name is derived from the worktree directory. The name is normalized and dynamic host ports are assigned automatically.
@@ -27,22 +27,23 @@ Without an argument, the environment name is derived from the worktree directory
 An explicit dynamic environment can be started with:
 
 ```bash
-./docker/start-environment.sh issue-142
+bash ./docker/start-environment.sh issue-142
 ```
 
-Two reserved environment names use predictable ports:
+Three reserved environment names use predictable ports:
 
 ```bash
-./docker/start-environment.sh debug
-./docker/start-environment.sh test
+bash ./docker/start-environment.sh debug
+bash ./docker/start-environment.sh test
+bash ./docker/start-environment.sh ci
 ```
 
-| Database | Debug | Test |
-| --- | ---: | ---: |
-| SQL Server | 50001 | 51001 |
-| MySQL | 50003 | 51003 |
-| PostgreSQL | 50004 | 51004 |
-| Oracle | 50005 | 51005 |
+| Database | Debug | Test | CI |
+| --- | ---: | ---: | ---: |
+| SQL Server | 50001 | 51001 | 52001 |
+| MySQL | 50003 | 51003 | 52003 |
+| PostgreSQL | 50004 | 51004 | 52004 |
+| Oracle | 50005 | 51005 | 52005 |
 
 The start script waits for the services to become healthy, creates the SQL Server `NEventStore` database when necessary, retrieves the assigned ports, and writes the resulting connection strings to the repository-root `.env` file.
 
@@ -53,13 +54,13 @@ The generated `.env` file is excluded from Git. Test projects load it automatica
 Data is preserved by default:
 
 ```bash
-./docker/stop-environment.sh issue-142
+bash ./docker/stop-environment.sh issue-142
 ```
 
 Remove only the selected environment's named volumes with:
 
 ```bash
-./docker/stop-environment.sh issue-142 --remove-data
+bash ./docker/stop-environment.sh issue-142 --remove-data
 ```
 
 The PowerShell scripts accept the same environment names and behavior:
@@ -68,17 +69,25 @@ The PowerShell scripts accept the same environment names and behavior:
 ./docker/stop-environment.ps1 issue-142 --remove-data
 ```
 
-## Agent usage
+## Agent and CI usage
 
 Agents should normally use a dynamic environment derived from their worktree or task:
 
 ```bash
-./docker/start-environment.sh issue-142
+bash ./docker/start-environment.sh issue-142
 dotnet test ./src/NEventStore.Persistence.Sql.Core.sln
-./docker/stop-environment.sh issue-142
+bash ./docker/stop-environment.sh issue-142
 ```
 
-Agents should not use `debug` or `test` unless explicitly instructed because those names reserve predictable ports for human workflows.
+Agents should not use `debug`, `test`, or `ci` unless explicitly instructed. `debug` and `test` reserve predictable ports for human workflows; `ci` is reserved for GitHub Actions.
+
+GitHub Actions starts the same stack through:
+
+```bash
+bash ./docker/start-environment.sh ci
+```
+
+Each test-matrix job runs on its own hosted runner, so the fixed CI ports do not collide between jobs. The workflow stops the stack with `--remove-data` in an `always()` cleanup step.
 
 ## Compose files
 
@@ -86,5 +95,6 @@ Agents should not use `debug` or `test` unless explicitly instructed because tho
 - `docker-compose.dynamic.yml` publishes each service on an automatically assigned local port.
 - `docker-compose.debug.yml` publishes the fixed debug ports.
 - `docker-compose.test.yml` publishes the fixed test ports.
+- `docker-compose.ci.yml` publishes the fixed GitHub Actions CI ports.
 
 The Compose files intentionally do not define `container_name`; Compose derives resource names from the project name.
