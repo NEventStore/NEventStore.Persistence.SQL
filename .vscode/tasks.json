@@ -4,7 +4,7 @@
 		{
 			"label": "Docker Up",
 			"options": {
-				"cwd": "${workspaceFolder}/docker/"
+				"cwd": "${workspaceFolder}"
 			},
 			"type": "shell",
 			"command": "powershell",
@@ -12,8 +12,8 @@
 				"-ExecutionPolicy",
 				"Bypass",
 				"-File",
-				"${workspaceFolder}/docker/DockerComposeUp.ps1",
-				"linux"
+				"${workspaceFolder}/docker/start-environment.ps1",
+				"debug"
 			],
 			"presentation": {
 				"echo": true,
@@ -26,7 +26,7 @@
 		{
 			"label": "Docker Down",
 			"options": {
-				"cwd": "${workspaceFolder}/docker/"
+				"cwd": "${workspaceFolder}"
 			},
 			"type": "shell",
 			"command": "powershell",
@@ -34,8 +34,8 @@
 				"-ExecutionPolicy",
 				"Bypass",
 				"-File",
-				"${workspaceFolder}/docker/DockerComposeDown.ps1",
-				"linux"
+				"${workspaceFolder}/docker/stop-environment.ps1",
+				"debug"
 			],
 			"presentation": {
 				"echo": true,

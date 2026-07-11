@@ -40,18 +40,7 @@ namespace NEventStore.Persistence.Sql.Tests
 
 		private DbConnection OpenInternal()
 		{
-			var connectionString = Environment.GetEnvironmentVariable(_envVarKey, EnvironmentVariableTarget.Process);
-			if (connectionString == null)
-			{
-				string message =
-					string.Format(
-								  "Failed to get '{0}' environment variable. Please ensure " +
-									  "you have correctly setup the connection string environment variables. Refer to the " +
-									  "NEventStore wiki for details.",
-						_envVarKey);
-				throw new InvalidOperationException(message);
-			}
-			connectionString = connectionString.TrimStart('"').TrimEnd('"');
+			var connectionString = GetConnectionString();
 			var connection = _dbProviderFactory.CreateConnection();
 			Debug.Assert(connection != null, "connection == null");
 			connection!.ConnectionString = connectionString;
@@ -68,18 +57,7 @@ namespace NEventStore.Persistence.Sql.Tests
 
 		private async Task<DbConnection> OpenInternalAsync(CancellationToken cancellationToken)
 		{
-			var connectionString = Environment.GetEnvironmentVariable(_envVarKey, EnvironmentVariableTarget.Process);
-			if (connectionString == null)
-			{
-				string message =
-					string.Format(
-								  "Failed to get '{0}' environment variable. Please ensure " +
-									  "you have correctly setup the connection string environment variables. Refer to the " +
-									  "NEventStore wiki for details.",
-						_envVarKey);
-				throw new InvalidOperationException(message);
-			}
-			connectionString = connectionString.TrimStart('"').TrimEnd('"');
+			var connectionString = GetConnectionString();
 			var connection = _dbProviderFactory.CreateConnection();
 			Debug.Assert(connection != null, "connection == null");
 			connection!.ConnectionString = connectionString;
@@ -92,6 +70,25 @@ namespace NEventStore.Persistence.Sql.Tests
 				throw new StorageUnavailableException(e.Message, e);
 			}
 			return connection;
+		}
+
+		private string GetConnectionString()
+		{
+			DotEnvFile.Load();
+
+			var connectionString = Environment.GetEnvironmentVariable(_envVarKey, EnvironmentVariableTarget.Process);
+			if (connectionString == null)
+			{
+				string message =
+					string.Format(
+								  "Failed to get '{0}' environment variable. Please ensure " +
+									  "you have correctly setup the connection string environment variables or run " +
+									  "docker/start-environment for this worktree.",
+						_envVarKey);
+				throw new InvalidOperationException(message);
+			}
+
+			return connectionString.TrimStart('"').TrimEnd('"');
 		}
 	}
 }

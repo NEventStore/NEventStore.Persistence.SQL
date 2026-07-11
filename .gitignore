@@ -114,3 +114,4 @@ UpgradeLog*.XML
 # Custom
 artifacts/
 .tokensave/
+.env

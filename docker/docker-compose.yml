@@ -1,0 +1,79 @@
+services:
+  sqlexpress:
+    platform: linux/amd64
+    image: mcr.microsoft.com/mssql/server:2022-RTM-GDR1-ubuntu-20.04
+    mem_limit: 2g
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: Express
+      MSSQL_SA_PASSWORD: Password1
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "$$MSSQL_SA_PASSWORD" -Q "SELECT 1" || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+    volumes:
+      - sqlserver-data:/var/opt/mssql
+
+  mysql:
+    platform: linux/amd64
+    image: mysql:8.0
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: Password1
+      MYSQL_DATABASE: NEventStore
+      MYSQL_USER: sa
+      MYSQL_PASSWORD: Password1
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - mysqladmin ping -h localhost -uroot -p"$$MYSQL_ROOT_PASSWORD" --silent
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+  postgres:
+    platform: linux/amd64
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_PASSWORD: Password1
+      POSTGRES_USER: sa
+      POSTGRES_DB: NEventStore
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 10s
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  oracle:
+    platform: linux/amd64
+    image: gvenzl/oracle-xe:21-slim
+    environment:
+      ORACLE_PASSWORD: Password1
+    healthcheck:
+      test:
+        - CMD
+        - healthcheck.sh
+      interval: 15s
+      timeout: 10s
+      retries: 40
+      start_period: 60s
+    volumes:
+      - oracle-data:/opt/oracle/oradata
+
+volumes:
+  sqlserver-data:
+  mysql-data:
+  postgres-data:
+  oracle-data:
