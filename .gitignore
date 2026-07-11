@@ -114,3 +114,9 @@ UpgradeLog*.XML
 # Custom
 artifacts/
 .tokensave/
+
+# Generated local database environment configuration
+.env.dynamic
+.env.debug
+.env.test
+.env.ci
