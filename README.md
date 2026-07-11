@@ -57,17 +57,30 @@ To build the project locally on a Windows Machine:
 - Optional: update `.\src\.nuget\NEventStore.Persistence.Sql.nuspec` file if needed (before creating relase packages).
 - Open a Powershell console in Administrative mode and run the build script `build.ps1` in the root of the repository.
 
-## How to Run Unit Tests (locally)
+## How to Run Tests (locally)
 
-- Install Database engines or use Docker to run them in a container (you can use the scripts in `./docker` folder).
-- Define the following environment variables:
+Start the complete Linux-container database environment from the repository root. With no explicit name, the script derives a dynamic environment from the current Git worktree directory and Docker assigns collision-free host ports.
 
-  ```
-  NEventStore.MsSql="Server=localhost,50001;Database=NEventStore;User Id=sa;Password=Password1;TrustServerCertificate=True;"
-  NEventStore.MySql="Server=localhost;Port=50003;Database=NEventStore;Uid=sa;Pwd=Password1;AutoEnlist=false;"
-  NEventStore.PostgreSql="Server=localhost;Port=50004;Database=NEventStore;Uid=sa;Pwd=Password1;Enlist=false;"
-  NEventStore.Oracle="Data Source=localhost:50005/XE;User Id=system;Password=Password1;Persist Security Info=True;"
-  ```
+```bash
+./start-environment.sh
+NEVENTSTORE_ENVIRONMENT=dynamic dotnet test ./src/NEventStore.Persistence.Sql.Core.sln
+./stop-environment.sh
+```
+
+PowerShell equivalents are also provided:
+
+```powershell
+./start-environment.ps1
+$env:NEVENTSTORE_ENVIRONMENT = 'dynamic'
+dotnet test ./src/NEventStore.Persistence.Sql.Core.sln
+./stop-environment.ps1
+```
+
+Reserved `debug`, `test`, and `ci` environments use predictable ports and may run concurrently. Explicit dynamic names such as `issue-142` are also supported. Normal stop preserves database volumes; pass `--remove-data` to the stop script to remove only the selected environment's data.
+
+Successful starts generate one ignored local configuration file (`.env.dynamic`, `.env.debug`, `.env.test`, or `.env.ci`). Tests compose provider connection strings from that selected file. Existing complete connection-string environment variables remain supported and take precedence.
+
+See [docker/Readme.md](docker/Readme.md) for commands, fixed ports, naming, generated values, and safety behavior.
 
 ## How to contribute
 
@@ -81,19 +94,15 @@ This repository uses GitFlow to develop, if you are not familiar with GitFlow yo
 
 ### Installing and configuring Git Flow
 
-Probably the most straightforward way to install GitFlow on your machine is installing [Git Command Line](https://git-for-windows.github.io/), then install the [Visual Studio Plugin for Git-Flow](https://visualstudiogallery.msdn.microsoft.com/27f6d087-9b6f-46b0-b236-d72907b54683). This plugin is accessible from the **Team Explorer** menu and allows you to install GitFlow extension directly from Visual Studio with a simple click. The installer installs standard GitFlow extension both for command line and for Visual Studio Plugin.
-
-Once installed you can use GitFlow right from Visual Studio or from Command line, which one you prefer.
+Probably the most straightforward way to install GitFlow on your machine is installing [Git Command Line](https://git-for-windows.github.io/), then install the [Visual Studio Plugin for Git-Flow](https://visualstudiogallery.msdn.microsoft.com/vsgallery/27f6f087-9b6f-46b0-b236-d72907b54683). This plugin is accessible from the **Team Explorer** menu and allows you to install GitFlow extension directly for both command line and Visual Studio.
 
 ### Build machine and GitVersion
 
-Build machine uses [GitVersion](https://github.com/GitTools/GitVersion) to manage automatic versioning of assemblies and Nuget Packages. You need to be aware that there are a rule that does not allow you to directly commit on master, or the build will fail. 
-
-A commit on master can be done only following the [Git-Flow](http://nvie.com/posts/a-successful-git-branching-model/) model, as a result of a new release coming from develop, or with an hotfix. 
+Build machine uses [GitVersion](https://github.com/GitTools/GitVersion) to manage automatic versioning of assemblies and Nuget Packages. Direct commits on master are not allowed by the build. A commit on master should only result from the repository's GitFlow release or hotfix process.
 
 ### Quick Info for NEventstore projects
 
-Just clone the repository and from command line checkout develop branch with 
+Just clone the repository and from command line checkout develop branch with
 
 ```
 git checkout develop
@@ -109,17 +118,6 @@ You can leave all values as default. Now your repository is GitFlow enabled.
 
 ### Note on Nuget version on Nuspec
 
-Remember to update `.\src\.nuget\NEventStore.Persistence.Sql.nuspec` file if needed (before creating relase packages).
+Remember to update `.\src\.nuget\NEventStore.Persistence.Sql.nuspec` if needed before creating release packages.
 
-The .nuspec file is needed because the new `dotnet pack` command has problems dealing with ProjectReferences, submodules get the wrong version number.
-
-While we are on develop branch, (suppose we just bumped major number so the driver version number is 6.0.0-unstablexxxx), we need to declare that this persistence driver depends from a version greater than the latest published. If the latest version of NEventStore 5.x.x wave iw 5.4.0 we need to declare this package dependency as
-
-(5.4, 7)
-
-This means, that we need a NEventStore greater than the latest published, but lesser than the next main version. This allows version 6.0.0-unstable of NEventStore to satisfy the dependency. We remember that prerelease package are considered minor than the stable package. Es.
-
-5.4.0
-5.4.1
-6.0.0-unstable00001
-6.0.0
+The `.nuspec` file is needed because `dotnet pack` has problems dealing with ProjectReferences where submodules get the wrong version number.
