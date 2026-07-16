@@ -1,0 +1,22 @@
+{
+  "name": "NEventStore Persistence SQL",
+  "dockerComposeFile": "compose.yaml",
+  "service": "workspace",
+  "workspaceFolder": "/workspaces/NEventStore.Persistence.SQL",
+  "shutdownAction": "none",
+  "remoteUser": "vscode",
+  "postCreateCommand": "dotnet tool restore && dotnet restore ./src/NEventStore.Persistence.Sql.Core.sln --verbosity m",
+  "hostRequirements": {
+    "cpus": 4,
+    "memory": "12gb",
+    "storage": "30gb"
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-dotnettools.csdevkit",
+        "ms-azuretools.vscode-docker"
+      ]
+    }
+  }
+}
